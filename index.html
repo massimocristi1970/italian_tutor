@@ -771,7 +771,7 @@
         }
 
         /**
-         * Converts TTS API response (PCM) into playable audio.
+         * Converts TTS API response (PCM) into playable audio using the basic Audio element.
          */
         function ttsToAudio(audioData, mimeType) {
             if (!audioData || !mimeType) {
@@ -788,7 +788,7 @@
             const audioUrl = URL.createObjectURL(wavBlob);
 
             const audio = new Audio(audioUrl);
-            audio.play(); // Reverting to simple play() which works on Android
+            audio.play(); // Simple, direct playback
             
             // Revoke the blob URL when done to free up memory
             audio.onended = () => URL.revokeObjectURL(audioUrl);
@@ -852,7 +852,7 @@
                     const mimeType = part?.inlineData?.mimeType;
 
                     if (audioData && mimeType) {
-                        // Reverted to simple ttsToAudio call
+                        // The simple, direct playback call
                         ttsToAudio(audioData, mimeType);
                     } else {
                         throw new Error("TTS response missing audio data.");
@@ -1078,7 +1078,7 @@
                     const mimeType = part?.inlineData?.mimeType;
 
                     if (audioData && mimeType) {
-                        // Reverted to simple ttsToAudio call
+                        // The simple, direct playback call
                         ttsToAudio(audioData, mimeType); 
                     } else {
                         throw new Error("TTS response missing audio data.");
