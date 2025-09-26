@@ -277,9 +277,11 @@
         ];
 
         let currentPhrases = italianPhrases;
-        let currentPhrase = null;
+        // The structure of currentPhrase will match the static format { en, it, mastered } OR the dynamic format { en, it, topic }
+        let currentPhrase = null; 
         let isAuthReady = false;
         let userId = null; 
+        let isGeneratingPhrase = false;
         const masteredThreshold = 2;
         
         // Check if db is initialized before creating ref functions
@@ -503,10 +505,16 @@
 
         // --- Tutor Mode Logic ---
 
-        function updateMasteryIndicator(masteryCount) {
+        function updateMasteryIndicator(masteryCount, isDynamic = false) {
+             if (isDynamic) {
+                 masteryIndicator.textContent = `Dynamic Phrase (Topic: ${currentPhrase.topic})`;
+                 masteryIndicator.classList.add('text-blue-500');
+                 masteryIndicator.classList.remove('text-amber-500', 'text-green-500');
+                 return;
+             }
              const stars = Array(masteryCount).fill('⭐').join('');
              masteryIndicator.textContent = `Mastery: ${stars} (${masteryCount}/${masteredThreshold})`;
-             masteryIndicator.classList.remove('text-amber-500', 'text-green-500');
+             masteryIndicator.classList.remove('text-amber-500', 'text-green-500', 'text-blue-500');
              if (masteryCount >= masteredThreshold) {
                  masteryIndicator.classList.add('text-green-500');
              } else if (masteryCount > 0) {
@@ -514,23 +522,112 @@
              }
         }
 
+        /**
+         * Uses Gemini to generate a new, dynamic flashcard phrase in JSON format.
+         */
+        async function generateDynamicPhrase() {
+            isGeneratingPhrase = true;
+            tutorSystemMessageElement.textContent = "Generating a new phrase with AI...";
+            tutorSystemMessageElement.classList.add('opacity-100', 'text-blue-500');
+            
+            phraseEnElement.textContent = '<i class="fas fa-spinner fa-spin"></i>';
+            phraseItElement.textContent = '';
+            answerInput.value = '';
+            
+            // Disable buttons during generation
+            checkBtn.disabled = true;
+            revealBtn.disabled = true;
+            tutorListenBtn.disabled = true;
+
+            const languageName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
+            const userQuery = `Generate a useful intermediate phrase in English and its accurate, idiomatic translation into ${languageName}. Also provide a short topic.`;
+            
+            // Structure the response to ensure we get a usable flashcard
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "englishPhrase": { "type": "STRING" },
+                            "translation": { "type": "STRING" },
+                            "topic": { "type": "STRING" }
+                        },
+                        "propertyOrdering": ["englishPhrase", "translation", "topic"]
+                    }
+                }
+            };
+
+            let generatedData = null;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    const response = await fetch(GEMINI_TEXT_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 429 && attempt < 2) {
+                        const delay = Math.pow(2, attempt) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`API returned status ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const jsonString = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    generatedData = JSON.parse(jsonString);
+                    break;
+                } catch (error) {
+                    console.error("Dynamic Phrase Generation Error:", error);
+                }
+            }
+
+            // Reset UI state
+            checkBtn.disabled = false;
+            revealBtn.disabled = false;
+            tutorListenBtn.disabled = false;
+            isGeneratingPhrase = false;
+            tutorSystemMessageElement.classList.remove('opacity-100');
+
+            if (generatedData && generatedData.englishPhrase && generatedData.translation) {
+                currentPhrase = {
+                    en: generatedData.englishPhrase,
+                    it: generatedData.translation,
+                    topic: generatedData.topic || 'General' // Use a default topic
+                };
+                
+                phraseEnElement.textContent = currentPhrase.en;
+                phraseItElement.textContent = currentPhrase.it;
+                updateMasteryIndicator(0, true); // Indicate dynamic phrase
+            } else {
+                currentPhrase = { en: "Error generating phrase.", it: "Errore.", topic: "Error" };
+                phraseEnElement.textContent = "Could not generate phrase. Try again or check the API key.";
+                phraseItElement.textContent = currentPhrase.it;
+                updateMasteryIndicator(0, true); 
+                tutorSystemMessageElement.textContent = "AI Generation failed.";
+                tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
+            }
+        }
+
+
         function loadNextPhrase() {
             if (!isAuthReady && !userId) {
                 phraseEnElement.textContent = "Authenticating...";
                 return;
             }
             
-            // Find the least mastered phrase (simple spaced repetition)
+            // Find the least mastered static phrase (simple spaced repetition)
             const availablePhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
             
             if (availablePhrases.length === 0) {
-                tutorSystemMessageElement.textContent = `You've mastered all ${currentPhrases.length} phrases! Resetting...`;
-                tutorSystemMessageElement.classList.add('opacity-100', 'text-green-500');
-                tutorSystemMessageElement.classList.remove('text-red-500');
-                // Reset all progress
-                currentPhrases.forEach(p => p.mastered = 0);
-                saveProgress(); // This will trigger loadProgress() via onSnapshot
-                setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 2000);
+                // All static phrases mastered, switch to AI generation
+                generateDynamicPhrase();
+                return;
             }
 
             // Simple randomization among the least mastered group
@@ -558,22 +655,26 @@
         }
 
         function checkAnswer() {
+            if (isGeneratingPhrase) return;
+
             const userAnswer = answerInput.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
             const correctAnswer = currentPhrase.it.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
 
             if (userAnswer === correctAnswer) {
                 tutorFeedbackElement.textContent = 'Correct! Molto bene!';
                 tutorFeedbackElement.classList.add('text-green-500');
-                tutorFeedbackElement.classList.remove('text-red-500');
+                tutorFeedbackElement.classList.remove('text-red-500', 'text-blue-500');
                 
                 answerInput.classList.add('correct-answer-input');
                 answerInput.classList.remove('border-red-500');
                 
-                // Update progress and save
-                currentPhrase.mastered = (currentPhrase.mastered || 0) + 1;
-                saveProgress();
-                updateMasteryIndicator(currentPhrase.mastered); // Update indicator immediately
-
+                // Only update and save progress for STATIC phrases
+                if (currentPhrase.mastered !== undefined) {
+                    currentPhrase.mastered = (currentPhrase.mastered || 0) + 1;
+                    saveProgress();
+                    updateMasteryIndicator(currentPhrase.mastered); // Update indicator immediately
+                }
+                
                 // Show Next button
                 checkBtn.classList.add('hidden');
                 revealBtn.classList.add('hidden');
@@ -581,7 +682,7 @@
             } else {
                 tutorFeedbackElement.textContent = 'Incorrect. Try again!';
                 tutorFeedbackElement.classList.add('text-red-500');
-                tutorFeedbackElement.classList.remove('text-green-500');
+                tutorFeedbackElement.classList.remove('text-green-500', 'text-blue-500');
                 answerInput.classList.add('border-red-500');
                 answerInput.classList.remove('correct-answer-input');
             }
@@ -596,9 +697,6 @@
             tutorFeedbackElement.textContent = `The correct answer is: ${currentPhrase.it}`;
             tutorFeedbackElement.classList.add('text-blue-500');
             tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
-            
-            // Do not increment mastery on reveal, but save the fact that the user viewed it (optional)
-            // For now, we will just move on.
         }
         
         // TTS Utility functions (PCM to WAV conversion)
@@ -679,7 +777,8 @@
             tutorListenBtn.disabled = true;
 
             const language = languageSelect.value;
-            const voiceName = language === 'italian' ? 'Kore' : 'Charon';
+            // Using different voices for Italian vs Sicilian
+            const voiceName = language === 'italian' ? 'Kore' : 'Charon'; 
             
             // API Key check
             if (!API_KEY && typeof __app_id === 'undefined') { // If not in canvas and key is missing
@@ -756,6 +855,7 @@
         revealBtn.addEventListener('click', revealAnswer);
         tutorListenBtn.addEventListener('click', () => {
             if (!currentPhrase) return;
+            // If it's a dynamic phrase, the content is in currentPhrase.it
             const textToSpeak = currentPhrase.it;
             fetchTutorTTS(textToSpeak);
         });
