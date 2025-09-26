@@ -123,7 +123,11 @@
     <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-sm sm:max-w-lg transition-colors duration-500 dark:bg-gray-800">
         <!-- Header with language selection and user ID -->
         <div class="flex items-center justify-between mb-6 flex-wrap">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center flex-grow dark:text-gray-100">Language Tutor</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center flex-grow dark:text-gray-100 flex items-center justify-center">
+                <!-- Dynamic Flag/Indicator -->
+                <span id="language-flag" class="mr-2 text-2xl">🇮🇹</span>
+                <span id="app-title">Language Tutor</span>
+            </h1>
             <select id="language-select" class="bg-gray-200 text-gray-800 p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-gray-100 mt-2 sm:mt-0">
                 <option value="italian">Italian</option>
                 <option value="sicilian">Sicilian</option>
@@ -222,7 +226,11 @@
         const tutorFeedbackElement = document.getElementById('tutor-feedback');
         const tutorSystemMessageElement = document.getElementById('tutor-system-message');
         const userIdDisplay = document.getElementById('user-id-display');
-        const masteryIndicator = document.getElementById('mastery-indicator'); // New element
+        const masteryIndicator = document.getElementById('mastery-indicator');
+        
+        // Header elements for flag update
+        const languageFlag = document.getElementById('language-flag');
+        const appTitle = document.getElementById('app-title');
 
         // Chat section elements
         const chatWindow = document.getElementById('chat-window');
@@ -289,7 +297,6 @@
         const chatHistoryDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
 
         // API Key and URLs
-        // !!! CRITICAL FIX: IF RUNNING OUTSIDE OF CANVAS, PASTE YOUR GEMINI API KEY HERE !!!
         const API_KEY = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; // Updated with user's key
         const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
         const GEMINI_TTS_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + API_KEY;
@@ -297,6 +304,17 @@
         let chatHistory = [];
         let isWaitingForResponse = false;
 
+        function updateFlagDisplay(language) {
+            if (language === 'italian') {
+                languageFlag.textContent = '🇮🇹';
+                appTitle.textContent = 'Language Tutor';
+            } else if (language === 'sicilian') {
+                // Using a visual indicator for Sicilian as no standard emoji exists
+                languageFlag.textContent = '🏛️'; 
+                appTitle.textContent = 'Sicilian Tutor';
+            }
+        }
+        
         function switchMode(mode) {
             if (mode === 'tutor') {
                 tutorSection.classList.remove('hidden');
@@ -320,7 +338,9 @@
         tutorModeBtn.addEventListener('click', () => switchMode('tutor'));
         chatModeBtn.addEventListener('click', () => switchMode('chat'));
         languageSelect.addEventListener('change', () => {
-            currentPhrases = languageSelect.value === 'italian' ? italianPhrases : sicilianPhrases;
+            const selectedLanguage = languageSelect.value;
+            currentPhrases = selectedLanguage === 'italian' ? italianPhrases : sicilianPhrases;
+            updateFlagDisplay(selectedLanguage); // Update flag
             loadProgress(); // Reload progress and chat history when language changes
             if (!tutorSection.classList.contains('hidden')) {
                 loadNextPhrase();
@@ -1071,8 +1091,10 @@
 
         // --- Initial Load ---
         window.onload = () => {
-            currentPhrases = languageSelect.value === 'italian' ? italianPhrases : sicilianPhrases;
+            const initialLanguage = languageSelect.value;
+            currentPhrases = initialLanguage === 'italian' ? italianPhrases : sicilianPhrases;
             phraseEnElement.textContent = "Loading...";
+            updateFlagDisplay(initialLanguage); // Set the flag on load
         };
 
     </script>
