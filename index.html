@@ -72,8 +72,7 @@
         const CANVAS_FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
         
-        // !!! USER ACTION REQUIRED: THIS IS YOUR PROJECT'S CONFIGURATION !!!
-        // NOTE: The Firebase Console configuration must allow Anonymous Sign-in for this to work.
+        // YOUR FIREBASE CONFIGURATION (Replaced placeholder values)
         const USER_FIREBASE_CONFIG = {
             apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0", 
             authDomain: "italiantutorapp.firebaseapp.com",
@@ -98,7 +97,7 @@
             auth = getAuth(app);
             db = getFirestore(app);
         } catch (e) {
-            console.error("Firebase Initialization Failed. Did you replace the placeholder config?", e);
+            console.error("Firebase Initialization Failed. Check the console for configuration errors.", e);
             app = null; auth = { currentUser: null, onAuthStateChanged: (cb) => cb(null) }; db = null;
         }
         
@@ -142,6 +141,9 @@
         <div id="tutor-section" class="text-center">
             <!-- System message/alert container -->
             <div id="tutor-system-message" class="text-center font-semibold text-sm mb-4 h-6 opacity-0 transition-opacity duration-500 text-gray-800 dark:text-gray-100"></div>
+
+            <!-- New Mastery Indicator -->
+            <div id="mastery-indicator" class="text-sm font-semibold text-amber-500 mb-2 h-6"></div>
 
             <!-- Flashcard content -->
             <div class="h-40 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700">
@@ -220,6 +222,7 @@
         const tutorFeedbackElement = document.getElementById('tutor-feedback');
         const tutorSystemMessageElement = document.getElementById('tutor-system-message');
         const userIdDisplay = document.getElementById('user-id-display');
+        const masteryIndicator = document.getElementById('mastery-indicator'); // New element
 
         // Chat section elements
         const chatWindow = document.getElementById('chat-window');
@@ -276,7 +279,6 @@
         let currentPhrases = italianPhrases;
         let currentPhrase = null;
         let isAuthReady = false;
-        /** FIX: Declare userId in scope to prevent ReferenceError before auth listener fires */
         let userId = null; 
         const masteredThreshold = 2;
         
@@ -285,7 +287,8 @@
         const chatHistoryDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
 
         // API Key and URLs
-        const API_KEY = "";
+        // !!! CRITICAL FIX: IF RUNNING OUTSIDE OF CANVAS, PASTE YOUR GEMINI API KEY HERE !!!
+        const API_KEY = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; // Updated with user's key
         const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
         const GEMINI_TTS_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + API_KEY;
         
@@ -319,6 +322,9 @@
             loadProgress(); // Reload progress and chat history when language changes
             if (!tutorSection.classList.contains('hidden')) {
                 loadNextPhrase();
+            }
+            if (!chatSection.classList.contains('hidden')) {
+                loadChatHistory();
             }
         });
 
@@ -357,6 +363,7 @@
             const languageKey = languageSelect.value;
 
             onSnapshot(progressDocRef(), (docSnapshot) => {
+                let initialLoad = true;
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();
                     const progressData = data[languageKey] || [];
@@ -365,19 +372,25 @@
                         const savedPhrase = progressData.find(p => p.en === phrase.en);
                         if (savedPhrase) {
                             phrase.mastered = savedPhrase.mastered || 0;
+                        } else {
+                            // If a phrase is missing in saved data, ensure it is initialized to 0
+                            phrase.mastered = 0;
                         }
                     });
                 } else {
                     // Initialize document if it doesn't exist
                     saveProgress();
                 }
-                // Only load next phrase if we are in tutor mode
-                if (!tutorSection.classList.contains('hidden')) {
+                
+                // Only load next phrase if we are in tutor mode and it's the initial load
+                if (initialLoad && !tutorSection.classList.contains('hidden')) {
                     loadNextPhrase();
                 }
+                initialLoad = false;
+
             }, (error) => {
                 console.error("Error listening to progress: ", error);
-                tutorSystemMessageElement.textContent = "Error loading progress.";
+                tutorSystemMessageElement.textContent = "Error loading progress. Check console for 400 errors and Firebase Rules.";
                 tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
             });
         }
@@ -403,8 +416,18 @@
                     ...existingData, 
                     [languageKey]: progressData 
                 }, { merge: true });
+
+                // Provide visual feedback for saving
+                tutorSystemMessageElement.textContent = "Progress saved!";
+                tutorSystemMessageElement.classList.add('opacity-100', 'text-green-500');
+                tutorSystemMessageElement.classList.remove('text-red-500');
+                setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 1500);
+
             } catch (error) {
                 console.error("Error saving progress: ", error);
+                tutorSystemMessageElement.textContent = "Error saving progress!";
+                tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
+                tutorSystemMessageElement.classList.remove('text-green-500');
             }
         }
         
@@ -414,8 +437,8 @@
         function loadChatHistory() {
             if (!isAuthReady || !chatHistoryDocRef()) return;
 
-            // Clear existing chat window
-            chatWindow.innerHTML = '<div class="text-center text-sm text-gray-500 dark:text-gray-400">Start a conversation with the AI tutor.</div>';
+            // Clear existing chat window and show placeholder
+            chatWindow.innerHTML = '<div class="text-center text-sm text-gray-500 dark:text-gray-400">Loading chat history...</div>';
             chatHistory = [];
 
             onSnapshot(chatHistoryDocRef(), (docSnapshot) => {
@@ -434,6 +457,7 @@
                 }
             }, (error) => {
                 console.error("Error listening to chat history: ", error);
+                chatWindow.innerHTML = '<div class="text-center text-sm text-red-500">Error loading chat history.</div>';
             });
         }
 
@@ -467,7 +491,6 @@
                 userId = null; // Ensure userId is null if user is signed out
                 userIdDisplay.textContent = "User ID: Not Authenticated";
                 
-                // Set initial phrase in case of auth failure to show the app is running
                 if (phraseEnElement.textContent === "Loading...") {
                      phraseEnElement.textContent = currentPhrases[0].en;
                 }
@@ -479,6 +502,17 @@
 
 
         // --- Tutor Mode Logic ---
+
+        function updateMasteryIndicator(masteryCount) {
+             const stars = Array(masteryCount).fill('⭐').join('');
+             masteryIndicator.textContent = `Mastery: ${stars} (${masteryCount}/${masteredThreshold})`;
+             masteryIndicator.classList.remove('text-amber-500', 'text-green-500');
+             if (masteryCount >= masteredThreshold) {
+                 masteryIndicator.classList.add('text-green-500');
+             } else if (masteryCount > 0) {
+                 masteryIndicator.classList.add('text-amber-500');
+             }
+        }
 
         function loadNextPhrase() {
             if (!isAuthReady && !userId) {
@@ -495,7 +529,7 @@
                 tutorSystemMessageElement.classList.remove('text-red-500');
                 // Reset all progress
                 currentPhrases.forEach(p => p.mastered = 0);
-                saveProgress();
+                saveProgress(); // This will trigger loadProgress() via onSnapshot
                 setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 2000);
             }
 
@@ -508,6 +542,8 @@
             
             phraseEnElement.textContent = currentPhrase.en;
             phraseItElement.textContent = currentPhrase.it;
+
+            updateMasteryIndicator(currentPhrase.mastered); // Display mastery count
 
             // Reset UI
             answerInput.value = '';
@@ -536,6 +572,7 @@
                 // Update progress and save
                 currentPhrase.mastered = (currentPhrase.mastered || 0) + 1;
                 saveProgress();
+                updateMasteryIndicator(currentPhrase.mastered); // Update indicator immediately
 
                 // Show Next button
                 checkBtn.classList.add('hidden');
@@ -559,6 +596,9 @@
             tutorFeedbackElement.textContent = `The correct answer is: ${currentPhrase.it}`;
             tutorFeedbackElement.classList.add('text-blue-500');
             tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
+            
+            // Do not increment mastery on reveal, but save the fact that the user viewed it (optional)
+            // For now, we will just move on.
         }
         
         // TTS Utility functions (PCM to WAV conversion)
@@ -614,8 +654,6 @@
 
         /**
          * Converts TTS API response (PCM) into playable audio.
-         * @param {string} audioData - Base64 encoded PCM audio data.
-         * @param {string} mimeType - The MIME type string (e.g., audio/L16;rate=24000).
          */
         function ttsToAudio(audioData, mimeType) {
             if (!audioData || !mimeType) {
@@ -641,9 +679,18 @@
             tutorListenBtn.disabled = true;
 
             const language = languageSelect.value;
-            const voiceName = language === 'italian' ? 'Kore' : 'Charon'; // Using different voices for differentiation
+            const voiceName = language === 'italian' ? 'Kore' : 'Charon';
             
-            // Exponential backoff retry logic
+            // API Key check
+            if (!API_KEY && typeof __app_id === 'undefined') { // If not in canvas and key is missing
+                 tutorSystemMessageElement.textContent = "AI Key Missing. Cannot play audio.";
+                 tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
+                 setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 3000);
+                 tutorListenBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                 tutorListenBtn.disabled = false;
+                 return;
+            }
+
             for (let attempt = 0; attempt < 3; attempt++) {
                 try {
                     const payload = {
@@ -708,14 +755,12 @@
         nextBtn.addEventListener('click', loadNextPhrase);
         revealBtn.addEventListener('click', revealAnswer);
         tutorListenBtn.addEventListener('click', () => {
-            if (!currentPhrase) return; // Prevent clicking before load
-            const textToSpeak = languageSelect.value === 'italian' ? currentPhrase.it : currentPhrase.it; // Use 'it' for Italian/Sicilian
+            if (!currentPhrase) return;
+            const textToSpeak = currentPhrase.it;
             fetchTutorTTS(textToSpeak);
         });
         
         // --- Speech Recognition (Simulated in this environment) ---
-        // Note: Real Speech Recognition requires browser APIs (webkitSpeechRecognition)
-        // which often do not work reliably within iframes. We will simulate the input.
         tutorSpeakBtn.addEventListener('click', () => {
              tutorSystemMessageElement.textContent = "Speech input is not available in this environment. Please type your answer.";
              tutorSystemMessageElement.classList.add('opacity-100', 'text-orange-500');
@@ -757,6 +802,12 @@
             const userQuery = chatInput.value.trim();
             if (!userQuery) return;
 
+            // API Key check for chat
+            if (!API_KEY && typeof __app_id === 'undefined') {
+                renderChatMessage('system', "AI Chat Failed: Missing Google Gemini API Key. Please update the API_KEY variable in the script.");
+                return;
+            }
+
             chatInput.value = '';
             
             // Add user message to history and render
@@ -781,7 +832,7 @@
             };
             
             // Exponential backoff retry logic
-            let modelResponseText = "Sorry, I couldn't get a response from the tutor. Please try again.";
+            let modelResponseText = "Sorry, I couldn't get a response from the tutor. This usually means the Gemini API Key is missing or invalid.";
             
             for (let attempt = 0; attempt < 3; attempt++) {
                 try {
@@ -798,6 +849,12 @@
                     }
                     
                     if (!response.ok) {
+                        // Check for common failure codes like 403/400 (API key issues)
+                        const errorBody = await response.json();
+                        console.error("Gemini API Error Body:", errorBody);
+                        if (response.status >= 400 && response.status < 500) {
+                             modelResponseText = "AI Chat Failed: Check if your Google Gemini API Key is valid and enabled for the model.";
+                        }
                         throw new Error(`API returned status ${response.status}`);
                     }
 
@@ -840,7 +897,6 @@
             const lastModelMessage = [...chatHistory].reverse().find(m => m.role === 'model');
             if (lastModelMessage) {
                 const textToSpeak = lastModelMessage.parts[0].text;
-                // Use a slightly different voice for the chat tutor
                 const voiceName = languageSelect.value === 'italian' ? 'Leda' : 'Umbriel';
 
                 fetchChatTTS(textToSpeak, voiceName);
@@ -850,8 +906,15 @@
         async function fetchChatTTS(text, voiceName) {
             chatSpeakBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             chatSpeakBtn.disabled = true;
+            
+            // API Key check
+            if (!API_KEY && typeof __app_id === 'undefined') { 
+                 renderChatMessage('system', "AI TTS Failed: Missing Google Gemini API Key.");
+                 chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                 chatSpeakBtn.disabled = false;
+                 return;
+            }
 
-            // Exponential backoff retry logic
             for (let attempt = 0; attempt < 3; attempt++) {
                 try {
                     const payload = {
@@ -908,10 +971,7 @@
 
         // --- Initial Load ---
         window.onload = () => {
-            // Set initial phrases based on the default select value
             currentPhrases = languageSelect.value === 'italian' ? italianPhrases : sicilianPhrases;
-            
-            // Wait for auth to complete before loading content
             phraseEnElement.textContent = "Loading...";
         };
 
