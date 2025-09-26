@@ -36,16 +36,44 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // Global variables provided by the environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // --- 1. CONFIGURATION CHECK & PLACEHOLDERS (CRITICAL FIX FOR GITHUB PAGES) ---
+        
+        // Variables provided by the Canvas environment (will be undefined on GitHub Pages)
+        const CANVAS_FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        // FIX: Define initialAuthToken correctly so it can be exported and used without ReferenceError.
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
+        
+        // !!! USER ACTION REQUIRED: REPLACE THESE PLACEHOLDERS WITH YOUR OWN FIREBASE PROJECT CONFIG !!!
+        const USER_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0", 
+            authDomain: "italiantutorapp.firebaseapp.com",
+            projectId: "italiantutorapp", 
+            storageBucket: "italiantutorapp.firebasestorage.app",
+            messagingSenderId: "915130971011",
+            appId: "1:915130971011:web:171cfb69941fdf7997fcb6"
+        };
+        // !!! IF YOU DO NOT REPLACE THESE, THE APP WILL NOT WORK !!!
+
+        // Use Canvas config if available, otherwise use the user's hardcoded config.
+        const firebaseConfig = (CANVAS_FIREBASE_CONFIG && Object.keys(CANVAS_FIREBASE_CONFIG).length > 0)
+            ? CANVAS_FIREBASE_CONFIG
+            : USER_FIREBASE_CONFIG;
+
+        // Use the Firebase Project ID as the App ID for Firestore paths when running externally.
+        const appId = firebaseConfig.projectId || 'default-app-id';
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase Initialization Failed. Did you replace the placeholder config?", e);
+            // Fallback: Use null or default objects to prevent script halt
+            app = null; auth = { currentUser: null }; db = null;
+        }
+        
         // Export Firebase instances for use in the main script
         window.firebase = {
             auth,
@@ -221,8 +249,10 @@
         let currentPhrase = null;
         let userId = null;
         const masteredThreshold = 2;
-        const progressDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress');
-        const chatHistoryDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value);
+        
+        // Check if db is initialized before creating ref functions
+        const progressDocRef = () => db ? doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress') : null;
+        const chatHistoryDocRef = () => db ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
 
         // API Key and URLs
         const API_KEY = "";
@@ -255,26 +285,32 @@
 
         // --- Firebase Functions ---
         async function saveProgress(phrases) {
-            if (!userId) {
-                console.error("User not authenticated, cannot save progress.");
+            if (!userId || !db) {
+                console.error("User not authenticated or DB not initialized, cannot save progress.");
                 return;
             }
             try {
-                const progressData = {
-                    phrases: JSON.stringify(phrases)
-                };
-                await setDoc(progressDocRef(), progressData, { merge: true });
-                console.log("Progress saved to Firestore.");
+                const progressRef = progressDocRef();
+                if (progressRef) {
+                    const progressData = {
+                        phrases: JSON.stringify(phrases)
+                    };
+                    await setDoc(progressRef, progressData, { merge: true });
+                    console.log("Progress saved to Firestore.");
+                }
             } catch (error) {
                 console.error("Error saving progress:", error);
             }
         }
         
         async function loadProgress() {
-            if (!userId) return;
+            if (!userId || !db) return;
 
             try {
-                const docSnap = await getDoc(progressDocRef());
+                const progressRef = progressDocRef();
+                if (!progressRef) return;
+                
+                const docSnap = await getDoc(progressRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data.phrases) {
@@ -294,22 +330,28 @@
         }
 
         async function saveChatHistory() {
-            if (!userId) {
-                console.error("User not authenticated, cannot save chat.");
+            if (!userId || !db) {
+                console.error("User not authenticated or DB not initialized, cannot save chat.");
                 return;
             }
             try {
-                await setDoc(chatHistoryDocRef(), { history: JSON.stringify(chatHistory) });
+                const chatRef = chatHistoryDocRef();
+                if (chatRef) {
+                    await setDoc(chatRef, { history: JSON.stringify(chatHistory) });
+                }
             } catch (error) {
                 console.error("Error saving chat history:", error);
             }
         }
 
         async function loadChatHistory() {
-            if (!userId) return;
+            if (!userId || !db) return;
 
             try {
-                const docSnap = await getDoc(chatHistoryDocRef());
+                const chatRef = chatHistoryDocRef();
+                if (!chatRef) return;
+                
+                const docSnap = await getDoc(chatRef);
                 if (docSnap.exists()) {
                     chatHistory = JSON.parse(docSnap.data().history);
                     renderChatHistory();
@@ -691,16 +733,23 @@
                 userIdDisplay.textContent = `User ID: ${userId}`;
                 initializeApp(languageSelect.value);
             } else {
-                try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
+                // If we are outside Canvas, initialAuthToken is null, so sign in anonymously.
+                if (auth) {
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            // This is the expected path when running on GitHub Pages
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Firebase Auth Error:", error);
+                        userIdDisplay.textContent = "Auth failed";
+                        showTutorSystemMessage("Failed to sign in. Please check your config.");
                     }
-                } catch (error) {
-                    console.error("Firebase Auth Error:", error);
-                    userIdDisplay.textContent = "Auth failed";
-                    showTutorSystemMessage("Failed to sign in. Please check your connection.");
+                } else {
+                    userIdDisplay.textContent = "Firebase Error";
+                    showTutorSystemMessage("Firebase not initialized. Check console for config error.");
                 }
             }
         });
