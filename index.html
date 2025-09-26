@@ -771,12 +771,9 @@
         }
 
         /**
-         * Converts TTS API response (PCM) into playable audio, including error handling for iOS/Safari.
-         * @param {string} audioData - Base64 encoded PCM audio data.
-         * @param {string} mimeType - Mime type from the API response (e.g., audio/L16;rate=24000).
-         * @param {HTMLElement | null} errorElement - The element to display error messages on (e.g., tutorSystemMessageElement).
+         * Converts TTS API response (PCM) into playable audio.
          */
-        function ttsToAudio(audioData, mimeType, errorElement) {
+        function ttsToAudio(audioData, mimeType) {
             if (!audioData || !mimeType) {
                 console.error("Missing audio data or mime type.");
                 return;
@@ -791,18 +788,10 @@
             const audioUrl = URL.createObjectURL(wavBlob);
 
             const audio = new Audio(audioUrl);
-            audio.play().catch(e => {
-                 // This is the common iOS/Safari Autoplay restriction error
-                 console.error("Audio Playback Error (Likely iOS Autoplay Policy):", e);
-                 if (errorElement) {
-                      errorElement.textContent = "Playback failed. (Likely iOS/Safari Autoplay restriction)";
-                      errorElement.classList.add('opacity-100', 'text-red-500');
-                      setTimeout(() => errorElement.classList.remove('opacity-100'), 5000);
-                 } else {
-                     // For chat mode where there's no system message, log to the chat window
-                     renderChatMessage('system', "Audio failed to play (Likely iOS/Safari autoplay restriction).");
-                 }
-            });
+            audio.play(); // Reverting to simple play() which works on Android
+            
+            // Revoke the blob URL when done to free up memory
+            audio.onended = () => URL.revokeObjectURL(audioUrl);
         }
 
         // TTS Function for Tutor Mode
@@ -863,7 +852,8 @@
                     const mimeType = part?.inlineData?.mimeType;
 
                     if (audioData && mimeType) {
-                        ttsToAudio(audioData, mimeType, tutorSystemMessageElement);
+                        // Reverted to simple ttsToAudio call
+                        ttsToAudio(audioData, mimeType);
                     } else {
                         throw new Error("TTS response missing audio data.");
                     }
@@ -1088,8 +1078,8 @@
                     const mimeType = part?.inlineData?.mimeType;
 
                     if (audioData && mimeType) {
-                        // For chat mode, we pass 'null' for the error element, so the error message goes to the chat window instead
-                        ttsToAudio(audioData, mimeType, null); 
+                        // Reverted to simple ttsToAudio call
+                        ttsToAudio(audioData, mimeType); 
                     } else {
                         throw new Error("TTS response missing audio data.");
                     }
