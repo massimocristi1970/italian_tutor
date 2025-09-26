@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Italian & Sicilian Tutor</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .correct-answer-input {
+            border-color: #10B981; /* Tailwind green-500 */
+        }
+        .pulse-animation {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Export Firebase instances for use in the main script
+        window.firebase = {
+            auth,
+            db,
+            appId,
+            initialAuthToken,
+            onAuthStateChanged,
+            signInAnonymously,
+            signInWithCustomToken,
+            doc,
+            getDoc,
+            setDoc,
+            onSnapshot,
+            collection
+        };
+    </script>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 transition-colors duration-500 bg-gray-100 dark:bg-gray-900">
+    <!-- Main application container -->
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-sm sm:max-w-lg transition-colors duration-500 dark:bg-gray-800">
+        <!-- Header with language selection and user ID -->
+        <div class="flex items-center justify-between mb-6 flex-wrap">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center flex-grow dark:text-gray-100">Language Tutor</h1>
+            <select id="language-select" class="bg-gray-200 text-gray-800 p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-gray-100 mt-2 sm:mt-0">
+                <option value="italian">Italian</option>
+                <option value="sicilian">Sicilian</option>
+            </select>
+            <div id="user-id-display" class="w-full text-center text-xs text-gray-600 mt-2 truncate dark:text-gray-400">User ID: Loading...</div>
+        </div>
+
+        <!-- Mode Toggle Buttons -->
+        <div class="flex justify-center space-x-4 mb-6">
+            <button id="tutor-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-blue-500 text-white transition-colors duration-300">Phrase Tutor</button>
+            <button id="chat-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 dark:bg-gray-700 dark:text-gray-100">AI Chat</button>
+        </div>
+
+        <!-- Tutor Section -->
+        <div id="tutor-section" class="text-center">
+            <!-- System message/alert container -->
+            <div id="tutor-system-message" class="text-center font-semibold text-sm mb-4 h-6 opacity-0 transition-opacity duration-500 text-gray-800 dark:text-gray-100"></div>
+
+            <!-- Flashcard content -->
+            <div class="h-40 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700">
+                <p id="phrase-en" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 dark:text-gray-100"></p>
+                <p id="phrase-it" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 hidden dark:text-gray-100"></p>
+            </div>
+
+            <!-- Input and action buttons -->
+            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+                <input id="answer-input" type="text" placeholder="Type your answer here..."
+                       class="w-full sm:flex-grow p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500 transition-all duration-300 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+                       spellcheck="false" autocomplete="off">
+                <button id="tutor-listen-btn" class="bg-gray-200 text-gray-800 p-3 rounded-lg transition-all duration-300 hover:bg-gray-300 w-1/3 sm:w-auto dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button id="tutor-speak-btn" class="bg-gray-200 text-gray-800 p-3 rounded-lg transition-all duration-300 hover:bg-gray-300 w-1/3 sm:w-auto relative dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
+                    <i class="fas fa-microphone"></i>
+                    <span id="tutor-listening-pulse" class="absolute inset-0 bg-red-500 rounded-full opacity-0"></span>
+                </button>
+            </div>
+
+            <!-- Feedback and action buttons -->
+            <div id="tutor-feedback" class="text-center text-sm font-semibold h-6 mb-4"></div>
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <button id="check-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md">
+                    Check Answer
+                </button>
+                <button id="next-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md hidden">
+                    Next Phrase
+                </button>
+                <button id="reveal-btn" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md">
+                    Reveal Answer
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div id="chat-section" class="hidden flex flex-col h-[60vh] max-h-[600px] overflow-hidden">
+            <div id="chat-window" class="flex-grow p-4 bg-gray-50 rounded-lg mb-4 overflow-y-auto transition-colors duration-500 dark:bg-gray-700">
+                <div class="text-center text-sm text-gray-500 dark:text-gray-400">Start a conversation with the AI tutor.</div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <input id="chat-input" type="text" placeholder="Send a message..."
+                       class="flex-grow p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500 transition-all duration-300 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100">
+                <button id="chat-speak-btn" class="bg-gray-200 text-gray-800 p-3 rounded-lg transition-all duration-300 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button id="chat-send-btn" class="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition-all duration-300">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules from the `window` object
+        const { auth, db, appId, initialAuthToken, onAuthStateChanged, signInAnonymously, signInWithCustomToken, doc, getDoc, setDoc, onSnapshot, collection } = window.firebase;
+        
+        // --- Core Application Logic ---
+        const languageSelect = document.getElementById('language-select');
+        const tutorSection = document.getElementById('tutor-section');
+        const chatSection = document.getElementById('chat-section');
+        const tutorModeBtn = document.getElementById('tutor-mode-btn');
+        const chatModeBtn = document.getElementById('chat-mode-btn');
+
+        // Tutor section elements
+        const phraseEnElement = document.getElementById('phrase-en');
+        const phraseItElement = document.getElementById('phrase-it');
+        const answerInput = document.getElementById('answer-input');
+        const tutorListenBtn = document.getElementById('tutor-listen-btn');
+        const tutorSpeakBtn = document.getElementById('tutor-speak-btn');
+        const tutorListeningPulse = document.getElementById('tutor-listening-pulse');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const revealBtn = document.getElementById('reveal-btn');
+        const tutorFeedbackElement = document.getElementById('tutor-feedback');
+        const tutorSystemMessageElement = document.getElementById('tutor-system-message');
+        const userIdDisplay = document.getElementById('user-id-display');
+
+        // Chat section elements
+        const chatWindow = document.getElementById('chat-window');
+        const chatInput = document.getElementById('chat-input');
+        const chatSpeakBtn = document.getElementById('chat-speak-btn');
+        const chatSendBtn = document.getElementById('chat-send-btn');
+        
+        const italianPhrases = [
+            { en: "Hello", it: "Ciao", mastered: 0 },
+            { en: "Thank you", it: "Grazie", mastered: 0 },
+            { en: "Please", it: "Per favore", mastered: 0 },
+            { en: "Excuse me", it: "Mi scusi", mastered: 0 },
+            { en: "Yes", it: "Sì", mastered: 0 },
+            { en: "No", it: "No", mastered: 0 },
+            { en: "Goodbye", it: "Arrivederci", mastered: 0 },
+            { en: "How are you?", it: "Come stai?", mastered: 0 },
+            { en: "I don't understand", it: "Non capisco", mastered: 0 },
+            { en: "Do you speak English?", it: "Parli inglese?", mastered: 0 },
+            { en: "What is your name?", it: "Come ti chiami?", mastered: 0 },
+            { en: "My name is...", it: "Mi chiamo...", mastered: 0 },
+            { en: "Where are you from?", it: "Di dove sei?", mastered: 0 },
+            { en: "I am from...", it: "Sono di...", mastered: 0 },
+            { en: "I am sorry", it: "Mi dispiace", mastered: 0 },
+            { en: "How much does this cost?", it: "Quanto costa?", mastered: 0 },
+            { en: "The food is delicious", it: "Il cibo è delizioso", mastered: 0 },
+            { en: "I would like a coffee", it: "Vorrei un caffè", mastered: 0 },
+            { en: "I am tired", it: "Sono stanco/a", mastered: 0 },
+            { en: "Let's go", it: "Andiamo", mastered: 0 }
+        ];
+
+        const sicilianPhrases = [
+            { en: "Hello", it: "Salutu", mastered: 0 },
+            { en: "Thank you", it: "Grazzî", mastered: 0 },
+            { en: "Please", it: "Pi favuri", mastered: 0 },
+            { en: "Excuse me", it: "M'accatti", mastered: 0 },
+            { en: "Yes", it: "Sì", mastered: 0 },
+            { en: "No", it: "No", mastered: 0 },
+            { en: "Goodbye", it: "Addiu", mastered: 0 },
+            { en: "How are you?", it: "Comu si senti?", mastered: 0 },
+            { en: "I don't understand", it: "Nun capisciu", mastered: 0 },
+            { en: "Do you speak English?", it: "Parra ngrisi?", mastered: 0 },
+            { en: "What is your name?", it: "Comu ti chiami?", mastered: 0 },
+            { en: "My name is...", it: "Mi chiàmu...", mastered: 0 },
+            { en: "Where are you from?", it: "Di unni si?", mastered: 0 },
+            { en: "I am from...", it: "Sugnu di...", mastered: 0 },
+            { en: "I am sorry", it: "M'addulìu", mastered: 0 },
+            { en: "How much does this cost?", it: "Quantu costa?", mastered: 0 },
+            { en: "The food is delicious", it: "Lu manciari è diliziusu", mastered: 0 },
+            { en: "I would like a coffee", it: "Vuògghiu un cafè", mastered: 0 },
+            { en: "I am tired", it: "Sugnu stancu/a", mastered: 0 },
+            { en: "Let's go", it: "Iemu", mastered: 0 }
+        ];
+
+        let currentPhrases = italianPhrases;
+        let currentPhrase = null;
+        let userId = null;
+        const masteredThreshold = 2;
+        const progressDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress');
+        const chatHistoryDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value);
+
+        // API Key and URLs
+        const API_KEY = "";
+        const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
+        const GEMINI_TTS_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + API_KEY;
+        
+        let chatHistory = [];
+        let isWaitingForResponse = false;
+
+        function switchMode(mode) {
+            if (mode === 'tutor') {
+                tutorSection.classList.remove('hidden');
+                tutorSection.classList.add('flex-col');
+                chatSection.classList.add('hidden');
+                tutorModeBtn.classList.add('bg-blue-500', 'text-white');
+                tutorModeBtn.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+                chatModeBtn.classList.remove('bg-blue-500', 'text-white');
+                chatModeBtn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+            } else {
+                chatSection.classList.remove('hidden');
+                chatSection.classList.add('flex');
+                tutorSection.classList.add('hidden');
+                chatModeBtn.classList.add('bg-blue-500', 'text-white');
+                chatModeBtn.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+                tutorModeBtn.classList.remove('bg-blue-500', 'text-white');
+                tutorModeBtn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+                loadChatHistory();
+            }
+        }
+
+        // --- Firebase Functions ---
+        async function saveProgress(phrases) {
+            if (!userId) {
+                console.error("User not authenticated, cannot save progress.");
+                return;
+            }
+            try {
+                const progressData = {
+                    phrases: JSON.stringify(phrases)
+                };
+                await setDoc(progressDocRef(), progressData, { merge: true });
+                console.log("Progress saved to Firestore.");
+            } catch (error) {
+                console.error("Error saving progress:", error);
+            }
+        }
+        
+        async function loadProgress() {
+            if (!userId) return;
+
+            try {
+                const docSnap = await getDoc(progressDocRef());
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.phrases) {
+                        const savedPhrases = JSON.parse(data.phrases);
+                        currentPhrases.forEach(phrase => {
+                            const saved = savedPhrases.find(p => p.en === phrase.en);
+                            if (saved) {
+                                phrase.mastered = saved.mastered;
+                            }
+                        });
+                        showTutorSystemMessage("Progress loaded successfully!");
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading progress:", error);
+            }
+        }
+
+        async function saveChatHistory() {
+            if (!userId) {
+                console.error("User not authenticated, cannot save chat.");
+                return;
+            }
+            try {
+                await setDoc(chatHistoryDocRef(), { history: JSON.stringify(chatHistory) });
+            } catch (error) {
+                console.error("Error saving chat history:", error);
+            }
+        }
+
+        async function loadChatHistory() {
+            if (!userId) return;
+
+            try {
+                const docSnap = await getDoc(chatHistoryDocRef());
+                if (docSnap.exists()) {
+                    chatHistory = JSON.parse(docSnap.data().history);
+                    renderChatHistory();
+                } else {
+                    chatHistory = [];
+                    renderChatHistory();
+                }
+            } catch (error) {
+                console.error("Error loading chat history:", error);
+            }
+        }
+
+        function renderChatHistory() {
+            chatWindow.innerHTML = '';
+            chatHistory.forEach(message => {
+                appendChatMessage(message.text, message.sender);
+            });
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // --- UI Functions ---
+        function selectNewPhrase() {
+            const unmasteredPhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
+            if (unmasteredPhrases.length === 0) {
+                currentPhrases.forEach(p => p.mastered = 0);
+                showTutorSystemMessage("You have mastered all phrases! Starting over.");
+            }
+
+            let phraseToUse;
+            const phrasesToRepeat = currentPhrases.filter(p => p.mastered < 0);
+            if (phrasesToRepeat.length > 0) {
+                 phraseToUse = phrasesToRepeat[Math.floor(Math.random() * phrasesToRepeat.length)];
+            } else {
+                 phraseToUse = unmasteredPhrases[Math.floor(Math.random() * unmasteredPhrases.length)];
+            }
+            
+            currentPhrase = phraseToUse;
+            phraseEnElement.textContent = currentPhrase.en;
+            phraseItElement.textContent = currentPhrase.it;
+            answerInput.value = '';
+            answerInput.style.borderColor = '';
+            tutorFeedbackElement.textContent = '';
+            nextBtn.classList.add('hidden');
+            checkBtn.classList.remove('hidden');
+            revealBtn.classList.remove('hidden');
+            phraseItElement.classList.add('hidden');
+            phraseEnElement.classList.remove('hidden'); 
+            
+            answerInput.disabled = false;
+        }
+
+        function showTutorSystemMessage(message) {
+            tutorSystemMessageElement.textContent = message;
+            tutorSystemMessageElement.classList.remove('opacity-0');
+            tutorSystemMessageElement.classList.add('opacity-100');
+            setTimeout(() => {
+                tutorSystemMessageElement.classList.remove('opacity-100');
+                tutorSystemMessageElement.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        function initializeApp(language) {
+            if (language === 'italian') {
+                currentPhrases = italianPhrases;
+            } else if (language === 'sicilian') {
+                currentPhrases = sicilianPhrases;
+            }
+            loadProgress().then(() => {
+                selectNewPhrase();
+            });
+        }
+        
+        function applyDarkMode(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        // --- Chat Functions ---
+        function appendChatMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('my-2', 'p-3', 'rounded-lg', 'max-w-[80%]');
+            if (sender === 'user') {
+                messageDiv.classList.add('bg-blue-500', 'text-white', 'ml-auto');
+            } else {
+                messageDiv.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-600', 'dark:text-gray-100');
+            }
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        async function playAudio(base64Data) {
+            const mimeType = "audio/L16;rate=24000";
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const base64ToArrayBuffer = (base64) => {
+                const binaryString = atob(base64);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes.buffer;
+            };
+
+            const pcmToWav = (pcm, sampleRate) => {
+                const pcmData = new Int16Array(pcm.buffer);
+                const numChannels = 1;
+                const header = new ArrayBuffer(44);
+                const dv = new DataView(header);
+                
+                let p = 0;
+                
+                const writeString = (s) => {
+                    for (let i = 0; i < s.length; i++) {
+                        dv.setUint8(p++, s.charCodeAt(i));
+                    }
+                };
+
+                // RIFF chunk
+                writeString('RIFF');
+                dv.setUint32(p, pcmData.byteLength + 36, true);
+                p += 4;
+                writeString('WAVE');
+
+                // fmt chunk
+                writeString('fmt ');
+                dv.setUint32(p, 16, true); // Chunk size
+                p += 4;
+                dv.setUint16(p, 1, true); // Compression code (PCM)
+                p += 2;
+                dv.setUint16(p, numChannels, true); // Number of channels
+                p += 2;
+                dv.setUint32(p, sampleRate, true); // Sample rate
+                p += 4;
+                dv.setUint32(p, sampleRate * numChannels * 2, true); // Average bytes per second
+                p += 4;
+                dv.setUint16(p, numChannels * 2, true); // Block align
+                p += 2;
+                dv.setUint16(p, 16, true); // Bit depth
+                p += 2;
+
+                // data chunk
+                writeString('data');
+                dv.setUint32(p, pcmData.byteLength, true);
+                p += 4;
+
+                const blob = new Blob([header, pcm.buffer], { type: 'audio/wav' });
+                return blob;
+            };
+
+            try {
+                const audioData = base64ToArrayBuffer(base64Data);
+                const wavBlob = pcmToWav(new Int16Array(audioData), 24000);
+                const audioUrl = URL.createObjectURL(wavBlob);
+                const audio = new Audio(audioUrl);
+                await audio.play();
+                URL.revokeObjectURL(audioUrl);
+            } catch (error) {
+                console.error('Error playing audio:', error);
+            }
+        }
+
+        async function getTutorResponse(userMessage) {
+            if (isWaitingForResponse) return;
+            isWaitingForResponse = true;
+
+            appendChatMessage(userMessage, 'user');
+            chatHistory.push({ text: userMessage, sender: 'user' });
+            saveChatHistory();
+
+            const prompt = `You are a language tutor for ${languageSelect.value === 'italian' ? 'Italian' : 'Sicilian'}. Respond to the user's message in the target language. Keep the response natural and helpful. Do not provide a translation unless the user asks for it explicitly. Use standard capitalization and punctuation.`;
+            const payload = {
+                contents: chatHistory.map(msg => ({
+                    role: msg.sender === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.text }]
+                })),
+                systemInstruction: { parts: [{ text: prompt }] },
+                generationConfig: {
+                    temperature: 0.8,
+                    maxOutputTokens: 100,
+                },
+            };
+
+            let responseText = "Sorry, I could not generate a response.";
+            try {
+                const response = await fetch(GEMINI_TEXT_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+                    responseText = result.candidates[0].content.parts[0].text;
+                }
+            } catch (error) {
+                console.error('Error with Gemini text generation:', error);
+            }
+
+            appendChatMessage(responseText, 'model');
+            chatHistory.push({ text: responseText, sender: 'model' });
+            saveChatHistory();
+
+            await speakResponse(responseText, languageSelect.value);
+            isWaitingForResponse = false;
+        }
+
+        async function speakResponse(text, language) {
+            const voiceName = language === 'italian' ? "Kore" : "Kore";
+            const payload = {
+                contents: [{ parts: [{ text }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: { prebuiltVoiceConfig: { voiceName } }
+                    }
+                },
+            };
+
+            let audioData = null;
+            try {
+                const response = await fetch(GEMINI_TTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+                    audioData = result.candidates[0].content.parts[0].inlineData.data;
+                }
+            } catch (error) {
+                console.error('Error with Gemini TTS generation:', error);
+            }
+
+            if (audioData) {
+                await playAudio(audioData);
+            }
+        }
+        
+        // --- Event Listeners ---
+        tutorModeBtn.addEventListener('click', () => switchMode('tutor'));
+        chatModeBtn.addEventListener('click', () => switchMode('chat'));
+
+        languageSelect.addEventListener('change', (e) => {
+            if (tutorSection.classList.contains('hidden')) {
+                loadChatHistory();
+            } else {
+                initializeApp(e.target.value);
+            }
+        });
+
+        checkBtn.addEventListener('click', () => {
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            const correctAnswer = currentPhrase.it.toLowerCase();
+
+            if (userAnswer === correctAnswer || (currentPhrase.en === "Yes" && userAnswer === "si")) {
+                tutorFeedbackElement.textContent = "Correct! Fantastico!";
+                tutorFeedbackElement.style.color = '#10B981';
+                checkBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                answerInput.style.borderColor = '#10B981';
+                answerInput.disabled = true;
+                currentPhrase.mastered++;
+                saveProgress(currentPhrases);
+            } else {
+                tutorFeedbackElement.textContent = "Incorrect. Try again or reveal the answer.";
+                tutorFeedbackElement.style.color = '#EF4444';
+                answerInput.style.borderColor = '#EF4444';
+                currentPhrase.mastered = -1;
+                saveProgress(currentPhrases);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => selectNewPhrase());
+
+        revealBtn.addEventListener('click', () => {
+            phraseEnElement.classList.add('hidden');
+            phraseItElement.classList.remove('hidden');
+            tutorFeedbackElement.textContent = `The correct answer is: "${currentPhrase.it}"`;
+            tutorFeedbackElement.style.color = '#4B5563';
+            answerInput.value = currentPhrase.it;
+            checkBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            answerInput.disabled = true;
+            currentPhrase.mastered = -1;
+            saveProgress(currentPhrases);
+        });
+
+        tutorListenBtn.addEventListener('click', () => {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(currentPhrase.it);
+                utterance.lang = languageSelect.value === 'italian' ? 'it-IT' : 'it-IT';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showTutorSystemMessage('Text-to-speech is not supported in this browser.');
+            }
+        });
+
+        tutorSpeakBtn.addEventListener('click', () => {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = languageSelect.value === 'italian' ? 'it-IT' : 'it-IT';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+                tutorListeningPulse.classList.add('pulse-animation');
+                recognition.start();
+
+                recognition.onresult = (event) => {
+                    const speechResult = event.results[0][0].transcript;
+                    answerInput.value = speechResult;
+                    tutorListeningPulse.classList.remove('pulse-animation');
+                };
+                recognition.onend = () => tutorListeningPulse.classList.remove('pulse-animation');
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    tutorListeningPulse.classList.remove('pulse-animation');
+                };
+            } else {
+                showTutorSystemMessage('Speech recognition is not supported in this browser.');
+            }
+        });
+
+        chatSendBtn.addEventListener('click', () => {
+            const userMessage = chatInput.value.trim();
+            if (userMessage) {
+                getTutorResponse(userMessage);
+                chatInput.value = '';
+            }
+        });
+
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                chatSendBtn.click();
+            }
+        });
+
+        chatSpeakBtn.addEventListener('click', () => {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = languageSelect.value === 'italian' ? 'it-IT' : 'it-IT';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+                chatSpeakBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+
+                recognition.start();
+                recognition.onresult = (event) => {
+                    const speechResult = event.results[0][0].transcript;
+                    chatInput.value = speechResult;
+                    getTutorResponse(speechResult);
+                };
+                recognition.onend = () => {
+                    chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+            } else {
+                alert('Speech recognition is not supported in this browser.');
+            }
+        });
+
+        // Add a handler for dark mode
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        applyDarkMode(prefersDark.matches);
+        prefersDark.addEventListener('change', (e) => {
+            applyDarkMode(e.matches);
+        });
+        
+        // Firebase Authentication and Initialization
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                userIdDisplay.textContent = `User ID: ${userId}`;
+                initializeApp(languageSelect.value);
+            } else {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Firebase Auth Error:", error);
+                    userIdDisplay.textContent = "Auth failed";
+                    showTutorSystemMessage("Failed to sign in. Please check your connection.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
