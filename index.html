@@ -139,12 +139,13 @@
         </div>
 
         <!-- Mode Toggle Buttons -->
-        <div class="flex justify-center space-x-4 mb-6">
-            <button id="tutor-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-blue-500 text-white transition-colors duration-300">Phrase Tutor</button>
-            <button id="chat-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 dark:bg-gray-700 dark:text-gray-100">AI Chat</button>
+        <div class="flex justify-center space-x-2 sm:space-x-4 mb-6">
+            <button id="tutor-mode-btn" class="py-2 px-3 sm:px-4 rounded-lg font-semibold bg-blue-500 text-white transition-colors duration-300 text-sm sm:text-base">Phrase Tutor</button>
+            <button id="builder-mode-btn" class="py-2 px-3 sm:px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 text-sm sm:text-base dark:bg-gray-700 dark:text-gray-100">Sentence Builder</button>
+            <button id="chat-mode-btn" class="py-2 px-3 sm:px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 text-sm sm:text-base dark:bg-gray-700 dark:text-gray-100">AI Chat</button>
         </div>
 
-        <!-- Tutor Section -->
+        <!-- Tutor/Builder Section -->
         <div id="tutor-section" class="text-center">
             
             <!-- Overall Level and Progress Bar -->
@@ -165,10 +166,18 @@
             <div id="mastery-indicator" class="text-sm font-semibold text-amber-500 mb-2 h-6"></div>
 
             <!-- Flashcard content -->
-            <div class="h-40 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700">
+            <div class="h-40 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700 relative">
                 <p id="phrase-prompt" class="absolute top-2 left-4 text-xs font-medium text-gray-500 dark:text-gray-400"></p>
+                <!-- Phrase Tutor Display -->
                 <p id="phrase-en" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 dark:text-gray-100"></p>
                 <p id="phrase-it" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 hidden dark:text-gray-100"></p>
+                
+                <!-- Sentence Builder Display -->
+                <div id="builder-challenge-display" class="hidden text-left w-full p-2">
+                    <h3 class="text-base font-semibold text-blue-600 dark:text-blue-400 mb-1">Challenge:</h3>
+                    <p id="builder-en-prompt" class="text-lg sm:text-xl font-medium text-gray-800 dark:text-gray-100"></p>
+                    <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-2">Grammar Focus: <span id="builder-grammar-focus" class="font-normal"></span></h3>
+                </div>
             </div>
 
             <!-- Input and action buttons -->
@@ -192,7 +201,7 @@
                     Check Answer
                 </button>
                 <button id="next-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md hidden">
-                    Next Phrase
+                    Next Challenge
                 </button>
                 <button id="reveal-btn" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md">
                     Reveal Answer
@@ -227,6 +236,7 @@
         const tutorSection = document.getElementById('tutor-section');
         const chatSection = document.getElementById('chat-section');
         const tutorModeBtn = document.getElementById('tutor-mode-btn');
+        const builderModeBtn = document.getElementById('builder-mode-btn'); // NEW BUTTON
         const chatModeBtn = document.getElementById('chat-mode-btn');
 
         // Tutor section elements
@@ -243,6 +253,11 @@
         const tutorSystemMessageElement = document.getElementById('tutor-system-message');
         const userIdDisplay = document.getElementById('user-id-display');
         const masteryIndicator = document.getElementById('mastery-indicator');
+        
+        // Sentence Builder Elements
+        const builderChallengeDisplay = document.getElementById('builder-challenge-display');
+        const builderEnPrompt = document.getElementById('builder-en-prompt');
+        const builderGrammarFocus = document.getElementById('builder-grammar-focus');
         
         // Progress elements
         const overallLevelElement = document.getElementById('overall-level');
@@ -306,11 +321,14 @@
         let isAuthReady = false;
         let userId = null; 
         let isGeneratingPhrase = false;
+        let currentMode = 'tutor'; // 'tutor', 'builder', or 'chat'
         
-        // RAISED DIFFICULTY: Mastery threshold increased to 5
+        // Difficulty setting
         const masteredThreshold = 5;
         const totalStaticPhrases = initialPhrases.length;
         const maxMasteryPoints = totalStaticPhrases * masteredThreshold; // Max 100 points (20 phrases * 5)
+        
+        let currentBuilderChallenge = null; // Stores the object for the Sentence Builder
 
         const progressDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress') : null;
         const chatHistoryDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
@@ -322,7 +340,7 @@
         
         let chatHistory = [];
         let isWaitingForResponse = false;
-        let isReverseChallenge = false; // New state for contextual challenge
+        let isReverseChallenge = false; 
 
         function updateFlagDisplay(language) {
             if (language === 'italian') {
@@ -335,40 +353,59 @@
         }
         
         function switchMode(mode) {
-            if (mode === 'tutor') {
+            currentMode = mode;
+            // Reset button states
+            [tutorModeBtn, builderModeBtn, chatModeBtn].forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+            });
+
+            // Set UI visibility
+            chatSection.classList.add('hidden');
+            tutorSection.classList.add('hidden');
+            
+            if (mode === 'tutor' || mode === 'builder') {
                 tutorSection.classList.remove('hidden');
-                chatSection.classList.add('hidden');
-                tutorModeBtn.classList.add('bg-blue-500', 'text-white');
-                tutorModeBtn.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
-                chatModeBtn.classList.remove('bg-blue-500', 'text-white');
-                chatModeBtn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
-                loadNextPhrase();
-                // Ensure progress is visible in tutor mode
-                calculateOverallProgress(); 
-            } else {
+                document.getElementById(`${mode}-mode-btn`).classList.add('bg-blue-500', 'text-white');
+                document.getElementById(`${mode}-mode-btn`).classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+                
+                // Toggle display elements based on sub-mode
+                builderChallengeDisplay.classList.add('hidden');
+                phraseEnElement.classList.add('hidden');
+                phraseItElement.classList.add('hidden');
+                
+                if (mode === 'tutor') {
+                    loadNextPhrase();
+                    tutorListenBtn.classList.remove('hidden');
+                    phraseEnElement.classList.remove('hidden');
+                    phraseItElement.classList.remove('hidden'); // controlled by challenge logic
+                    nextBtn.textContent = "Next Phrase";
+                } else { // builder mode
+                    generateSentenceChallenge();
+                    tutorListenBtn.classList.add('hidden'); // TTS disabled in builder
+                    builderChallengeDisplay.classList.remove('hidden');
+                    nextBtn.textContent = "Next Challenge";
+                }
+                
+                calculateOverallProgress();
+            } else if (mode === 'chat') {
                 chatSection.classList.remove('hidden');
-                tutorSection.classList.add('hidden');
                 chatModeBtn.classList.add('bg-blue-500', 'text-white');
                 chatModeBtn.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
-                tutorModeBtn.classList.remove('bg-blue-500', 'text-white');
-                tutorModeBtn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
                 loadChatHistory();
             }
         }
 
         tutorModeBtn.addEventListener('click', () => switchMode('tutor'));
+        builderModeBtn.addEventListener('click', () => switchMode('builder'));
         chatModeBtn.addEventListener('click', () => switchMode('chat'));
+        
         languageSelect.addEventListener('change', () => {
             const selectedLanguage = languageSelect.value;
             currentPhrases = selectedLanguage === 'italian' ? italianPhrases : sicilianPhrases;
             updateFlagDisplay(selectedLanguage); 
             loadProgress(); 
-            if (!tutorSection.classList.contains('hidden')) {
-                loadNextPhrase();
-            }
-            if (!chatSection.classList.contains('hidden')) {
-                loadChatHistory();
-            }
+            switchMode(currentMode); // Reload challenge based on the current mode
         });
 
         // --- Firebase Auth and Data Loading ---
@@ -458,8 +495,8 @@
                 
                 calculateOverallProgress(); // Always update progress bar on data load
                 
-                // Only load next phrase if we are in tutor mode
-                if (initialLoad && !tutorSection.classList.contains('hidden')) {
+                // Only load next phrase if we are in tutor mode and it's the initial load
+                if (initialLoad && currentMode === 'tutor' && !tutorSection.classList.contains('hidden')) {
                     loadNextPhrase();
                 }
                 initialLoad = false;
@@ -558,6 +595,12 @@
         // --- Tutor Mode Logic ---
 
         function updateMasteryIndicator(masteryCount, isDynamic = false) {
+             if (currentMode === 'builder') {
+                 masteryIndicator.textContent = 'Sentence Construction Challenge';
+                 masteryIndicator.classList.add('text-blue-500');
+                 masteryIndicator.classList.remove('text-amber-500', 'text-green-500');
+                 return;
+             }
              if (isDynamic) {
                  masteryIndicator.textContent = `Dynamic Phrase (Topic: ${currentPhrase.topic})`;
                  masteryIndicator.classList.add('text-blue-500');
@@ -573,6 +616,8 @@
                  masteryIndicator.classList.add('text-amber-500');
              }
         }
+
+        // --- Phrase Tutor (Recall/Context) Functions ---
 
         async function generateDynamicPhrase() {
             isGeneratingPhrase = true;
@@ -672,6 +717,10 @@
                 return;
             }
             
+            // Ensure phrase elements are visible and builder is hidden
+            builderChallengeDisplay.classList.add('hidden');
+            phraseEnElement.classList.remove('hidden');
+            
             // Find the least mastered static phrase (simple spaced repetition)
             const availablePhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
             
@@ -726,8 +775,102 @@
              // Remove all punctuation, convert to lowercase, and trim whitespace
             return str.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ');
         }
+        
+        // --- Sentence Builder Functions ---
 
+        async function generateSentenceChallenge() {
+            isGeneratingPhrase = true;
+            tutorSystemMessageElement.textContent = "Creating new sentence challenge...";
+            tutorSystemMessageElement.classList.add('opacity-100', 'text-blue-500');
+            
+            builderEnPrompt.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            builderGrammarFocus.textContent = '...';
+            answerInput.value = '';
+            
+            // Set up UI for Builder
+            phrasePromptElement.textContent = "Construct the full sentence in " + (languageSelect.value === 'italian' ? 'Italian' : 'Sicilian');
+            answerInput.placeholder = "Type your constructed sentence here...";
+            checkBtn.disabled = true;
+            revealBtn.disabled = true;
+            tutorListenBtn.disabled = true;
+            tutorListenBtn.classList.add('hidden');
+
+            const languageName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
+            const userQuery = `Generate an intermediate-level English sentence construction prompt for learning ${languageName}. This sentence must require the use of a verb conjugation, tense, or complex structure (like subjunctive or compound tense). Provide the correct translation and the grammar point being tested.`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "englishPrompt": { "type": "STRING" },
+                            "correctTranslation": { "type": "STRING" },
+                            "grammarFocus": { "type": "STRING" }
+                        },
+                        "propertyOrdering": ["englishPrompt", "correctTranslation", "grammarFocus"]
+                    }
+                }
+            };
+
+            let generatedData = null;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    const response = await fetch(GEMINI_TEXT_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.status === 429 && attempt < 2) {
+                        const delay = Math.pow(2, attempt) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
+
+                    const result = await response.json();
+                    const jsonString = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    generatedData = JSON.parse(jsonString);
+                    break;
+                } catch (error) {
+                    console.error("Sentence Builder Generation Error:", error);
+                }
+            }
+
+            checkBtn.disabled = false;
+            revealBtn.disabled = false;
+            isGeneratingPhrase = false;
+            tutorSystemMessageElement.classList.remove('opacity-100');
+
+            if (generatedData && generatedData.englishPrompt && generatedData.correctTranslation) {
+                currentBuilderChallenge = {
+                    en: generatedData.englishPrompt,
+                    it: generatedData.correctTranslation,
+                    grammar: generatedData.grammarFocus || 'Complex Sentence Structure'
+                };
+                
+                builderEnPrompt.textContent = currentBuilderChallenge.en;
+                builderGrammarFocus.textContent = currentBuilderChallenge.grammar;
+                updateMasteryIndicator(0); 
+                
+            } else {
+                builderEnPrompt.textContent = "Error generating challenge. Try again or check the API key.";
+                builderGrammarFocus.textContent = "Error";
+                tutorSystemMessageElement.textContent = "AI Challenge generation failed.";
+                tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
+            }
+        }
+        
         function checkAnswer() {
+            if (currentMode === 'builder') {
+                checkBuilderAnswer();
+            } else {
+                checkTutorAnswer();
+            }
+        }
+
+        function checkTutorAnswer() {
             if (isGeneratingPhrase) return;
 
             const userAnswerClean = cleanString(answerInput.value);
@@ -772,20 +915,72 @@
                 answerInput.classList.remove('correct-answer-input');
             }
         }
+        
+        function checkBuilderAnswer() {
+            if (!currentBuilderChallenge) return;
 
-        function revealAnswer() {
-            let correctAnswer = isReverseChallenge ? currentPhrase.en : currentPhrase.it;
+            const userAnswer = answerInput.value.trim();
+            
+            // In Sentence Builder mode, we treat "Check Answer" as a reveal/self-correction step
+            tutorFeedbackElement.textContent = 'Review your answer against the solution below.';
+            tutorFeedbackElement.classList.add('text-blue-500');
+            tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
 
-            phraseEnElement.classList.add('hidden');
-            phraseItElement.classList.remove('hidden');
+            // Set the feedback area to show the correct answer and the user's attempt
+            tutorFeedbackElement.innerHTML = `
+                <div class="mt-4 p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900 border border-yellow-300 dark:border-yellow-700">
+                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Your Attempt:</p>
+                    <p class="text-base text-gray-700 dark:text-gray-200">${userAnswer || 'No answer provided.'}</p>
+                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100 mt-2">Model Solution:</p>
+                    <p class="text-base font-bold text-green-700 dark:text-green-400">${currentBuilderChallenge.it}</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">Focus: ${currentBuilderChallenge.grammar}</p>
+                </div>
+            `;
+            
             checkBtn.classList.add('hidden');
             revealBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
-            tutorFeedbackElement.textContent = `The correct answer is: ${correctAnswer}`;
-            tutorFeedbackElement.classList.add('text-blue-500');
-            tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
+            answerInput.classList.remove('border-red-500', 'correct-answer-input');
+        }
+
+        function revealAnswer() {
+            if (currentMode === 'builder') {
+                 // Reveal in builder mode shows the correct translation immediately
+                 tutorFeedbackElement.textContent = `The correct answer is: ${currentBuilderChallenge.it}`;
+                 tutorFeedbackElement.classList.add('text-blue-500');
+                 tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
+                 checkBtn.classList.add('hidden');
+                 revealBtn.classList.add('hidden');
+                 nextBtn.classList.remove('hidden');
+            } else {
+                // Reveal in tutor mode
+                let correctAnswer = isReverseChallenge ? currentPhrase.en : currentPhrase.it;
+
+                phraseEnElement.classList.add('hidden');
+                phraseItElement.classList.remove('hidden');
+                checkBtn.classList.add('hidden');
+                revealBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                tutorFeedbackElement.textContent = `The correct answer is: ${correctAnswer}`;
+                tutorFeedbackElement.classList.add('text-blue-500');
+                tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
+            }
         }
         
+        function loadNextChallenge() {
+             if (currentMode === 'builder') {
+                 generateSentenceChallenge();
+             } else {
+                 loadNextPhrase();
+             }
+             
+             // Reset UI common to both
+             tutorFeedbackElement.innerHTML = '';
+             checkBtn.classList.remove('hidden');
+             revealBtn.classList.remove('hidden');
+             nextBtn.classList.add('hidden');
+        }
+
         // --- TTS Utility functions (Base64 to ArrayBuffer and AudioContext) ---
 
         let audioContext = null;
@@ -922,9 +1117,10 @@
 
         // Event Listeners for Tutor Mode
         checkBtn.addEventListener('click', checkAnswer);
-        nextBtn.addEventListener('click', loadNextPhrase);
+        nextBtn.addEventListener('click', loadNextChallenge);
         revealBtn.addEventListener('click', revealAnswer);
         tutorListenBtn.addEventListener('click', () => {
+            if (currentMode === 'builder') return;
             if (!currentPhrase) return;
             // Only speak the target language phrase
             const textToSpeak = currentPhrase.it;
