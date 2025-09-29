@@ -333,8 +333,8 @@
         const progressDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress') : null;
         const chatHistoryDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
 
-        // API Key and URLs
-        const API_KEY = ""; // Intentionally empty for Canvas runtime
+        // API Key and URLs (API_KEY is intentionally left empty for the Canvas runtime to provide it)
+        const API_KEY = ""; 
         const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
         const GEMINI_TTS_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + API_KEY;
         
@@ -371,14 +371,14 @@
                 
                 // Toggle display elements based on sub-mode
                 builderChallengeDisplay.classList.add('hidden');
+                
+                // Ensure visibility of the correct elements
                 phraseEnElement.classList.add('hidden');
                 phraseItElement.classList.add('hidden');
                 
                 if (mode === 'tutor') {
                     loadNextPhrase();
                     tutorListenBtn.classList.remove('hidden');
-                    phraseEnElement.classList.remove('hidden');
-                    phraseItElement.classList.remove('hidden'); // controlled by challenge logic
                     nextBtn.textContent = "Next Phrase";
                 } else { // builder mode
                     generateSentenceChallenge();
@@ -633,6 +633,12 @@
             revealBtn.disabled = true;
             tutorListenBtn.disabled = true;
             phrasePromptElement.textContent = "";
+            answerInput.disabled = true; // Disable input during loading
+
+            // Ensure elements are hidden
+            phraseEnElement.classList.add('hidden');
+            phraseItElement.classList.add('hidden');
+
 
             const languageName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
             const userQuery = `Generate a useful intermediate/advanced phrase in English and its accurate, idiomatic translation into ${languageName}. Also provide a short topic.`;
@@ -681,6 +687,7 @@
             checkBtn.disabled = false;
             revealBtn.disabled = false;
             tutorListenBtn.disabled = false;
+            answerInput.disabled = false;
             isGeneratingPhrase = false;
             tutorSystemMessageElement.classList.remove('opacity-100');
 
@@ -697,16 +704,16 @@
                 
                 // Dynamic phrases are always English -> Target Language for simplicity
                 phraseEnElement.classList.remove('hidden');
-                phraseItElement.classList.add('hidden');
                 phrasePromptElement.textContent = "Translate to " + (languageSelect.value === 'italian' ? 'Italian' : 'Sicilian');
                 answerInput.placeholder = "Type the translation...";
             } else {
                 currentPhrase = { en: "Error generating phrase.", it: "Errore.", topic: "Error" };
-                phraseEnElement.textContent = "Could not generate phrase. Try again or check the API key.";
+                phraseEnElement.textContent = "Could not generate phrase. Try again or check API connection.";
                 phraseItElement.textContent = currentPhrase.it;
                 updateMasteryIndicator(0, true); 
-                tutorSystemMessageElement.textContent = "AI Generation failed.";
+                tutorSystemMessageElement.textContent = "AI Generation failed. Check Console.";
                 tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
+                phraseEnElement.classList.remove('hidden');
             }
         }
 
@@ -719,7 +726,6 @@
             
             // Ensure phrase elements are visible and builder is hidden
             builderChallengeDisplay.classList.add('hidden');
-            phraseEnElement.classList.remove('hidden');
             
             // Find the least mastered static phrase (simple spaced repetition)
             const availablePhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
@@ -743,26 +749,29 @@
             
             const targetLangName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
 
+            // Set content first
+            phraseEnElement.textContent = currentPhrase.en;
+            phraseItElement.textContent = currentPhrase.it;
+
+            // Rigorously control visibility
+            phraseEnElement.classList.add('hidden');
+            phraseItElement.classList.add('hidden');
+
             if (isReverseChallenge) {
-                phraseEnElement.classList.add('hidden');
-                phraseItElement.classList.remove('hidden');
+                phraseItElement.classList.remove('hidden'); // Show target language (the prompt)
                 phrasePromptElement.textContent = "Translate to English (Challenge Mode)";
                 answerInput.placeholder = "Type the English translation...";
             } else {
-                phraseEnElement.classList.remove('hidden');
-                phraseItElement.classList.add('hidden');
+                phraseEnElement.classList.remove('hidden'); // Show English (the prompt)
                 phrasePromptElement.textContent = `Translate to ${targetLangName}`;
                 answerInput.placeholder = `Type the ${targetLangName} translation...`;
             }
-
-            // Set content
-            phraseEnElement.textContent = currentPhrase.en;
-            phraseItElement.textContent = currentPhrase.it;
 
             updateMasteryIndicator(currentPhrase.mastered); 
 
             // Reset UI
             answerInput.value = '';
+            answerInput.disabled = false;
             answerInput.classList.remove('correct-answer-input', 'border-red-500');
             checkBtn.classList.remove('hidden');
             revealBtn.classList.remove('hidden');
@@ -794,6 +803,7 @@
             revealBtn.disabled = true;
             tutorListenBtn.disabled = true;
             tutorListenBtn.classList.add('hidden');
+            answerInput.disabled = true;
 
             const languageName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
             const userQuery = `Generate an intermediate-level English sentence construction prompt for learning ${languageName}. This sentence must require the use of a verb conjugation, tense, or complex structure (like subjunctive or compound tense). Provide the correct translation and the grammar point being tested.`;
@@ -840,6 +850,8 @@
 
             checkBtn.disabled = false;
             revealBtn.disabled = false;
+            tutorListenBtn.disabled = false;
+            answerInput.disabled = false;
             isGeneratingPhrase = false;
             tutorSystemMessageElement.classList.remove('opacity-100');
 
@@ -855,9 +867,9 @@
                 updateMasteryIndicator(0); 
                 
             } else {
-                builderEnPrompt.textContent = "Error generating challenge. Try again or check the API key.";
+                builderEnPrompt.textContent = "Error generating challenge. Try again or check the API connection.";
                 builderGrammarFocus.textContent = "Error";
-                tutorSystemMessageElement.textContent = "AI Challenge generation failed.";
+                tutorSystemMessageElement.textContent = "AI Challenge generation failed. Check Console.";
                 tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
             }
         }
@@ -889,11 +901,12 @@
 
             if (userAnswerClean === correctAnswerClean) {
                 tutorFeedbackElement.textContent = 'Correct! Molto bene!';
-                tutorFeedbackElement.classList.add('text-green-500');
-                tutorFeedbackElement.classList.remove('text-red-500', 'text-blue-500');
+                tutorFeedbackElement.classList.add('text-green-500', 'text-lg', 'font-bold');
+                tutorFeedbackElement.classList.remove('text-red-500', 'text-blue-500', 'text-sm', 'font-semibold');
                 
                 answerInput.classList.add('correct-answer-input');
                 answerInput.classList.remove('border-red-500');
+                answerInput.disabled = true; // Disable input on correct answer
                 
                 // Only update and save progress for STATIC phrases
                 if (currentPhrase.mastered !== undefined && currentPhrase.mastered < masteredThreshold) {
@@ -910,7 +923,7 @@
             } else {
                 tutorFeedbackElement.textContent = 'Incorrect. Try again!';
                 tutorFeedbackElement.classList.add('text-red-500');
-                tutorFeedbackElement.classList.remove('text-green-500', 'text-blue-500');
+                tutorFeedbackElement.classList.remove('text-green-500', 'text-blue-500', 'text-lg', 'font-bold');
                 answerInput.classList.add('border-red-500');
                 answerInput.classList.remove('correct-answer-input');
             }
@@ -920,7 +933,8 @@
             if (!currentBuilderChallenge) return;
 
             const userAnswer = answerInput.value.trim();
-            
+            answerInput.disabled = true; // Disable input after check
+
             // In Sentence Builder mode, we treat "Check Answer" as a reveal/self-correction step
             tutorFeedbackElement.textContent = 'Review your answer against the solution below.';
             tutorFeedbackElement.classList.add('text-blue-500');
@@ -944,6 +958,8 @@
         }
 
         function revealAnswer() {
+            answerInput.disabled = true; // Disable input after reveal
+
             if (currentMode === 'builder') {
                  // Reveal in builder mode shows the correct translation immediately
                  tutorFeedbackElement.textContent = `The correct answer is: ${currentBuilderChallenge.it}`;
@@ -979,6 +995,7 @@
              checkBtn.classList.remove('hidden');
              revealBtn.classList.remove('hidden');
              nextBtn.classList.add('hidden');
+             answerInput.disabled = false;
         }
 
         // --- TTS Utility functions (Base64 to ArrayBuffer and AudioContext) ---
@@ -1051,15 +1068,6 @@
             const language = languageSelect.value;
             const voiceName = language === 'italian' ? 'Kore' : 'Charon'; 
             
-            if (!API_KEY && typeof __app_id === 'undefined') { 
-                 tutorSystemMessageElement.textContent = "AI Key Missing. Cannot play audio.";
-                 tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
-                 setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 3000);
-                 tutorListenBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-                 tutorListenBtn.disabled = false;
-                 return;
-            }
-
             for (let attempt = 0; attempt < 3; attempt++) {
                 try {
                     const payload = {
@@ -1104,7 +1112,7 @@
                 } catch (error) {
                     console.error("TTS Fetch Error:", error);
                     if (attempt === 2) {
-                        tutorSystemMessageElement.textContent = "Error playing audio.";
+                        tutorSystemMessageElement.textContent = "Error playing audio. Check Console.";
                         tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
                     }
                 }
@@ -1167,11 +1175,6 @@
             if (isWaitingForResponse) return;
             const userQuery = chatInput.value.trim();
             if (!userQuery) return;
-
-            if (!API_KEY && typeof __app_id === 'undefined') {
-                renderChatMessage('system', "AI Chat Failed: Missing Google Gemini API Key.");
-                return;
-            }
 
             chatInput.value = '';
             
@@ -1255,13 +1258,6 @@
             chatSpeakBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             chatSpeakBtn.disabled = true;
             
-            if (!API_KEY && typeof __app_id === 'undefined') { 
-                 renderChatMessage('system', "AI TTS Failed: Missing Google Gemini API Key.");
-                 chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                 chatSpeakBtn.disabled = false;
-                 return;
-            }
-
             for (let attempt = 0; attempt < 3; attempt++) {
                 try {
                     const payload = {
