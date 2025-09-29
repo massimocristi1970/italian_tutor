@@ -57,6 +57,9 @@
              background-color: #4B5563; /* Gray-600 */
              color: #F9FAFB; /* Gray-50 */
         }
+        .progress-bar-fill {
+            transition: width 0.5s ease-in-out;
+        }
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -143,14 +146,27 @@
 
         <!-- Tutor Section -->
         <div id="tutor-section" class="text-center">
+            
+            <!-- Overall Level and Progress Bar -->
+            <div id="overall-progress-container" class="mb-6 bg-gray-50 p-3 rounded-lg shadow-inner dark:bg-gray-700">
+                <div class="flex justify-between items-center mb-1">
+                    <span id="overall-level" class="text-sm font-semibold text-gray-800 dark:text-gray-100">Level: Beginner</span>
+                    <span id="progress-percent" class="text-sm font-semibold text-gray-600 dark:text-gray-300">0%</span>
+                </div>
+                <div class="w-full bg-gray-300 rounded-full h-2.5 dark:bg-gray-600">
+                    <div id="progress-bar-fill" class="progress-bar-fill bg-green-500 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
             <!-- System message/alert container -->
             <div id="tutor-system-message" class="text-center font-semibold text-sm mb-4 h-6 opacity-0 transition-opacity duration-500 text-gray-800 dark:text-gray-100"></div>
 
-            <!-- New Mastery Indicator -->
+            <!-- Current Phrase Mastery Indicator -->
             <div id="mastery-indicator" class="text-sm font-semibold text-amber-500 mb-2 h-6"></div>
 
             <!-- Flashcard content -->
             <div class="h-40 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700">
+                <p id="phrase-prompt" class="absolute top-2 left-4 text-xs font-medium text-gray-500 dark:text-gray-400"></p>
                 <p id="phrase-en" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 dark:text-gray-100"></p>
                 <p id="phrase-it" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 hidden dark:text-gray-100"></p>
             </div>
@@ -216,10 +232,10 @@
         // Tutor section elements
         const phraseEnElement = document.getElementById('phrase-en');
         const phraseItElement = document.getElementById('phrase-it');
+        const phrasePromptElement = document.getElementById('phrase-prompt');
         const answerInput = document.getElementById('answer-input');
         const tutorListenBtn = document.getElementById('tutor-listen-btn');
         const tutorSpeakBtn = document.getElementById('tutor-speak-btn');
-        const tutorListeningPulse = document.getElementById('tutor-listening-pulse');
         const checkBtn = document.getElementById('check-btn');
         const nextBtn = document.getElementById('next-btn');
         const revealBtn = document.getElementById('reveal-btn');
@@ -227,6 +243,11 @@
         const tutorSystemMessageElement = document.getElementById('tutor-system-message');
         const userIdDisplay = document.getElementById('user-id-display');
         const masteryIndicator = document.getElementById('mastery-indicator');
+        
+        // Progress elements
+        const overallLevelElement = document.getElementById('overall-level');
+        const progressPercentElement = document.getElementById('progress-percent');
+        const progressBarFillElement = document.getElementById('progress-bar-fill');
         
         // Header elements for flag update
         const languageFlag = document.getElementById('language-flag');
@@ -238,7 +259,7 @@
         const chatSpeakBtn = document.getElementById('chat-speak-btn');
         const chatSendBtn = document.getElementById('chat-send-btn');
         
-        const italianPhrases = [
+        const initialPhrases = [
             { en: "Hello", it: "Ciao", mastered: 0 },
             { en: "Thank you", it: "Grazie", mastered: 0 },
             { en: "Please", it: "Per favore", mastered: 0 },
@@ -261,55 +282,53 @@
             { en: "Let's go", it: "Andiamo", mastered: 0 }
         ];
 
-        const sicilianPhrases = [
-            { en: "Hello", it: "Salutu", mastered: 0 },
-            { en: "Thank you", it: "Grazzî", mastered: 0 },
-            { en: "Please", it: "Pi favuri", mastered: 0 },
-            { en: "Excuse me", it: "M'accatti", mastered: 0 },
-            { en: "Yes", it: "Sì", mastered: 0 },
-            { en: "No", it: "No", mastered: 0 },
-            { en: "Goodbye", it: "Addiu", mastered: 0 },
-            { en: "How are you?", it: "Comu si senti?", mastered: 0 },
-            { en: "I don't understand", it: "Nun capisciu", mastered: 0 },
-            { en: "Do you speak English?", it: "Parra ngrisi?", mastered: 0 },
-            { en: "What is your name?", it: "Comu ti chiami?", mastered: 0 },
-            { en: "My name is...", it: "Mi chiàmu...", mastered: 0 },
-            { en: "Where are you from?", it: "Di unni si?", mastered: 0 },
-            { en: "I am from...", it: "Sugnu di...", mastered: 0 },
-            { en: "I am sorry", it: "M'addulìu", mastered: 0 },
-            { en: "How much does this cost?", it: "Quantu costa?", mastered: 0 },
-            { en: "The food is delicious", it: "Lu manciari è diliziusu", mastered: 0 },
-            { en: "I would like a coffee", it: "Vuògghiu un cafè", mastered: 0 },
-            { en: "I am tired", it: "Sugnu stancu/a", mastered: 0 },
-            { en: "Let's go", it: "Iemu", mastered: 0 }
-        ];
+        // Deep copies of the initial phrase lists for separation
+        const italianPhrases = JSON.parse(JSON.stringify(initialPhrases));
+        const sicilianPhrases = initialPhrases.map(p => {
+             // Sicily-specific translations are initialized with 0 mastery
+             const sicilianTranslations = {
+                 "Hello": "Salutu", "Thank you": "Grazzî", "Please": "Pi favuri",
+                 "Excuse me": "M'accatti", "Goodbye": "Addiu", "How are you?": "Comu si senti?",
+                 "I don't understand": "Nun capisciu", "Do you speak English?": "Parra ngrisi?",
+                 "I am sorry": "M'addulìu", "The food is delicious": "Lu manciari è diliziusu",
+                 "I would like a coffee": "Vuògghiu un cafè", "I am tired": "Sugnu stancu/a",
+                 "Let's go": "Iemu",
+             };
+             return { 
+                 ...p, 
+                 it: sicilianTranslations[p.en] || p.it,
+                 mastered: 0
+             };
+        });
 
         let currentPhrases = italianPhrases;
-        // The structure of currentPhrase will match the static format { en, it, mastered } OR the dynamic format { en, it, topic }
         let currentPhrase = null; 
         let isAuthReady = false;
         let userId = null; 
         let isGeneratingPhrase = false;
-        const masteredThreshold = 2;
         
-        // Check if db is initialized before creating ref functions
+        // RAISED DIFFICULTY: Mastery threshold increased to 5
+        const masteredThreshold = 5;
+        const totalStaticPhrases = initialPhrases.length;
+        const maxMasteryPoints = totalStaticPhrases * masteredThreshold; // Max 100 points (20 phrases * 5)
+
         const progressDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress') : null;
         const chatHistoryDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
 
         // API Key and URLs
-        const API_KEY = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; // Updated with user's key
+        const API_KEY = ""; // Intentionally empty for Canvas runtime
         const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
         const GEMINI_TTS_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + API_KEY;
         
         let chatHistory = [];
         let isWaitingForResponse = false;
+        let isReverseChallenge = false; // New state for contextual challenge
 
         function updateFlagDisplay(language) {
             if (language === 'italian') {
                 languageFlag.textContent = '🇮🇹';
                 appTitle.textContent = 'Language Tutor';
             } else if (language === 'sicilian') {
-                // Using a visual indicator for Sicilian as no standard emoji exists
                 languageFlag.textContent = '🏛️'; 
                 appTitle.textContent = 'Sicilian Tutor';
             }
@@ -324,6 +343,8 @@
                 chatModeBtn.classList.remove('bg-blue-500', 'text-white');
                 chatModeBtn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
                 loadNextPhrase();
+                // Ensure progress is visible in tutor mode
+                calculateOverallProgress(); 
             } else {
                 chatSection.classList.remove('hidden');
                 tutorSection.classList.add('hidden');
@@ -340,8 +361,8 @@
         languageSelect.addEventListener('change', () => {
             const selectedLanguage = languageSelect.value;
             currentPhrases = selectedLanguage === 'italian' ? italianPhrases : sicilianPhrases;
-            updateFlagDisplay(selectedLanguage); // Update flag
-            loadProgress(); // Reload progress and chat history when language changes
+            updateFlagDisplay(selectedLanguage); 
+            loadProgress(); 
             if (!tutorSection.classList.contains('hidden')) {
                 loadNextPhrase();
             }
@@ -351,10 +372,6 @@
         });
 
         // --- Firebase Auth and Data Loading ---
-
-        /**
-         * Initializes Firebase authentication (sign in or custom token sign in).
-         */
         async function initializeAuth() {
             if (!auth || !db) {
                 console.error("Database not initialized. Cannot authenticate.");
@@ -376,35 +393,72 @@
         }
 
         /**
-         * Loads user progress from Firestore or initializes it.
+         * Calculates total mastery points and updates the overall progress UI.
          */
+        function calculateOverallProgress() {
+            if (!currentPhrases || currentPhrases.length === 0) return;
+
+            // 1. Calculate Total Mastery Points Earned
+            let totalMasteryEarned = 0;
+            const masteredPhrasesCount = currentPhrases.filter(p => p.mastered >= masteredThreshold).length;
+
+            currentPhrases.forEach(phrase => {
+                // Sum up actual mastered count, capped at the threshold (5)
+                totalMasteryEarned += Math.min(phrase.mastered, masteredThreshold);
+            });
+
+            // 2. Calculate Percentage
+            const progressPercent = Math.min(100, Math.round((totalMasteryEarned / maxMasteryPoints) * 100));
+            const levelName = getLevelName(totalMasteryEarned);
+            
+            // 3. Update UI
+            progressBarFillElement.style.width = `${progressPercent}%`;
+            progressPercentElement.textContent = `${progressPercent}%`;
+            overallLevelElement.textContent = `Level: ${levelName}`;
+            
+            // Highlight bar if progress is high
+            if (progressPercent === 100) {
+                 progressBarFillElement.classList.add('bg-blue-500');
+                 progressBarFillElement.classList.remove('bg-green-500');
+            } else {
+                 progressBarFillElement.classList.add('bg-green-500');
+                 progressBarFillElement.classList.remove('bg-blue-500');
+            }
+        }
+        
+        function getLevelName(masteryPoints) {
+            // Milestones adjusted for maxMasteryPoints (100)
+            if (masteryPoints >= 95) return "Mastery Achieved";
+            if (masteryPoints >= 70) return "Advanced Learner";
+            if (masteryPoints >= 40) return "Intermediate";
+            if (masteryPoints >= 15) return "Novice";
+            return "Beginner";
+        }
+
         function loadProgress() {
             if (!isAuthReady || !progressDocRef()) return;
 
-            // Load progress for the current language only
             const languageKey = languageSelect.value;
-
+            
+            // Use onSnapshot to listen for real-time updates
             onSnapshot(progressDocRef(), (docSnapshot) => {
                 let initialLoad = true;
+                
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();
                     const progressData = data[languageKey] || [];
 
-                    currentPhrases.forEach((phrase, index) => {
+                    currentPhrases.forEach((phrase) => {
                         const savedPhrase = progressData.find(p => p.en === phrase.en);
-                        if (savedPhrase) {
-                            phrase.mastered = savedPhrase.mastered || 0;
-                        } else {
-                            // If a phrase is missing in saved data, ensure it is initialized to 0
-                            phrase.mastered = 0;
-                        }
+                        phrase.mastered = savedPhrase ? (savedPhrase.mastered || 0) : 0;
                     });
                 } else {
-                    // Initialize document if it doesn't exist
-                    saveProgress();
+                    saveProgress(); // Initialize if not exists
                 }
                 
-                // Only load next phrase if we are in tutor mode and it's the initial load
+                calculateOverallProgress(); // Always update progress bar on data load
+                
+                // Only load next phrase if we are in tutor mode
                 if (initialLoad && !tutorSection.classList.contains('hidden')) {
                     loadNextPhrase();
                 }
@@ -417,20 +471,17 @@
             });
         }
 
-        /**
-         * Saves the current phrase progress to Firestore.
-         */
         async function saveProgress() {
             if (!isAuthReady || !progressDocRef()) return;
 
             const languageKey = languageSelect.value;
+            // Only save the necessary data (en and mastered count)
             const progressData = currentPhrases.map(p => ({
                 en: p.en,
                 mastered: p.mastered
             }));
 
             try {
-                // Fetch the existing document to merge the new language's progress
                 const docSnap = await getDoc(progressDocRef());
                 const existingData = docSnap.exists() ? docSnap.data() : {};
                 
@@ -439,27 +490,20 @@
                     [languageKey]: progressData 
                 }, { merge: true });
 
-                // Provide visual feedback for saving
                 tutorSystemMessageElement.textContent = "Progress saved!";
                 tutorSystemMessageElement.classList.add('opacity-100', 'text-green-500');
-                tutorSystemMessageElement.classList.remove('text-red-500');
                 setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 1500);
 
             } catch (error) {
                 console.error("Error saving progress: ", error);
                 tutorSystemMessageElement.textContent = "Error saving progress!";
                 tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
-                tutorSystemMessageElement.classList.remove('text-green-500');
             }
         }
         
-        /**
-         * Loads chat history from Firestore.
-         */
         function loadChatHistory() {
             if (!isAuthReady || !chatHistoryDocRef()) return;
 
-            // Clear existing chat window and show placeholder
             chatWindow.innerHTML = '<div class="text-center text-sm text-gray-500 dark:text-gray-400">Loading chat history...</div>';
             chatHistory = [];
 
@@ -468,13 +512,11 @@
                     const data = docSnapshot.data();
                     const messages = data.messages || [];
                     
-                    // Only update the UI if the messages have actually changed
                     if (JSON.stringify(messages) !== JSON.stringify(chatHistory)) {
                         chatHistory = messages;
                         renderChatHistory();
                     }
                 } else {
-                    // Initialize document if it doesn't exist
                     saveChatHistory();
                 }
             }, (error) => {
@@ -483,9 +525,6 @@
             });
         }
 
-        /**
-         * Saves the current chat history to Firestore.
-         */
         async function saveChatHistory() {
             if (!isAuthReady || !chatHistoryDocRef()) return;
 
@@ -496,30 +535,23 @@
             }
         }
 
-        // Auth State Listener
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userId = user.uid;
                 userIdDisplay.textContent = `User ID: ${userId}`;
                 isAuthReady = true;
                 
-                // Once authenticated, load data for both modes
                 loadProgress();
                 loadChatHistory();
                 
             } else {
-                // If not signed in (shouldn't happen with anonymous sign-in, but safe guard)
                 isAuthReady = false;
-                userId = null; // Ensure userId is null if user is signed out
+                userId = null; 
                 userIdDisplay.textContent = "User ID: Not Authenticated";
-                
-                if (phraseEnElement.textContent === "Loading...") {
-                     phraseEnElement.textContent = currentPhrases[0].en;
-                }
+                phraseEnElement.textContent = currentPhrases[0].en; // Show first phrase as fallback
             }
         });
 
-        // Start the authentication process
         initializeAuth();
 
 
@@ -532,8 +564,8 @@
                  masteryIndicator.classList.remove('text-amber-500', 'text-green-500');
                  return;
              }
-             const stars = Array(masteryCount).fill('⭐').join('');
-             masteryIndicator.textContent = `Mastery: ${stars} (${masteryCount}/${masteredThreshold})`;
+             const stars = Array(Math.min(masteryCount, masteredThreshold)).fill('⭐').join('');
+             masteryIndicator.textContent = `Phrase Mastery: ${stars} (${Math.min(masteryCount, masteredThreshold)}/${masteredThreshold})`;
              masteryIndicator.classList.remove('text-amber-500', 'text-green-500', 'text-blue-500');
              if (masteryCount >= masteredThreshold) {
                  masteryIndicator.classList.add('text-green-500');
@@ -542,12 +574,9 @@
              }
         }
 
-        /**
-         * Uses Gemini to generate a new, dynamic flashcard phrase in JSON format.
-         */
         async function generateDynamicPhrase() {
             isGeneratingPhrase = true;
-            tutorSystemMessageElement.textContent = "Generating a new phrase with AI...";
+            tutorSystemMessageElement.textContent = "Generating a new, advanced phrase with AI...";
             tutorSystemMessageElement.classList.add('opacity-100', 'text-blue-500');
             
             phraseEnElement.textContent = '<i class="fas fa-spinner fa-spin"></i>';
@@ -558,11 +587,11 @@
             checkBtn.disabled = true;
             revealBtn.disabled = true;
             tutorListenBtn.disabled = true;
+            phrasePromptElement.textContent = "";
 
             const languageName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
-            const userQuery = `Generate a useful intermediate phrase in English and its accurate, idiomatic translation into ${languageName}. Also provide a short topic.`;
+            const userQuery = `Generate a useful intermediate/advanced phrase in English and its accurate, idiomatic translation into ${languageName}. Also provide a short topic.`;
             
-            // Structure the response to ensure we get a usable flashcard
             const payload = {
                 contents: [{ parts: [{ text: userQuery }] }],
                 generationConfig: {
@@ -587,16 +616,13 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-
+                    // Handle exponential backoff
                     if (response.status === 429 && attempt < 2) {
                         const delay = Math.pow(2, attempt) * 1000;
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
-
-                    if (!response.ok) {
-                        throw new Error(`API returned status ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
                     const jsonString = result?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -607,7 +633,6 @@
                 }
             }
 
-            // Reset UI state
             checkBtn.disabled = false;
             revealBtn.disabled = false;
             tutorListenBtn.disabled = false;
@@ -618,12 +643,18 @@
                 currentPhrase = {
                     en: generatedData.englishPhrase,
                     it: generatedData.translation,
-                    topic: generatedData.topic || 'General' // Use a default topic
+                    topic: generatedData.topic || 'General' 
                 };
                 
                 phraseEnElement.textContent = currentPhrase.en;
                 phraseItElement.textContent = currentPhrase.it;
-                updateMasteryIndicator(0, true); // Indicate dynamic phrase
+                updateMasteryIndicator(0, true); 
+                
+                // Dynamic phrases are always English -> Target Language for simplicity
+                phraseEnElement.classList.remove('hidden');
+                phraseItElement.classList.add('hidden');
+                phrasePromptElement.textContent = "Translate to " + (languageSelect.value === 'italian' ? 'Italian' : 'Sicilian');
+                answerInput.placeholder = "Type the translation...";
             } else {
                 currentPhrase = { en: "Error generating phrase.", it: "Errore.", topic: "Error" };
                 phraseEnElement.textContent = "Could not generate phrase. Try again or check the API key.";
@@ -647,26 +678,43 @@
             if (availablePhrases.length === 0) {
                 // All static phrases mastered, switch to AI generation
                 generateDynamicPhrase();
+                isReverseChallenge = false;
                 return;
             }
 
             // Simple randomization among the least mastered group
-            availablePhrases.sort((a, b) => a.mastery - b.mastery);
+            availablePhrases.sort((a, b) => a.mastered - b.mastery);
             const lowestMastery = availablePhrases.length > 0 ? availablePhrases[0].mastered : 0;
             const pool = availablePhrases.filter(p => p.mastered === lowestMastery);
 
             currentPhrase = pool[Math.floor(Math.random() * pool.length)] || currentPhrases[0];
             
+            // CHALLENGE LOGIC: Switch to reverse translation at mastery level 3
+            isReverseChallenge = currentPhrase.mastered >= 3 && currentPhrase.mastered < masteredThreshold;
+            
+            const targetLangName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
+
+            if (isReverseChallenge) {
+                phraseEnElement.classList.add('hidden');
+                phraseItElement.classList.remove('hidden');
+                phrasePromptElement.textContent = "Translate to English (Challenge Mode)";
+                answerInput.placeholder = "Type the English translation...";
+            } else {
+                phraseEnElement.classList.remove('hidden');
+                phraseItElement.classList.add('hidden');
+                phrasePromptElement.textContent = `Translate to ${targetLangName}`;
+                answerInput.placeholder = `Type the ${targetLangName} translation...`;
+            }
+
+            // Set content
             phraseEnElement.textContent = currentPhrase.en;
             phraseItElement.textContent = currentPhrase.it;
 
-            updateMasteryIndicator(currentPhrase.mastered); // Display mastery count
+            updateMasteryIndicator(currentPhrase.mastered); 
 
             // Reset UI
             answerInput.value = '';
             answerInput.classList.remove('correct-answer-input', 'border-red-500');
-            phraseEnElement.classList.remove('hidden');
-            phraseItElement.classList.add('hidden');
             checkBtn.classList.remove('hidden');
             revealBtn.classList.remove('hidden');
             nextBtn.classList.add('hidden');
@@ -674,13 +722,29 @@
             tutorSystemMessageElement.classList.remove('opacity-100');
         }
 
+        function cleanString(str) {
+             // Remove all punctuation, convert to lowercase, and trim whitespace
+            return str.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ');
+        }
+
         function checkAnswer() {
             if (isGeneratingPhrase) return;
 
-            const userAnswer = answerInput.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-            const correctAnswer = currentPhrase.it.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+            const userAnswerClean = cleanString(answerInput.value);
+            let correctAnswerClean;
+            let expectedAnswer;
 
-            if (userAnswer === correctAnswer) {
+            if (isReverseChallenge) {
+                // Reverse Challenge: Check user input (English) against correct English phrase (currentPhrase.en)
+                correctAnswerClean = cleanString(currentPhrase.en);
+                expectedAnswer = currentPhrase.en;
+            } else {
+                // Standard Challenge: Check user input (Target) against correct Target phrase (currentPhrase.it)
+                correctAnswerClean = cleanString(currentPhrase.it);
+                expectedAnswer = currentPhrase.it;
+            }
+
+            if (userAnswerClean === correctAnswerClean) {
                 tutorFeedbackElement.textContent = 'Correct! Molto bene!';
                 tutorFeedbackElement.classList.add('text-green-500');
                 tutorFeedbackElement.classList.remove('text-red-500', 'text-blue-500');
@@ -689,13 +753,14 @@
                 answerInput.classList.remove('border-red-500');
                 
                 // Only update and save progress for STATIC phrases
-                if (currentPhrase.mastered !== undefined) {
+                if (currentPhrase.mastered !== undefined && currentPhrase.mastered < masteredThreshold) {
                     currentPhrase.mastered = (currentPhrase.mastered || 0) + 1;
                     saveProgress();
-                    updateMasteryIndicator(currentPhrase.mastered); // Update indicator immediately
+                    calculateOverallProgress(); // Recalculate overall progress
                 }
                 
-                // Show Next button
+                updateMasteryIndicator(currentPhrase.mastered);
+                
                 checkBtn.classList.add('hidden');
                 revealBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
@@ -709,12 +774,14 @@
         }
 
         function revealAnswer() {
+            let correctAnswer = isReverseChallenge ? currentPhrase.en : currentPhrase.it;
+
             phraseEnElement.classList.add('hidden');
             phraseItElement.classList.remove('hidden');
             checkBtn.classList.add('hidden');
             revealBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
-            tutorFeedbackElement.textContent = `The correct answer is: ${currentPhrase.it}`;
+            tutorFeedbackElement.textContent = `The correct answer is: ${correctAnswer}`;
             tutorFeedbackElement.classList.add('text-blue-500');
             tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
         }
@@ -733,27 +800,23 @@
             return bytes.buffer;
         }
 
-        /**
-         * Converts TTS API response (PCM) into playable audio using the Web Audio API (AudioContext).
-         */
         function ttsToAudio(audioData, mimeType) {
             if (!audioData || !mimeType) {
                 console.error("Missing audio data or mime type.");
                 return;
             }
 
-            // Initialize AudioContext on first use (must be triggered by user interaction)
             if (!audioContext) {
+                // Initialize AudioContext on user interaction
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
 
-            // Resume context if it was suspended (common on mobile)
             if (audioContext.state === 'suspended') {
-                audioContext.resume();
+                // Attempt to resume the context if it's suspended
+                audioContext.resume().catch(e => console.error("Error resuming AudioContext:", e));
             }
 
             const match = mimeType.match(/rate=(\d+)/);
-            // Default rate is 24000
             const sampleRate = match ? parseInt(match[1], 10) : 24000; 
 
             try {
@@ -763,17 +826,14 @@
                 // The API returns signed 16-bit PCM data (Int16Array)
                 const pcm16 = new Int16Array(pcmDataBuffer);
                 
-                // Create an empty AudioBuffer
                 const audioBuffer = audioContext.createBuffer(numChannels, pcm16.length, sampleRate);
                 const channelData = audioBuffer.getChannelData(0);
 
-                // Copy signed 16-bit PCM data to the float32 AudioBuffer
+                // Convert signed 16-bit integer to floating point (-1.0 to 1.0)
                 for (let i = 0; i < pcm16.length; i++) {
-                    // Convert signed 16-bit integer (-32768 to 32767) to floating point (-1.0 to 1.0)
                     channelData[i] = pcm16[i] / 32768.0; 
                 }
 
-                // Play the buffer
                 const source = audioContext.createBufferSource();
                 source.buffer = audioBuffer;
                 source.connect(audioContext.destination);
@@ -781,7 +841,7 @@
 
             } catch (error) {
                 console.error("Error processing PCM data with AudioContext:", error);
-                tutorSystemMessageElement.textContent = "Error playing audio with AudioContext.";
+                tutorSystemMessageElement.textContent = "Error playing audio with AudioContext. Check Console!";
                 tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
                 setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 3000);
             }
@@ -794,11 +854,9 @@
             tutorListenBtn.disabled = true;
 
             const language = languageSelect.value;
-            // Using different voices for Italian vs Sicilian
             const voiceName = language === 'italian' ? 'Kore' : 'Charon'; 
             
-            // API Key check
-            if (!API_KEY && typeof __app_id === 'undefined') { // If not in canvas and key is missing
+            if (!API_KEY && typeof __app_id === 'undefined') { 
                  tutorSystemMessageElement.textContent = "AI Key Missing. Cannot play audio.";
                  tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
                  setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 3000);
@@ -816,9 +874,7 @@
                         generationConfig: {
                             responseModalities: ["AUDIO"],
                             speechConfig: {
-                                voiceConfig: {
-                                    prebuiltVoiceConfig: { voiceName: voiceName }
-                                }
+                                voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } }
                             }
                         },
                         model: "gemini-2.5-flash-preview-tts"
@@ -836,9 +892,7 @@
                         continue;
                     }
 
-                    if (!response.ok) {
-                        throw new Error(`API returned status ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
                     const part = result?.candidates?.[0]?.content?.parts?.[0];
@@ -851,7 +905,7 @@
                         throw new Error("TTS response missing audio data.");
                     }
                     
-                    break; // Success
+                    break; 
                 } catch (error) {
                     console.error("TTS Fetch Error:", error);
                     if (attempt === 2) {
@@ -872,12 +926,11 @@
         revealBtn.addEventListener('click', revealAnswer);
         tutorListenBtn.addEventListener('click', () => {
             if (!currentPhrase) return;
-            // If it's a dynamic phrase, the content is in currentPhrase.it
+            // Only speak the target language phrase
             const textToSpeak = currentPhrase.it;
             fetchTutorTTS(textToSpeak);
         });
         
-        // --- Speech Recognition (Simulated in this environment) ---
         tutorSpeakBtn.addEventListener('click', () => {
              tutorSystemMessageElement.textContent = "Speech input is not available in this environment. Please type your answer.";
              tutorSystemMessageElement.classList.add('opacity-100', 'text-orange-500');
@@ -919,15 +972,13 @@
             const userQuery = chatInput.value.trim();
             if (!userQuery) return;
 
-            // API Key check for chat
             if (!API_KEY && typeof __app_id === 'undefined') {
-                renderChatMessage('system', "AI Chat Failed: Missing Google Gemini API Key. Please update the API_KEY variable in the script.");
+                renderChatMessage('system', "AI Chat Failed: Missing Google Gemini API Key.");
                 return;
             }
 
             chatInput.value = '';
             
-            // Add user message to history and render
             const userMessage = { role: "user", parts: [{ text: userQuery }] };
             chatHistory.push(userMessage);
             renderChatMessage('user', userQuery);
@@ -936,11 +987,9 @@
             chatSendBtn.disabled = true;
             chatSendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
-            // System instruction tailored to the selected language
             const language = languageSelect.value;
             const systemPrompt = `You are a helpful, enthusiastic, and patient language tutor specializing in ${language}. Keep your responses friendly, encouraging, and concise. Only respond in English, but use and teach ${language} phrases relevant to the user's question.`;
 
-            // Construct payload for Gemini API
             const payload = {
                 contents: chatHistory,
                 systemInstruction: {
@@ -948,7 +997,6 @@
                 }
             };
             
-            // Exponential backoff retry logic
             let modelResponseText = "Sorry, I couldn't get a response from the tutor. This usually means the Gemini API Key is missing or invalid.";
             
             for (let attempt = 0; attempt < 3; attempt++) {
@@ -965,35 +1013,24 @@
                         continue;
                     }
                     
-                    if (!response.ok) {
-                        // Check for common failure codes like 403/400 (API key issues)
-                        const errorBody = await response.json();
-                        console.error("Gemini API Error Body:", errorBody);
-                        if (response.status >= 400 && response.status < 500) {
-                             modelResponseText = "AI Chat Failed: Check if your Google Gemini API Key is valid and enabled for the model.";
-                        }
-                        throw new Error(`API returned status ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
                     const candidate = result.candidates?.[0];
                     modelResponseText = candidate?.content?.parts?.[0]?.text || modelResponseText;
                     
-                    break; // Success
+                    break; 
                 } catch (error) {
                     console.error("Gemini Chat Fetch Error:", error);
                 }
             }
 
-            // Add model response to history and render
             const modelMessage = { role: "model", parts: [{ text: modelResponseText }] };
             chatHistory.push(modelMessage);
             renderChatMessage('model', modelResponseText);
             
-            // Save updated history
             saveChatHistory();
 
-            // Reset state
             isWaitingForResponse = false;
             chatSendBtn.disabled = false;
             chatSendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
@@ -1006,11 +1043,9 @@
             }
         });
         
-        // TTS for Chat Mode (reads the last model response)
         chatSpeakBtn.addEventListener('click', () => {
             if (isWaitingForResponse || chatHistory.length === 0) return;
             
-            // Find the last model message
             const lastModelMessage = [...chatHistory].reverse().find(m => m.role === 'model');
             if (lastModelMessage) {
                 const textToSpeak = lastModelMessage.parts[0].text;
@@ -1024,7 +1059,6 @@
             chatSpeakBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             chatSpeakBtn.disabled = true;
             
-            // API Key check
             if (!API_KEY && typeof __app_id === 'undefined') { 
                  renderChatMessage('system', "AI TTS Failed: Missing Google Gemini API Key.");
                  chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
@@ -1041,9 +1075,7 @@
                         generationConfig: {
                             responseModalities: ["AUDIO"],
                             speechConfig: {
-                                voiceConfig: {
-                                    prebuiltVoiceConfig: { voiceName: voiceName }
-                                }
+                                voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } }
                             }
                         },
                         model: "gemini-2.5-flash-preview-tts"
@@ -1061,9 +1093,7 @@
                         continue;
                     }
 
-                    if (!response.ok) {
-                        throw new Error(`API returned status ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
                     const part = result?.candidates?.[0]?.content?.parts?.[0];
@@ -1076,7 +1106,7 @@
                         throw new Error("TTS response missing audio data.");
                     }
                     
-                    break; // Success
+                    break; 
                 } catch (error) {
                     console.error("Chat TTS Fetch Error:", error);
                 }
@@ -1091,7 +1121,8 @@
             const initialLanguage = languageSelect.value;
             currentPhrases = initialLanguage === 'italian' ? italianPhrases : sicilianPhrases;
             phraseEnElement.textContent = "Loading...";
-            updateFlagDisplay(initialLanguage); // Set the flag on load
+            updateFlagDisplay(initialLanguage); 
+            calculateOverallProgress(); // Set initial progress to 0
         };
 
     </script>
