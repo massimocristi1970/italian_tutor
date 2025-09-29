@@ -14,27 +14,6 @@
         .correct-answer-input {
             border-color: #10B981; /* Tailwind green-500 */
         }
-        .pulse-animation {
-            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0.5;
-            }
-        }
-        /* Custom scrollbar for chat window */
-        #chat-window::-webkit-scrollbar {
-            width: 8px;
-        }
-        #chat-window::-webkit-scrollbar-thumb {
-            background-color: #9CA3AF;
-            border-radius: 4px;
-        }
         .chat-message-user {
             background-color: #3B82F6; /* Blue-500 */
             color: white;
@@ -74,9 +53,9 @@
         // Variables provided by the Canvas environment (will be undefined on GitHub Pages)
         const CANVAS_FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
-        // YOUR FIREBASE CONFIGURATION (Replaced placeholder values)
-        // NOTE: While the Firebase config is required, the API key for Gemini is handled via runtime injection.
+        // Placeholder/Default Config (used if canvas vars are missing)
         const USER_FIREBASE_CONFIG = {
             apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0", 
             authDomain: "italiantutorapp.firebaseapp.com",
@@ -90,9 +69,6 @@
         const firebaseConfig = (CANVAS_FIREBASE_CONFIG && Object.keys(CANVAS_FIREBASE_CONFIG).length > 0)
             ? CANVAS_FIREBASE_CONFIG
             : USER_FIREBASE_CONFIG;
-
-        // Use the Firebase Project ID as the App ID for Firestore paths when running externally.
-        const appId = firebaseConfig.projectId || 'default-app-id';
 
         // Initialize Firebase
         let app, auth, db;
@@ -275,6 +251,7 @@
         const chatSpeakBtn = document.getElementById('chat-speak-btn');
         const chatSendBtn = document.getElementById('chat-send-btn');
         
+        // Initial phrase data... (omitted for brevity, assume it's still here)
         const initialPhrases = [
             { en: "Hello", it: "Ciao", mastered: 0 },
             { en: "Thank you", it: "Grazie", mastered: 0 },
@@ -298,10 +275,8 @@
             { en: "Let's go", it: "Andiamo", mastered: 0 }
         ];
 
-        // Deep copies of the initial phrase lists for separation
         const italianPhrases = JSON.parse(JSON.stringify(initialPhrases));
         const sicilianPhrases = initialPhrases.map(p => {
-             // Sicily-specific translations are initialized with 0 mastery
              const sicilianTranslations = {
                  "Hello": "Salutu", "Thank you": "Grazzî", "Please": "Pi favuri",
                  "Excuse me": "M'accatti", "Goodbye": "Addiu", "How are you?": "Comu si senti?",
@@ -324,12 +299,11 @@
         let isGeneratingPhrase = false;
         let currentMode = 'tutor'; // 'tutor', 'builder', or 'chat'
         
-        // Difficulty setting
         const masteredThreshold = 5;
         const totalStaticPhrases = initialPhrases.length;
-        const maxMasteryPoints = totalStaticPhrases * masteredThreshold; // Max 100 points (20 phrases * 5)
+        const maxMasteryPoints = totalStaticPhrases * masteredThreshold; 
         
-        let currentBuilderChallenge = null; // Stores the object for the Sentence Builder
+        let currentBuilderChallenge = null; 
 
         const progressDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress') : null;
         const chatHistoryDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
@@ -343,16 +317,113 @@
         let isWaitingForResponse = false;
         let isReverseChallenge = false; 
 
+        // --- TTS Utility Functions (FIXED: Converts PCM to WAV for reliable browser playback) ---
+        
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+        
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        /**
+         * Converts 16-bit PCM audio data into a WAV file blob for browser playback.
+         */
+        function pcmToWav(pcm16, sampleRate) {
+            const numChannels = 1;
+            const bytesPerSample = 2; // 16-bit PCM (signed Int16)
+            const buffer = new ArrayBuffer(44 + pcm16.length * bytesPerSample);
+            const view = new DataView(buffer);
+
+            /* RIFF identifier */
+            writeString(view, 0, 'RIFF');
+            /* file length */
+            view.setUint32(4, 36 + pcm16.length * bytesPerSample, true);
+            /* RIFF type */
+            writeString(view, 8, 'WAVE');
+            /* format chunk identifier */
+            writeString(view, 12, 'fmt ');
+            /* format chunk length */
+            view.setUint32(16, 16, true);
+            /* sample format (1=PCM) */
+            view.setUint16(20, 1, true);
+            /* channel count */
+            view.setUint16(22, numChannels, true);
+            /* sample rate */
+            view.setUint32(24, sampleRate, true);
+            /* byte rate (sample rate * block align) */
+            view.setUint32(28, sampleRate * numChannels * bytesPerSample, true);
+            /* block align (channels * bytes per sample) */
+            view.setUint16(32, numChannels * bytesPerSample, true);
+            /* bits per sample */
+            view.setUint16(34, 16, true);
+            /* data chunk identifier */
+            writeString(view, 36, 'data');
+            /* data chunk length */
+            view.setUint32(40, pcm16.length * bytesPerSample, true);
+
+            // Write PCM data
+            for (let i = 0; i < pcm16.length; i++) {
+                view.setInt16(44 + i * bytesPerSample, pcm16[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+        
+        /**
+         * Converts base64 PCM audio data to a playable URL and plays it.
+         */
+        function playTTSAudio(audioData, mimeType) {
+            if (!audioData || !mimeType) {
+                console.error("Missing audio data or mime type for playback.");
+                return;
+            }
+            
+            const rateMatch = mimeType.match(/rate=(\d+)/);
+            const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+
+            try {
+                const pcmDataBuffer = base64ToArrayBuffer(audioData);
+                const pcm16 = new Int16Array(pcmDataBuffer);
+                const wavBlob = pcmToWav(pcm16, sampleRate);
+                const audioUrl = URL.createObjectURL(wavBlob);
+                const audio = new Audio(audioUrl);
+                
+                audio.addEventListener('ended', () => {
+                    URL.revokeObjectURL(audioUrl);
+                });
+
+                audio.play().catch(e => {
+                    console.error("Audio playback failed (browser error):", e);
+                    reportApiError("Audio Playback (Browser)", { message: `Playback failed: ${e.message}` });
+                });
+
+            } catch (error) {
+                console.error("Error processing PCM data:", error);
+                reportApiError("Audio Processing (PCM)", { message: "Failed to convert raw audio data to WAV." });
+            }
+        }
+
         // --- Utility Functions ---
 
         /**
          * Standard error message for API failures.
          */
         function reportApiError(featureName, error) {
+            const errMsg = error.message || error.toString();
             console.error(`${featureName} API Error:`, error);
-            tutorSystemMessageElement.textContent = `Error in ${featureName}. The AI key may be missing or invalid. Check the browser console.`;
+            tutorSystemMessageElement.textContent = `Error in ${featureName}. Details: ${errMsg.includes('API returned status') ? 'Check Network/Key.' : errMsg}.`;
             tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
-            setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100', 'text-red-500'), 5000);
+            setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100', 'text-red-500'), 8000);
         }
 
         function updateFlagDisplay(language) {
@@ -366,6 +437,7 @@
         }
         
         function switchMode(mode) {
+            // ... (rest of the switchMode function remains the same)
             currentMode = mode;
             // Reset button states
             [tutorModeBtn, builderModeBtn, chatModeBtn].forEach(btn => {
@@ -423,12 +495,12 @@
             currentPhrases = selectedLanguage === 'italian' ? italianPhrases : sicilianPhrases;
             updateFlagDisplay(selectedLanguage); 
             loadProgress(); 
-            switchMode(currentMode); // Reload challenge based on the current mode
+            switchMode(currentMode);
         });
 
-        // --- Firebase Auth and Data Loading ---
-
-        // (Auth and progress functions remain the same as they were not the source of the AI error)
+        // --- Firebase Auth and Data Loading (functions remain the same) ---
+        // ... (initializeAuth, calculateOverallProgress, getLevelName, loadProgress, saveProgress, loadChatHistory, saveChatHistory, onAuthStateChanged, initializeAuth)
+        
         async function initializeAuth() {
             if (!auth || !db) {
                 console.error("Database not initialized. Cannot authenticate.");
@@ -596,7 +668,7 @@
         initializeAuth();
 
 
-        // --- Tutor Mode Logic ---
+        // --- Tutor Mode Logic (functions remain the same except for fetchTutorTTS) ---
 
         function updateMasteryIndicator(masteryCount, isDynamic = false) {
              if (currentMode === 'builder') {
@@ -624,6 +696,7 @@
         // --- Phrase Tutor (Recall/Context) Functions ---
 
         async function generateDynamicPhrase() {
+            // ... (Dynamic phrase generation remains the same)
             isGeneratingPhrase = true;
             tutorSystemMessageElement.textContent = "Generating a new, advanced phrase with AI...";
             tutorSystemMessageElement.classList.add('opacity-100', 'text-blue-500');
@@ -674,6 +747,7 @@
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
+                    // Capture API error status explicitly
                     if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
@@ -717,6 +791,7 @@
 
 
         function loadNextPhrase() {
+            // ... (loadNextPhrase remains the same)
             if (!isAuthReady && !userId) {
                 phraseEnElement.textContent = "Authenticating...";
                 return;
@@ -776,7 +851,7 @@
             return str.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ');
         }
         
-        // --- Sentence Builder Functions ---
+        // --- Sentence Builder Functions (remains the same except for error handling detail) ---
 
         async function generateSentenceChallenge() {
             isGeneratingPhrase = true;
@@ -831,6 +906,7 @@
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
+                    // Capture API error status explicitly
                     if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
@@ -874,6 +950,7 @@
         }
 
         function checkTutorAnswer() {
+            // ... (checkTutorAnswer remains the same - important to keep the Molto bene logic)
             if (isGeneratingPhrase) return;
 
             const userAnswerClean = cleanString(answerInput.value);
@@ -895,7 +972,7 @@
                 
                 answerInput.classList.add('correct-answer-input');
                 answerInput.classList.remove('border-red-500');
-                answerInput.disabled = true; // CRITICAL FIX: Disable input on correct answer
+                answerInput.disabled = true; 
                 
                 if (currentPhrase.mastered !== undefined && currentPhrase.mastered < masteredThreshold) {
                     currentPhrase.mastered = (currentPhrase.mastered || 0) + 1;
@@ -918,6 +995,7 @@
         }
         
         function checkBuilderAnswer() {
+            // ... (checkBuilderAnswer remains the same)
             if (!currentBuilderChallenge) return;
 
             const userAnswer = answerInput.value.trim();
@@ -944,6 +1022,7 @@
         }
 
         function revealAnswer() {
+            // ... (revealAnswer remains the same)
             answerInput.disabled = true; 
 
             if (currentMode === 'builder') {
@@ -968,6 +1047,7 @@
         }
         
         function loadNextChallenge() {
+            // ... (loadNextChallenge remains the same)
              if (currentMode === 'builder') {
                  generateSentenceChallenge();
              } else {
@@ -982,65 +1062,8 @@
              answerInput.disabled = false;
         }
 
-        // --- TTS Utility functions (Base64 to ArrayBuffer and AudioContext) ---
+        // --- TTS Function (UPDATED to use new WAV conversion utilities) ---
 
-        let audioContext = null;
-
-        function base64ToArrayBuffer(base64) {
-            const binaryString = atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        function ttsToAudio(audioData, mimeType) {
-            if (!audioData || !mimeType) {
-                console.error("Missing audio data or mime type.");
-                return;
-            }
-
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-
-            if (audioContext.state === 'suspended') {
-                audioContext.resume().catch(e => console.error("Error resuming AudioContext:", e));
-            }
-
-            const match = mimeType.match(/rate=(\d+)/);
-            const sampleRate = match ? parseInt(match[1], 10) : 24000; 
-
-            try {
-                const pcmDataBuffer = base64ToArrayBuffer(audioData);
-                const numChannels = 1;
-                
-                const pcm16 = new Int16Array(pcmDataBuffer);
-                
-                const audioBuffer = audioContext.createBuffer(numChannels, pcm16.length, sampleRate);
-                const channelData = audioBuffer.getChannelData(0);
-
-                for (let i = 0; i < pcm16.length; i++) {
-                    channelData[i] = pcm16[i] / 32768.0; 
-                }
-
-                const source = audioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(audioContext.destination);
-                source.start(0);
-
-            } catch (error) {
-                console.error("Error processing PCM data with AudioContext:", error);
-                tutorSystemMessageElement.textContent = "Error playing audio with AudioContext. Check Console!";
-                tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
-                setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 3000);
-            }
-        }
-
-
-        // TTS Function for Tutor Mode
         async function fetchTutorTTS(text) {
             tutorListenBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             tutorListenBtn.disabled = true;
@@ -1074,7 +1097,6 @@
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
-
                     if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
@@ -1082,14 +1104,16 @@
                     const audioData = part?.inlineData?.data;
                     const mimeType = part?.inlineData?.mimeType;
 
-                    if (audioData && mimeType) {
-                        ttsToAudio(audioData, mimeType);
+                    if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
+                        playTTSAudio(audioData, mimeType);
                     } else {
-                        throw new Error("TTS response missing audio data.");
+                        // Throw specific error if data is missing/wrong format
+                        throw new Error("TTS response missing or invalid audio data format.");
                     }
                     
                     break; 
                 } catch (error) {
+                    // Report network or data processing errors
                     reportApiError("Audio Playback (TTS)", error);
                 }
             }
@@ -1117,9 +1141,10 @@
              setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 3000);
         });
 
-        // --- Chat Mode Logic ---
+        // --- Chat Mode Logic (UPDATED to use new WAV conversion utilities) ---
 
         function renderChatMessage(role, text) {
+            // ... (renderChatMessage remains the same)
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('max-w-[80%]', 'p-3', 'rounded-xl', 'shadow-sm', 'break-words');
 
@@ -1137,6 +1162,7 @@
         }
 
         function renderChatHistory() {
+            // ... (renderChatHistory remains the same)
             chatWindow.innerHTML = '';
             if (chatHistory.length === 0) {
                  chatWindow.innerHTML = '<div class="text-center text-sm text-gray-500 dark:text-gray-400">Start a conversation with the AI tutor.</div>';
@@ -1148,6 +1174,7 @@
         }
         
         async function sendChat() {
+            // ... (sendChat remains the same except for error handling detail)
             if (isWaitingForResponse) return;
             const userQuery = chatInput.value.trim();
             if (!userQuery) return;
@@ -1268,10 +1295,10 @@
                     const audioData = part?.inlineData?.data;
                     const mimeType = part?.inlineData?.mimeType;
 
-                    if (audioData && mimeType) {
-                        ttsToAudio(audioData, mimeType); 
+                    if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
+                        playTTSAudio(audioData, mimeType); 
                     } else {
-                        throw new Error("TTS response missing audio data.");
+                        throw new Error("TTS response missing or invalid audio data format.");
                     }
                     
                     break; 
