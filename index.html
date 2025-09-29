@@ -76,6 +76,7 @@
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
         
         // YOUR FIREBASE CONFIGURATION (Replaced placeholder values)
+        // NOTE: While the Firebase config is required, the API key for Gemini is handled via runtime injection.
         const USER_FIREBASE_CONFIG = {
             apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0", 
             authDomain: "italiantutorapp.firebaseapp.com",
@@ -236,7 +237,7 @@
         const tutorSection = document.getElementById('tutor-section');
         const chatSection = document.getElementById('chat-section');
         const tutorModeBtn = document.getElementById('tutor-mode-btn');
-        const builderModeBtn = document.getElementById('builder-mode-btn'); // NEW BUTTON
+        const builderModeBtn = document.getElementById('builder-mode-btn'); 
         const chatModeBtn = document.getElementById('chat-mode-btn');
 
         // Tutor section elements
@@ -335,12 +336,24 @@
 
         // API Key and URLs (API_KEY is intentionally left empty for the Canvas runtime to provide it)
         const API_KEY = ""; 
-        const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
-        const GEMINI_TTS_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + API_KEY;
+        const GEMINI_TEXT_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+        const GEMINI_TTS_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
         
         let chatHistory = [];
         let isWaitingForResponse = false;
         let isReverseChallenge = false; 
+
+        // --- Utility Functions ---
+
+        /**
+         * Standard error message for API failures.
+         */
+        function reportApiError(featureName, error) {
+            console.error(`${featureName} API Error:`, error);
+            tutorSystemMessageElement.textContent = `Error in ${featureName}. The AI key may be missing or invalid. Check the browser console.`;
+            tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
+            setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100', 'text-red-500'), 5000);
+        }
 
         function updateFlagDisplay(language) {
             if (language === 'italian') {
@@ -364,6 +377,11 @@
             chatSection.classList.add('hidden');
             tutorSection.classList.add('hidden');
             
+            // Reset common tutor UI elements when switching away from chat
+            answerInput.value = '';
+            tutorFeedbackElement.innerHTML = '';
+            tutorSystemMessageElement.classList.remove('opacity-100', 'text-red-500', 'text-blue-500');
+            
             if (mode === 'tutor' || mode === 'builder') {
                 tutorSection.classList.remove('hidden');
                 document.getElementById(`${mode}-mode-btn`).classList.add('bg-blue-500', 'text-white');
@@ -384,7 +402,7 @@
                     generateSentenceChallenge();
                     tutorListenBtn.classList.add('hidden'); // TTS disabled in builder
                     builderChallengeDisplay.classList.remove('hidden');
-                    nextBtn.textContent = "Next Challenge";
+                    nextBtn.textContent = "Next Sentence";
                 }
                 
                 calculateOverallProgress();
@@ -409,6 +427,8 @@
         });
 
         // --- Firebase Auth and Data Loading ---
+
+        // (Auth and progress functions remain the same as they were not the source of the AI error)
         async function initializeAuth() {
             if (!auth || !db) {
                 console.error("Database not initialized. Cannot authenticate.");
@@ -429,31 +449,21 @@
             }
         }
 
-        /**
-         * Calculates total mastery points and updates the overall progress UI.
-         */
         function calculateOverallProgress() {
             if (!currentPhrases || currentPhrases.length === 0) return;
 
-            // 1. Calculate Total Mastery Points Earned
             let totalMasteryEarned = 0;
-            const masteredPhrasesCount = currentPhrases.filter(p => p.mastered >= masteredThreshold).length;
-
             currentPhrases.forEach(phrase => {
-                // Sum up actual mastered count, capped at the threshold (5)
                 totalMasteryEarned += Math.min(phrase.mastered, masteredThreshold);
             });
 
-            // 2. Calculate Percentage
             const progressPercent = Math.min(100, Math.round((totalMasteryEarned / maxMasteryPoints) * 100));
             const levelName = getLevelName(totalMasteryEarned);
             
-            // 3. Update UI
             progressBarFillElement.style.width = `${progressPercent}%`;
             progressPercentElement.textContent = `${progressPercent}%`;
             overallLevelElement.textContent = `Level: ${levelName}`;
             
-            // Highlight bar if progress is high
             if (progressPercent === 100) {
                  progressBarFillElement.classList.add('bg-blue-500');
                  progressBarFillElement.classList.remove('bg-green-500');
@@ -464,7 +474,6 @@
         }
         
         function getLevelName(masteryPoints) {
-            // Milestones adjusted for maxMasteryPoints (100)
             if (masteryPoints >= 95) return "Mastery Achieved";
             if (masteryPoints >= 70) return "Advanced Learner";
             if (masteryPoints >= 40) return "Intermediate";
@@ -477,7 +486,6 @@
 
             const languageKey = languageSelect.value;
             
-            // Use onSnapshot to listen for real-time updates
             onSnapshot(progressDocRef(), (docSnapshot) => {
                 let initialLoad = true;
                 
@@ -487,17 +495,20 @@
 
                     currentPhrases.forEach((phrase) => {
                         const savedPhrase = progressData.find(p => p.en === phrase.en);
-                        phrase.mastered = savedPhrase ? (savedPhrase.mastered || 0) : 0;
+                        phrase.mastered = savedPhrase ? (savedPhrase.mastery || 0) : 0; // Use mastery property
                     });
                 } else {
-                    saveProgress(); // Initialize if not exists
+                    saveProgress(); 
                 }
                 
-                calculateOverallProgress(); // Always update progress bar on data load
+                calculateOverallProgress(); 
                 
-                // Only load next phrase if we are in tutor mode and it's the initial load
-                if (initialLoad && currentMode === 'tutor' && !tutorSection.classList.contains('hidden')) {
-                    loadNextPhrase();
+                if (initialLoad && (currentMode === 'tutor' || currentMode === 'builder') && !tutorSection.classList.contains('hidden')) {
+                    if (currentMode === 'tutor') {
+                        loadNextPhrase();
+                    } else {
+                        generateSentenceChallenge();
+                    }
                 }
                 initialLoad = false;
 
@@ -512,7 +523,6 @@
             if (!isAuthReady || !progressDocRef()) return;
 
             const languageKey = languageSelect.value;
-            // Only save the necessary data (en and mastered count)
             const progressData = currentPhrases.map(p => ({
                 en: p.en,
                 mastered: p.mastered
@@ -527,14 +537,8 @@
                     [languageKey]: progressData 
                 }, { merge: true });
 
-                tutorSystemMessageElement.textContent = "Progress saved!";
-                tutorSystemMessageElement.classList.add('opacity-100', 'text-green-500');
-                setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 1500);
-
             } catch (error) {
                 console.error("Error saving progress: ", error);
-                tutorSystemMessageElement.textContent = "Error saving progress!";
-                tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
             }
         }
         
@@ -585,7 +589,7 @@
                 isAuthReady = false;
                 userId = null; 
                 userIdDisplay.textContent = "User ID: Not Authenticated";
-                phraseEnElement.textContent = currentPhrases[0].en; // Show first phrase as fallback
+                phraseEnElement.textContent = currentPhrases[0].en;
             }
         });
 
@@ -628,15 +632,12 @@
             phraseItElement.textContent = '';
             answerInput.value = '';
             
-            // Disable buttons during generation
             checkBtn.disabled = true;
             revealBtn.disabled = true;
             tutorListenBtn.disabled = true;
             phrasePromptElement.textContent = "";
-            answerInput.disabled = true; // Disable input during loading
-
-            // Ensure elements are hidden
-            phraseEnElement.classList.add('hidden');
+            answerInput.disabled = true;
+            phraseEnElement.classList.remove('hidden'); // Show spinner
             phraseItElement.classList.add('hidden');
 
 
@@ -667,7 +668,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-                    // Handle exponential backoff
+                    
                     if (response.status === 429 && attempt < 2) {
                         const delay = Math.pow(2, attempt) * 1000;
                         await new Promise(resolve => setTimeout(resolve, delay));
@@ -680,7 +681,7 @@
                     generatedData = JSON.parse(jsonString);
                     break;
                 } catch (error) {
-                    console.error("Dynamic Phrase Generation Error:", error);
+                    reportApiError("Phrase Generation", error);
                 }
             }
 
@@ -689,7 +690,7 @@
             tutorListenBtn.disabled = false;
             answerInput.disabled = false;
             isGeneratingPhrase = false;
-            tutorSystemMessageElement.classList.remove('opacity-100');
+            tutorSystemMessageElement.classList.remove('opacity-100', 'text-blue-500');
 
             if (generatedData && generatedData.englishPhrase && generatedData.translation) {
                 currentPhrase = {
@@ -702,7 +703,6 @@
                 phraseItElement.textContent = currentPhrase.it;
                 updateMasteryIndicator(0, true); 
                 
-                // Dynamic phrases are always English -> Target Language for simplicity
                 phraseEnElement.classList.remove('hidden');
                 phrasePromptElement.textContent = "Translate to " + (languageSelect.value === 'italian' ? 'Italian' : 'Sicilian');
                 answerInput.placeholder = "Type the translation...";
@@ -711,8 +711,6 @@
                 phraseEnElement.textContent = "Could not generate phrase. Try again or check API connection.";
                 phraseItElement.textContent = currentPhrase.it;
                 updateMasteryIndicator(0, true); 
-                tutorSystemMessageElement.textContent = "AI Generation failed. Check Console.";
-                tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
                 phraseEnElement.classList.remove('hidden');
             }
         }
@@ -724,45 +722,38 @@
                 return;
             }
             
-            // Ensure phrase elements are visible and builder is hidden
             builderChallengeDisplay.classList.add('hidden');
             
-            // Find the least mastered static phrase (simple spaced repetition)
             const availablePhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
             
             if (availablePhrases.length === 0) {
-                // All static phrases mastered, switch to AI generation
                 generateDynamicPhrase();
                 isReverseChallenge = false;
                 return;
             }
 
-            // Simple randomization among the least mastered group
             availablePhrases.sort((a, b) => a.mastered - b.mastery);
             const lowestMastery = availablePhrases.length > 0 ? availablePhrases[0].mastered : 0;
             const pool = availablePhrases.filter(p => p.mastered === lowestMastery);
 
             currentPhrase = pool[Math.floor(Math.random() * pool.length)] || currentPhrases[0];
             
-            // CHALLENGE LOGIC: Switch to reverse translation at mastery level 3
             isReverseChallenge = currentPhrase.mastered >= 3 && currentPhrase.mastered < masteredThreshold;
             
             const targetLangName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
 
-            // Set content first
             phraseEnElement.textContent = currentPhrase.en;
             phraseItElement.textContent = currentPhrase.it;
 
-            // Rigorously control visibility
             phraseEnElement.classList.add('hidden');
             phraseItElement.classList.add('hidden');
 
             if (isReverseChallenge) {
-                phraseItElement.classList.remove('hidden'); // Show target language (the prompt)
+                phraseItElement.classList.remove('hidden'); 
                 phrasePromptElement.textContent = "Translate to English (Challenge Mode)";
                 answerInput.placeholder = "Type the English translation...";
             } else {
-                phraseEnElement.classList.remove('hidden'); // Show English (the prompt)
+                phraseEnElement.classList.remove('hidden'); 
                 phrasePromptElement.textContent = `Translate to ${targetLangName}`;
                 answerInput.placeholder = `Type the ${targetLangName} translation...`;
             }
@@ -804,6 +795,9 @@
             tutorListenBtn.disabled = true;
             tutorListenBtn.classList.add('hidden');
             answerInput.disabled = true;
+            
+            phraseEnElement.classList.add('hidden');
+            phraseItElement.classList.add('hidden');
 
             const languageName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
             const userQuery = `Generate an intermediate-level English sentence construction prompt for learning ${languageName}. This sentence must require the use of a verb conjugation, tense, or complex structure (like subjunctive or compound tense). Provide the correct translation and the grammar point being tested.`;
@@ -844,16 +838,15 @@
                     generatedData = JSON.parse(jsonString);
                     break;
                 } catch (error) {
-                    console.error("Sentence Builder Generation Error:", error);
+                    reportApiError("Sentence Builder Generation", error);
                 }
             }
 
             checkBtn.disabled = false;
             revealBtn.disabled = false;
-            tutorListenBtn.disabled = false;
             answerInput.disabled = false;
             isGeneratingPhrase = false;
-            tutorSystemMessageElement.classList.remove('opacity-100');
+            tutorSystemMessageElement.classList.remove('opacity-100', 'text-blue-500');
 
             if (generatedData && generatedData.englishPrompt && generatedData.correctTranslation) {
                 currentBuilderChallenge = {
@@ -867,10 +860,8 @@
                 updateMasteryIndicator(0); 
                 
             } else {
-                builderEnPrompt.textContent = "Error generating challenge. Try again or check the API connection.";
+                builderEnPrompt.textContent = "Error generating challenge. Try again.";
                 builderGrammarFocus.textContent = "Error";
-                tutorSystemMessageElement.textContent = "AI Challenge generation failed. Check Console.";
-                tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
             }
         }
         
@@ -890,11 +881,9 @@
             let expectedAnswer;
 
             if (isReverseChallenge) {
-                // Reverse Challenge: Check user input (English) against correct English phrase (currentPhrase.en)
                 correctAnswerClean = cleanString(currentPhrase.en);
                 expectedAnswer = currentPhrase.en;
             } else {
-                // Standard Challenge: Check user input (Target) against correct Target phrase (currentPhrase.it)
                 correctAnswerClean = cleanString(currentPhrase.it);
                 expectedAnswer = currentPhrase.it;
             }
@@ -906,13 +895,12 @@
                 
                 answerInput.classList.add('correct-answer-input');
                 answerInput.classList.remove('border-red-500');
-                answerInput.disabled = true; // Disable input on correct answer
+                answerInput.disabled = true; // CRITICAL FIX: Disable input on correct answer
                 
-                // Only update and save progress for STATIC phrases
                 if (currentPhrase.mastered !== undefined && currentPhrase.mastered < masteredThreshold) {
                     currentPhrase.mastered = (currentPhrase.mastered || 0) + 1;
                     saveProgress();
-                    calculateOverallProgress(); // Recalculate overall progress
+                    calculateOverallProgress();
                 }
                 
                 updateMasteryIndicator(currentPhrase.mastered);
@@ -933,14 +921,12 @@
             if (!currentBuilderChallenge) return;
 
             const userAnswer = answerInput.value.trim();
-            answerInput.disabled = true; // Disable input after check
+            answerInput.disabled = true; 
 
-            // In Sentence Builder mode, we treat "Check Answer" as a reveal/self-correction step
             tutorFeedbackElement.textContent = 'Review your answer against the solution below.';
             tutorFeedbackElement.classList.add('text-blue-500');
             tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
 
-            // Set the feedback area to show the correct answer and the user's attempt
             tutorFeedbackElement.innerHTML = `
                 <div class="mt-4 p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900 border border-yellow-300 dark:border-yellow-700">
                     <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Your Attempt:</p>
@@ -958,10 +944,9 @@
         }
 
         function revealAnswer() {
-            answerInput.disabled = true; // Disable input after reveal
+            answerInput.disabled = true; 
 
             if (currentMode === 'builder') {
-                 // Reveal in builder mode shows the correct translation immediately
                  tutorFeedbackElement.textContent = `The correct answer is: ${currentBuilderChallenge.it}`;
                  tutorFeedbackElement.classList.add('text-blue-500');
                  tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
@@ -969,7 +954,6 @@
                  revealBtn.classList.add('hidden');
                  nextBtn.classList.remove('hidden');
             } else {
-                // Reveal in tutor mode
                 let correctAnswer = isReverseChallenge ? currentPhrase.en : currentPhrase.it;
 
                 phraseEnElement.classList.add('hidden');
@@ -1019,12 +1003,10 @@
             }
 
             if (!audioContext) {
-                // Initialize AudioContext on user interaction
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
 
             if (audioContext.state === 'suspended') {
-                // Attempt to resume the context if it's suspended
                 audioContext.resume().catch(e => console.error("Error resuming AudioContext:", e));
             }
 
@@ -1035,13 +1017,11 @@
                 const pcmDataBuffer = base64ToArrayBuffer(audioData);
                 const numChannels = 1;
                 
-                // The API returns signed 16-bit PCM data (Int16Array)
                 const pcm16 = new Int16Array(pcmDataBuffer);
                 
                 const audioBuffer = audioContext.createBuffer(numChannels, pcm16.length, sampleRate);
                 const channelData = audioBuffer.getChannelData(0);
 
-                // Convert signed 16-bit integer to floating point (-1.0 to 1.0)
                 for (let i = 0; i < pcm16.length; i++) {
                     channelData[i] = pcm16[i] / 32768.0; 
                 }
@@ -1110,11 +1090,7 @@
                     
                     break; 
                 } catch (error) {
-                    console.error("TTS Fetch Error:", error);
-                    if (attempt === 2) {
-                        tutorSystemMessageElement.textContent = "Error playing audio. Check Console.";
-                        tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
-                    }
+                    reportApiError("Audio Playback (TTS)", error);
                 }
             }
 
@@ -1220,7 +1196,7 @@
                     
                     break; 
                 } catch (error) {
-                    console.error("Gemini Chat Fetch Error:", error);
+                    reportApiError("AI Chat", error);
                 }
             }
 
@@ -1300,7 +1276,7 @@
                     
                     break; 
                 } catch (error) {
-                    console.error("Chat TTS Fetch Error:", error);
+                    reportApiError("Chat Audio Playback (TTS)", error);
                 }
             }
             
@@ -1314,7 +1290,7 @@
             currentPhrases = initialLanguage === 'italian' ? italianPhrases : sicilianPhrases;
             phraseEnElement.textContent = "Loading...";
             updateFlagDisplay(initialLanguage); 
-            calculateOverallProgress(); // Set initial progress to 0
+            calculateOverallProgress(); 
         };
 
     </script>
