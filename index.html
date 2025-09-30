@@ -14,30 +14,18 @@
         .correct-answer-input {
             border-color: #10B981; /* Tailwind green-500 */
         }
-        .chat-message-user {
-            background-color: #3B82F6; /* Blue-500 */
-            color: white;
-            align-self: flex-end;
-            margin-left: auto;
-            border-top-right-radius: 0.75rem;
-            border-top-left-radius: 0.75rem;
-            border-bottom-left-radius: 0.75rem;
+        .pulse-animation {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-        .chat-message-ai {
-            background-color: #F3F4F6; /* Gray-100 */
-            color: #1F2937; /* Gray-800 */
-            align-self: flex-start;
-            margin-right: auto;
-            border-top-right-radius: 0.75rem;
-            border-top-left-radius: 0.75rem;
-            border-bottom-right-radius: 0.75rem;
-        }
-        .dark .chat-message-ai {
-             background-color: #4B5563; /* Gray-600 */
-             color: #F9FAFB; /* Gray-50 */
-        }
-        .progress-bar-fill {
-            transition: width 0.5s ease-in-out;
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
         }
     </style>
     <!-- Font Awesome for icons -->
@@ -48,39 +36,16 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // --- 1. CONFIGURATION (CRITICAL: MUST MATCH YOUR FIREBASE PROJECT) ---
-        
-        // Variables provided by the Canvas environment (will be undefined on GitHub Pages)
-        const CANVAS_FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
+        // Global variables provided by the environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
-        // Placeholder/Default Config (used if canvas vars are missing)
-        const USER_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0", 
-            authDomain: "italiantutorapp.firebaseapp.com",
-            projectId: "italiantutorapp", 
-            storageBucket: "italiantutorapp.firebasestorage.app",
-            messagingSenderId: "915130971011",
-            appId: "1:915130971011:web:171cfb69941fdf7997fcb6"
-        };
-
-        // Use Canvas config if available, otherwise use the user's hardcoded config.
-        const firebaseConfig = (CANVAS_FIREBASE_CONFIG && Object.keys(CANVAS_FIREBASE_CONFIG).length > 0)
-            ? CANVAS_FIREBASE_CONFIG
-            : USER_FIREBASE_CONFIG;
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // Initialize Firebase
-        let app, auth, db;
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-        } catch (e) {
-            console.error("Firebase Initialization Failed. Check the console for configuration errors.", e);
-            app = null; auth = { currentUser: null, onAuthStateChanged: (cb) => cb(null) }; db = null;
-        }
-        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
         // Export Firebase instances for use in the main script
         window.firebase = {
             auth,
@@ -103,11 +68,7 @@
     <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-sm sm:max-w-lg transition-colors duration-500 dark:bg-gray-800">
         <!-- Header with language selection and user ID -->
         <div class="flex items-center justify-between mb-6 flex-wrap">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center flex-grow dark:text-gray-100 flex items-center justify-center">
-                <!-- Dynamic Flag/Indicator -->
-                <span id="language-flag" class="mr-2 text-2xl">🇮🇹</span>
-                <span id="app-title">Language Tutor</span>
-            </h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center flex-grow dark:text-gray-100">Language Tutor</h1>
             <select id="language-select" class="bg-gray-200 text-gray-800 p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-gray-100 mt-2 sm:mt-0">
                 <option value="italian">Italian</option>
                 <option value="sicilian">Sicilian</option>
@@ -116,45 +77,20 @@
         </div>
 
         <!-- Mode Toggle Buttons -->
-        <div class="flex justify-center space-x-2 sm:space-x-4 mb-6">
-            <button id="tutor-mode-btn" class="py-2 px-3 sm:px-4 rounded-lg font-semibold bg-blue-500 text-white transition-colors duration-300 text-sm sm:text-base">Phrase Tutor</button>
-            <button id="builder-mode-btn" class="py-2 px-3 sm:px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 text-sm sm:text-base dark:bg-gray-700 dark:text-gray-100">Sentence Builder</button>
-            <button id="chat-mode-btn" class="py-2 px-3 sm:px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 text-sm sm:text-base dark:bg-gray-700 dark:text-gray-100">AI Chat</button>
+        <div class="flex justify-center space-x-4 mb-6">
+            <button id="tutor-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-blue-500 text-white transition-colors duration-300">Phrase Tutor</button>
+            <button id="chat-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 dark:bg-gray-700 dark:text-gray-100">AI Chat</button>
         </div>
 
-        <!-- Tutor/Builder Section -->
+        <!-- Tutor Section -->
         <div id="tutor-section" class="text-center">
-            
-            <!-- Overall Level and Progress Bar -->
-            <div id="overall-progress-container" class="mb-6 bg-gray-50 p-3 rounded-lg shadow-inner dark:bg-gray-700">
-                <div class="flex justify-between items-center mb-1">
-                    <span id="overall-level" class="text-sm font-semibold text-gray-800 dark:text-gray-100">Level: Beginner</span>
-                    <span id="progress-percent" class="text-sm font-semibold text-gray-600 dark:text-gray-300">0%</span>
-                </div>
-                <div class="w-full bg-gray-300 rounded-full h-2.5 dark:bg-gray-600">
-                    <div id="progress-bar-fill" class="progress-bar-fill bg-green-500 h-2.5 rounded-full" style="width: 0%"></div>
-                </div>
-            </div>
-
             <!-- System message/alert container -->
             <div id="tutor-system-message" class="text-center font-semibold text-sm mb-4 h-6 opacity-0 transition-opacity duration-500 text-gray-800 dark:text-gray-100"></div>
 
-            <!-- Current Phrase Mastery Indicator -->
-            <div id="mastery-indicator" class="text-sm font-semibold text-amber-500 mb-2 h-6"></div>
-
             <!-- Flashcard content -->
-            <div class="h-40 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700 relative">
-                <p id="phrase-prompt" class="absolute top-2 left-4 text-xs font-medium text-gray-500 dark:text-gray-400"></p>
-                <!-- Phrase Tutor Display -->
+            <div class="h-40 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700">
                 <p id="phrase-en" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 dark:text-gray-100"></p>
                 <p id="phrase-it" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 hidden dark:text-gray-100"></p>
-                
-                <!-- Sentence Builder Display -->
-                <div id="builder-challenge-display" class="hidden text-left w-full p-2">
-                    <h3 class="text-base font-semibold text-blue-600 dark:text-blue-400 mb-1">Challenge:</h3>
-                    <p id="builder-en-prompt" class="text-lg sm:text-xl font-medium text-gray-800 dark:text-gray-100"></p>
-                    <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-2">Grammar Focus: <span id="builder-grammar-focus" class="font-normal"></span></h3>
-                </div>
             </div>
 
             <!-- Input and action buttons -->
@@ -178,7 +114,7 @@
                     Check Answer
                 </button>
                 <button id="next-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md hidden">
-                    Next Challenge
+                    Next Phrase
                 </button>
                 <button id="reveal-btn" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md">
                     Reveal Answer
@@ -188,7 +124,7 @@
 
         <!-- Chat Section -->
         <div id="chat-section" class="hidden flex flex-col h-[60vh] max-h-[600px] overflow-hidden">
-            <div id="chat-window" class="flex-grow flex flex-col space-y-3 p-4 bg-gray-50 rounded-lg mb-4 overflow-y-auto transition-colors duration-500 dark:bg-gray-700">
+            <div id="chat-window" class="flex-grow p-4 bg-gray-50 rounded-lg mb-4 overflow-y-auto transition-colors duration-500 dark:bg-gray-700">
                 <div class="text-center text-sm text-gray-500 dark:text-gray-400">Start a conversation with the AI tutor.</div>
             </div>
             <div class="flex items-center space-x-2">
@@ -213,37 +149,21 @@
         const tutorSection = document.getElementById('tutor-section');
         const chatSection = document.getElementById('chat-section');
         const tutorModeBtn = document.getElementById('tutor-mode-btn');
-        const builderModeBtn = document.getElementById('builder-mode-btn'); 
         const chatModeBtn = document.getElementById('chat-mode-btn');
 
         // Tutor section elements
         const phraseEnElement = document.getElementById('phrase-en');
         const phraseItElement = document.getElementById('phrase-it');
-        const phrasePromptElement = document.getElementById('phrase-prompt');
         const answerInput = document.getElementById('answer-input');
         const tutorListenBtn = document.getElementById('tutor-listen-btn');
         const tutorSpeakBtn = document.getElementById('tutor-speak-btn');
+        const tutorListeningPulse = document.getElementById('tutor-listening-pulse');
         const checkBtn = document.getElementById('check-btn');
         const nextBtn = document.getElementById('next-btn');
         const revealBtn = document.getElementById('reveal-btn');
         const tutorFeedbackElement = document.getElementById('tutor-feedback');
         const tutorSystemMessageElement = document.getElementById('tutor-system-message');
         const userIdDisplay = document.getElementById('user-id-display');
-        const masteryIndicator = document.getElementById('mastery-indicator');
-        
-        // Sentence Builder Elements
-        const builderChallengeDisplay = document.getElementById('builder-challenge-display');
-        const builderEnPrompt = document.getElementById('builder-en-prompt');
-        const builderGrammarFocus = document.getElementById('builder-grammar-focus');
-        
-        // Progress elements
-        const overallLevelElement = document.getElementById('overall-level');
-        const progressPercentElement = document.getElementById('progress-percent');
-        const progressBarFillElement = document.getElementById('progress-bar-fill');
-        
-        // Header elements for flag update
-        const languageFlag = document.getElementById('language-flag');
-        const appTitle = document.getElementById('app-title');
 
         // Chat section elements
         const chatWindow = document.getElementById('chat-window');
@@ -251,7 +171,7 @@
         const chatSpeakBtn = document.getElementById('chat-speak-btn');
         const chatSendBtn = document.getElementById('chat-send-btn');
         
-        const initialPhrases = [
+        const italianPhrases = [
             { en: "Hello", it: "Ciao", mastered: 0 },
             { en: "Thank you", it: "Grazie", mastered: 0 },
             { en: "Please", it: "Per favore", mastered: 0 },
@@ -274,1043 +194,439 @@
             { en: "Let's go", it: "Andiamo", mastered: 0 }
         ];
 
-        const italianPhrases = JSON.parse(JSON.stringify(initialPhrases));
-        const sicilianPhrases = initialPhrases.map(p => {
-             const sicilianTranslations = {
-                 "Hello": "Salutu", "Thank you": "Grazzî", "Please": "Pi favuri",
-                 "Excuse me": "M'accatti", "Goodbye": "Addiu", "How are you?": "Comu si senti?",
-                 "I don't understand": "Nun capisciu", "Do you speak English?": "Parra ngrisi?",
-                 "I am sorry": "M'addulìu", "The food is delicious": "Lu manciari è diliziusu",
-                 "I would like a coffee": "Vuògghiu un cafè",
-                 "I am tired": "Sugnu stancu/a",
-                 "Let's go": "Iemu",
-                 // Use Italian translation if Sicilian is unavailable
-                 "Yes": "Sì", "No": "No", "What is your name?": "Comu ti chiami?",
-                 "My name is...": "Mi chiamu...", "Where are you from?": "Di unni si?", 
-                 "I am from...": "Sugnu di...", "How much does this cost?": "Quantu custa?"
-             };
-             return { 
-                 ...p, 
-                 it: sicilianTranslations[p.en] || p.it,
-                 mastered: 0
-             };
-        });
+        const sicilianPhrases = [
+            { en: "Hello", it: "Salutu", mastered: 0 },
+            { en: "Thank you", it: "Grazzî", mastered: 0 },
+            { en: "Please", it: "Pi favuri", mastered: 0 },
+            { en: "Excuse me", it: "M'accatti", mastered: 0 },
+            { en: "Yes", it: "Sì", mastered: 0 },
+            { en: "No", it: "No", mastered: 0 },
+            { en: "Goodbye", it: "Addiu", mastered: 0 },
+            { en: "How are you?", it: "Comu si senti?", mastered: 0 },
+            { en: "I don't understand", it: "Nun capisciu", mastered: 0 },
+            { en: "Do you speak English?", it: "Parra ngrisi?", mastered: 0 },
+            { en: "What is your name?", it: "Comu ti chiami?", mastered: 0 },
+            { en: "My name is...", it: "Mi chiàmu...", mastered: 0 },
+            { en: "Where are you from?", it: "Di unni si?", mastered: 0 },
+            { en: "I am from...", it: "Sugnu di...", mastered: 0 },
+            { en: "I am sorry", it: "M'addulìu", mastered: 0 },
+            { en: "How much does this cost?", it: "Quantu costa?", mastered: 0 },
+            { en: "The food is delicious", it: "Lu manciari è diliziusu", mastered: 0 },
+            { en: "I would like a coffee", it: "Vuògghiu un cafè", mastered: 0 },
+            { en: "I am tired", it: "Sugnu stancu/a", mastered: 0 },
+            { en: "Let's go", it: "Iemu", mastered: 0 }
+        ];
 
         let currentPhrases = italianPhrases;
-        let currentPhrase = null; 
-        let isAuthReady = false;
-        let userId = null; 
-        let isGeneratingPhrase = false;
-        let currentMode = 'tutor'; // 'tutor', 'builder', or 'chat'
-        
-        const masteredThreshold = 5;
-        const totalStaticPhrases = initialPhrases.length;
-        const maxMasteryPoints = totalStaticPhrases * masteredThreshold; 
-        
-        let currentBuilderChallenge = null; 
+        let currentPhrase = null;
+        let userId = null;
+        const masteredThreshold = 2;
+        const progressDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress');
+        const chatHistoryDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value);
 
-        const progressDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress') : null;
-        const chatHistoryDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
-
-        // API Key and URLs (API_KEY is intentionally left empty for the Canvas runtime to provide it)
-        const API_KEY = ""; 
-        // NOTE: Use specific model in URL to ensure correct API is called
-        const GEMINI_TEXT_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-        const GEMINI_TTS_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
+        // -----------------------------------------------------------
+        // --- IMPORTANT: PASTE YOUR GEMINI API KEY HERE ---
+        // This key is used for the free AI Chat and Text generation.
+        // The audio features now use your browser's native TTS.
+        // -----------------------------------------------------------
+        const API_KEY = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; // <--- PASTE YOUR KEY INSIDE THESE QUOTES
+        const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
         
         let chatHistory = [];
         let isWaitingForResponse = false;
-        let isReverseChallenge = false; 
 
-        // --- TTS Utility Functions (WAV Conversion Logic) ---
-        
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
-            }
-        }
-        
-        function base64ToArrayBuffer(base64) {
-            const binaryString = atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        /**
-         * Converts 16-bit PCM audio data into a WAV file blob for browser playback.
-         */
-        function pcmToWav(pcm16, sampleRate) {
-            const numChannels = 1;
-            const bytesPerSample = 2; // 16-bit PCM (signed Int16)
-            const buffer = new ArrayBuffer(44 + pcm16.length * bytesPerSample);
-            const view = new DataView(buffer);
-
-            /* RIFF identifier */
-            writeString(view, 0, 'RIFF');
-            /* file length */
-            view.setUint32(4, 36 + pcm16.length * bytesPerSample, true);
-            /* RIFF type */
-            writeString(view, 8, 'WAVE');
-            /* format chunk identifier */
-            writeString(view, 12, 'fmt ');
-            /* format chunk length */
-            view.setUint32(16, 16, true);
-            /* sample format (1=PCM) */
-            view.setUint16(20, 1, true);
-            /* channel count */
-            view.setUint16(22, numChannels, true);
-            /* sample rate */
-            view.setUint32(24, sampleRate, true);
-            /* byte rate (sample rate * block align) */
-            view.setUint32(28, sampleRate * numChannels * bytesPerSample, true);
-            /* block align (channels * bytes per sample) */
-            view.setUint16(32, numChannels * bytesPerSample, true);
-            /* bits per sample */
-            view.setUint16(34, 16, true);
-            /* data chunk identifier */
-            writeString(view, 36, 'data');
-            /* data chunk length */
-            view.setUint32(40, pcm16.length * bytesPerSample, true);
-
-            // Write PCM data
-            for (let i = 0; i < pcm16.length; i++) {
-                view.setInt16(44 + i * bytesPerSample, pcm16[i], true);
-            }
-
-            return new Blob([view], { type: 'audio/wav' });
-        }
-        
-        /**
-         * Converts base64 PCM audio data to a playable URL and plays it.
-         */
-        function playTTSAudio(audioData, mimeType) {
-            if (!audioData || !mimeType) {
-                console.error("Missing audio data or mime type for playback.");
-                return;
-            }
-            
-            const rateMatch = mimeType.match(/rate=(\d+)/);
-            const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
-
-            try {
-                const pcmDataBuffer = base64ToArrayBuffer(audioData);
-                const pcm16 = new Int16Array(pcmDataBuffer);
-                const wavBlob = pcmToWav(pcm16, sampleRate);
-                const audioUrl = URL.createObjectURL(wavBlob);
-                const audio = new Audio(audioUrl);
-                
-                audio.addEventListener('ended', () => {
-                    URL.revokeObjectURL(audioUrl);
-                });
-
-                audio.play().catch(e => {
-                    console.error("Audio playback failed (browser error):", e);
-                    reportApiError("Audio Playback (Browser)", { message: `Playback failed: ${e.message}` });
-                });
-
-            } catch (error) {
-                console.error("Error processing PCM data:", error);
-                reportApiError("Audio Processing (PCM)", { message: "Failed to convert raw audio data to WAV." });
-            }
-        }
-
-        // --- Utility Functions ---
-
-        /**
-         * Standard error message for API failures.
-         */
-        function reportApiError(featureName, error) {
-            const errMsg = error.message || error.toString();
-            console.error(`${featureName} API Error:`, error);
-            tutorSystemMessageElement.textContent = `Error in ${featureName}. Details: ${errMsg.includes('API returned status') ? 'Check Network/Key.' : errMsg}.`;
-            tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
-            setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100', 'text-red-500'), 8000);
-        }
-
-        function updateFlagDisplay(language) {
-            if (language === 'italian') {
-                languageFlag.textContent = '🇮🇹';
-                appTitle.textContent = 'Language Tutor';
-            } else if (language === 'sicilian') {
-                languageFlag.textContent = '🏛️'; 
-                appTitle.textContent = 'Sicilian Tutor';
-            }
-        }
-        
         function switchMode(mode) {
-            currentMode = mode;
-            // Reset button states
-            [tutorModeBtn, builderModeBtn, chatModeBtn].forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white');
-                btn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
-            });
-
-            // Set UI visibility
-            chatSection.classList.add('hidden');
-            tutorSection.classList.add('hidden');
-            
-            // Reset common tutor UI elements when switching away from chat
-            answerInput.value = '';
-            tutorFeedbackElement.innerHTML = '';
-            tutorSystemMessageElement.classList.remove('opacity-100', 'text-red-500', 'text-blue-500');
-            
-            if (mode === 'tutor' || mode === 'builder') {
+            if (mode === 'tutor') {
                 tutorSection.classList.remove('hidden');
-                document.getElementById(`${mode}-mode-btn`).classList.add('bg-blue-500', 'text-white');
-                document.getElementById(`${mode}-mode-btn`).classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
-                
-                // Toggle display elements based on sub-mode
-                builderChallengeDisplay.classList.add('hidden');
-                
-                // Ensure visibility of the correct elements
-                phraseEnElement.classList.add('hidden');
-                phraseItElement.classList.add('hidden');
-                
-                if (mode === 'tutor') {
-                    loadNextPhrase();
-                    tutorListenBtn.classList.remove('hidden');
-                    nextBtn.textContent = "Next Phrase";
-                } else { // builder mode
-                    generateSentenceChallenge();
-                    tutorListenBtn.classList.add('hidden'); // TTS disabled in builder
-                    builderChallengeDisplay.classList.remove('hidden');
-                    nextBtn.textContent = "Next Sentence";
-                }
-                
-                calculateOverallProgress();
-            } else if (mode === 'chat') {
+                tutorSection.classList.add('flex-col');
+                chatSection.classList.add('hidden');
+                tutorModeBtn.classList.add('bg-blue-500', 'text-white');
+                tutorModeBtn.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+                chatModeBtn.classList.remove('bg-blue-500', 'text-white');
+                chatModeBtn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+            } else {
                 chatSection.classList.remove('hidden');
+                chatSection.classList.add('flex');
+                tutorSection.classList.add('hidden');
                 chatModeBtn.classList.add('bg-blue-500', 'text-white');
                 chatModeBtn.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
+                tutorModeBtn.classList.remove('bg-blue-500', 'text-white');
+                tutorModeBtn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
                 loadChatHistory();
             }
         }
 
-        tutorModeBtn.addEventListener('click', () => switchMode('tutor'));
-        builderModeBtn.addEventListener('click', () => switchMode('builder'));
-        chatModeBtn.addEventListener('click', () => switchMode('chat'));
-        
-        languageSelect.addEventListener('change', () => {
-            const selectedLanguage = languageSelect.value;
-            currentPhrases = selectedLanguage === 'italian' ? italianPhrases : sicilianPhrases;
-            updateFlagDisplay(selectedLanguage); 
-            loadProgress(); 
-            switchMode(currentMode);
-        });
-
-        // --- Firebase Auth and Data Loading ---
-        
-        async function initializeAuth() {
-            if (!auth || !db) {
-                console.error("Database not initialized. Cannot authenticate.");
-                userIdDisplay.textContent = "User ID: Error (DB init)";
-                isAuthReady = true;
+        // --- Firebase Functions ---
+        async function saveProgress(phrases) {
+            if (!userId) {
+                console.error("User not authenticated, cannot save progress.");
                 return;
             }
-
             try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                const progressData = {
+                    phrases: JSON.stringify(phrases)
+                };
+                await setDoc(progressDocRef(), progressData, { merge: true });
+                console.log("Progress saved to Firestore.");
             } catch (error) {
-                console.error("Firebase Auth Error: ", error);
-                userIdDisplay.textContent = "User ID: Auth Failed";
-            }
-        }
-
-        function calculateOverallProgress() {
-            if (!currentPhrases || currentPhrases.length === 0) return;
-
-            let totalMasteryEarned = 0;
-            currentPhrases.forEach(phrase => {
-                totalMasteryEarned += Math.min(phrase.mastered, masteredThreshold);
-            });
-
-            const progressPercent = Math.min(100, Math.round((totalMasteryEarned / maxMasteryPoints) * 100));
-            const levelName = getLevelName(totalMasteryEarned);
-            
-            progressBarFillElement.style.width = `${progressPercent}%`;
-            progressPercentElement.textContent = `${progressPercent}%`;
-            overallLevelElement.textContent = `Level: ${levelName}`;
-            
-            if (progressPercent === 100) {
-                 progressBarFillElement.classList.add('bg-blue-500');
-                 progressBarFillElement.classList.remove('bg-green-500');
-            } else {
-                 progressBarFillElement.classList.add('bg-green-500');
-                 progressBarFillElement.classList.remove('bg-blue-500');
+                console.error("Error saving progress:", error);
             }
         }
         
-        function getLevelName(masteryPoints) {
-            if (masteryPoints >= 95) return "Mastery Achieved";
-            if (masteryPoints >= 70) return "Advanced Learner";
-            if (masteryPoints >= 40) return "Intermediate";
-            if (masteryPoints >= 15) return "Novice";
-            return "Beginner";
-        }
-
-        function loadProgress() {
-            if (!isAuthReady || !progressDocRef()) return;
-
-            const languageKey = languageSelect.value;
-            
-            onSnapshot(progressDocRef(), (docSnapshot) => {
-                let initialLoad = true;
-                
-                if (docSnapshot.exists()) {
-                    const data = docSnapshot.data();
-                    const progressData = data[languageKey] || [];
-
-                    currentPhrases.forEach((phrase) => {
-                        const savedPhrase = progressData.find(p => p.en === phrase.en);
-                        phrase.mastered = savedPhrase ? (savedPhrase.mastered || 0) : 0; 
-                    });
-                } else {
-                    saveProgress(); 
-                }
-                
-                calculateOverallProgress(); 
-                
-                if (initialLoad && (currentMode === 'tutor' || currentMode === 'builder') && !tutorSection.classList.contains('hidden')) {
-                    if (currentMode === 'tutor') {
-                        loadNextPhrase();
-                    } else {
-                        generateSentenceChallenge();
-                    }
-                }
-                initialLoad = false;
-
-            }, (error) => {
-                console.error("Error listening to progress: ", error);
-                tutorSystemMessageElement.textContent = "Error loading progress. Check console for 400 errors and Firebase Rules.";
-                tutorSystemMessageElement.classList.add('opacity-100', 'text-red-500');
-            });
-        }
-
-        async function saveProgress() {
-            if (!isAuthReady || !progressDocRef()) return;
-
-            const languageKey = languageSelect.value;
-            const progressData = currentPhrases.map(p => ({
-                en: p.en,
-                mastered: p.mastered
-            }));
+        async function loadProgress() {
+            if (!userId) return;
 
             try {
                 const docSnap = await getDoc(progressDocRef());
-                const existingData = docSnap.exists() ? docSnap.data() : {};
-                
-                await setDoc(progressDocRef(), { 
-                    ...existingData, 
-                    [languageKey]: progressData 
-                }, { merge: true });
-
-            } catch (error) {
-                console.error("Error saving progress: ", error);
-            }
-        }
-        
-        function loadChatHistory() {
-            if (!isAuthReady || !chatHistoryDocRef()) return;
-
-            chatWindow.innerHTML = '<div class="text-center text-sm text-gray-500 dark:text-gray-400">Loading chat history...</div>';
-            chatHistory = [];
-
-            onSnapshot(chatHistoryDocRef(), (docSnapshot) => {
-                if (docSnapshot.exists()) {
-                    const data = docSnapshot.data();
-                    const messages = data.messages || [];
-                    
-                    if (JSON.stringify(messages) !== JSON.stringify(chatHistory)) {
-                        chatHistory = messages;
-                        renderChatHistory();
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.phrases) {
+                        const savedPhrases = JSON.parse(data.phrases);
+                        currentPhrases.forEach(phrase => {
+                            const saved = savedPhrases.find(p => p.en === phrase.en);
+                            if (saved) {
+                                phrase.mastered = saved.mastered;
+                            }
+                        });
+                        showTutorSystemMessage("Progress loaded successfully!");
                     }
-                } else {
-                    saveChatHistory();
                 }
-            }, (error) => {
-                console.error("Error listening to chat history: ", error);
-                chatWindow.innerHTML = '<div class="text-center text-sm text-red-500">Error loading chat history.</div>';
-            });
+            } catch (error) {
+                console.error("Error loading progress:", error);
+            }
         }
 
         async function saveChatHistory() {
-            if (!isAuthReady || !chatHistoryDocRef()) return;
+            if (!userId) {
+                console.error("User not authenticated, cannot save chat.");
+                return;
+            }
+            try {
+                await setDoc(chatHistoryDocRef(), { history: JSON.stringify(chatHistory) });
+            } catch (error) {
+                console.error("Error saving chat history:", error);
+            }
+        }
+
+        async function loadChatHistory() {
+            if (!userId) return;
 
             try {
-                await setDoc(chatHistoryDocRef(), { messages: chatHistory }, { merge: true });
+                const docSnap = await getDoc(chatHistoryDocRef());
+                if (docSnap.exists()) {
+                    chatHistory = JSON.parse(docSnap.data().history);
+                    renderChatHistory();
+                } else {
+                    chatHistory = [];
+                    renderChatHistory();
+                }
             } catch (error) {
-                console.error("Error saving chat history: ", error);
+                console.error("Error loading chat history:", error);
             }
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                userId = user.uid;
-                userIdDisplay.textContent = `User ID: ${userId}`;
-                isAuthReady = true;
-                
-                loadProgress();
-                loadChatHistory();
-                
-            } else {
-                isAuthReady = false;
-                userId = null; 
-                userIdDisplay.textContent = "User ID: Not Authenticated";
-                phraseEnElement.textContent = currentPhrases[0].en;
-            }
-        });
-
-        initializeAuth();
-
-
-        // --- Tutor Mode Logic ---
-
-        function updateMasteryIndicator(masteryCount, isDynamic = false) {
-             if (currentMode === 'builder') {
-                 masteryIndicator.textContent = 'Sentence Construction Challenge';
-                 masteryIndicator.classList.add('text-blue-500');
-                 masteryIndicator.classList.remove('text-amber-500', 'text-green-500');
-                 return;
-             }
-             if (isDynamic) {
-                 masteryIndicator.textContent = `Dynamic Phrase (Topic: ${currentPhrase.topic})`;
-                 masteryIndicator.classList.add('text-blue-500');
-                 masteryIndicator.classList.remove('text-amber-500', 'text-green-500');
-                 return;
-             }
-             const stars = Array(Math.min(masteryCount, masteredThreshold)).fill('⭐').join('');
-             masteryIndicator.textContent = `Phrase Mastery: ${stars} (${Math.min(masteryCount, masteredThreshold)}/${masteredThreshold})`;
-             masteryIndicator.classList.remove('text-amber-500', 'text-green-500', 'text-blue-500');
-             if (masteryCount >= masteredThreshold) {
-                 masteryIndicator.classList.add('text-green-500');
-             } else if (masteryCount > 0) {
-                 masteryIndicator.classList.add('text-amber-500');
-             }
-        }
-
-        // --- Phrase Tutor (Recall/Context) Functions ---
-
-        async function generateDynamicPhrase() {
-            isGeneratingPhrase = true;
-            tutorSystemMessageElement.textContent = "Generating a new, advanced phrase with AI...";
-            tutorSystemMessageElement.classList.add('opacity-100', 'text-blue-500');
-            
-            phraseEnElement.textContent = '<i class="fas fa-spinner fa-spin"></i>';
-            phraseItElement.textContent = '';
-            answerInput.value = '';
-            
-            checkBtn.disabled = true;
-            revealBtn.disabled = true;
-            tutorListenBtn.disabled = true;
-            phrasePromptElement.textContent = "";
-            answerInput.disabled = true;
-            phraseEnElement.classList.remove('hidden'); // Show spinner
-            phraseItElement.classList.add('hidden');
-
-
-            const languageName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
-            const userQuery = `Generate a useful intermediate/advanced phrase in English and its accurate, idiomatic translation into ${languageName}. Also provide a short topic.`;
-            
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            "englishPhrase": { "type": "STRING" },
-                            "translation": { "type": "STRING" },
-                            "topic": { "type": "STRING" }
-                        },
-                        "propertyOrdering": ["englishPhrase", "translation", "topic"]
-                    }
-                }
-            };
-
-            let generatedData = null;
-            for (let attempt = 0; attempt < 3; attempt++) {
-                try {
-                    const response = await fetch(GEMINI_TEXT_API, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    if (response.status === 429 && attempt < 2) {
-                        const delay = Math.pow(2, attempt) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
-
-                    const result = await response.json();
-                    const jsonString = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    generatedData = JSON.parse(jsonString);
-                    break;
-                } catch (error) {
-                    reportApiError("Phrase Generation", error);
-                }
-            }
-
-            checkBtn.disabled = false;
-            revealBtn.disabled = false;
-            tutorListenBtn.disabled = false;
-            answerInput.disabled = false;
-            isGeneratingPhrase = false;
-            tutorSystemMessageElement.classList.remove('opacity-100', 'text-blue-500');
-
-            if (generatedData && generatedData.englishPhrase && generatedData.translation) {
-                currentPhrase = {
-                    en: generatedData.englishPhrase,
-                    it: generatedData.translation,
-                    topic: generatedData.topic || 'General' 
-                };
-                
-                phraseEnElement.textContent = currentPhrase.en;
-                phraseItElement.textContent = currentPhrase.it;
-                updateMasteryIndicator(0, true); 
-                
-                phraseEnElement.classList.remove('hidden');
-                phrasePromptElement.textContent = "Translate to " + (languageSelect.value === 'italian' ? 'Italian' : 'Sicilian');
-                answerInput.placeholder = "Type the translation...";
-            } else {
-                currentPhrase = { en: "Error generating phrase.", it: "Errore.", topic: "Error" };
-                phraseEnElement.textContent = "Could not generate phrase. Try again or check API connection.";
-                phraseItElement.textContent = currentPhrase.it;
-                updateMasteryIndicator(0, true); 
-                phraseEnElement.classList.remove('hidden');
-            }
-        }
-
-
-        function loadNextPhrase() {
-            if (!isAuthReady && !userId) {
-                phraseEnElement.textContent = "Authenticating...";
-                return;
-            }
-            
-            builderChallengeDisplay.classList.add('hidden');
-            
-            const availablePhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
-            
-            if (availablePhrases.length === 0) {
-                generateDynamicPhrase();
-                isReverseChallenge = false;
-                return;
-            }
-
-            availablePhrases.sort((a, b) => a.mastered - b.mastery);
-            const lowestMastery = availablePhrases.length > 0 ? availablePhrases[0].mastered : 0;
-            const pool = availablePhrases.filter(p => p.mastered === lowestMastery);
-
-            currentPhrase = pool[Math.floor(Math.random() * pool.length)] || currentPhrases[0];
-            
-            isReverseChallenge = currentPhrase.mastered >= 3 && currentPhrase.mastered < masteredThreshold;
-            
-            const targetLangName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
-
-            phraseEnElement.textContent = currentPhrase.en;
-            phraseItElement.textContent = currentPhrase.it;
-
-            phraseEnElement.classList.add('hidden');
-            phraseItElement.classList.add('hidden');
-
-            if (isReverseChallenge) {
-                phraseItElement.classList.remove('hidden'); 
-                phrasePromptElement.textContent = "Translate to English (Challenge Mode)";
-                answerInput.placeholder = "Type the English translation...";
-            } else {
-                phraseEnElement.classList.remove('hidden'); 
-                phrasePromptElement.textContent = `Translate to ${targetLangName}`;
-                answerInput.placeholder = `Type the ${targetLangName} translation...`;
-            }
-
-            updateMasteryIndicator(currentPhrase.mastered); 
-
-            // Reset UI
-            answerInput.value = '';
-            answerInput.disabled = false;
-            answerInput.classList.remove('correct-answer-input', 'border-red-500');
-            checkBtn.classList.remove('hidden');
-            revealBtn.classList.remove('hidden');
-            nextBtn.classList.add('hidden');
-            tutorFeedbackElement.textContent = '';
-            tutorSystemMessageElement.classList.remove('opacity-100');
-        }
-
-        function cleanString(str) {
-             // Remove all punctuation, convert to lowercase, and trim whitespace
-            return str.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ');
-        }
-        
-        // --- Sentence Builder Functions ---
-
-        async function generateSentenceChallenge() {
-            isGeneratingPhrase = true;
-            tutorSystemMessageElement.textContent = "Creating new sentence challenge...";
-            tutorSystemMessageElement.classList.add('opacity-100', 'text-blue-500');
-            
-            builderEnPrompt.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-            builderGrammarFocus.textContent = '...';
-            answerInput.value = '';
-            
-            // Set up UI for Builder
-            phrasePromptElement.textContent = "Construct the full sentence in " + (languageSelect.value === 'italian' ? 'Italian' : 'Sicilian');
-            answerInput.placeholder = "Type your constructed sentence here...";
-            checkBtn.disabled = true;
-            revealBtn.disabled = true;
-            tutorListenBtn.disabled = true;
-            tutorListenBtn.classList.add('hidden');
-            answerInput.disabled = true;
-            
-            phraseEnElement.classList.add('hidden');
-            phraseItElement.classList.add('hidden');
-
-            const languageName = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
-            const userQuery = `Generate an intermediate-level English sentence construction prompt for learning ${languageName}. This sentence must require the use of a verb conjugation, tense, or complex structure (like subjunctive or compound tense). Provide the correct translation and the grammar point being tested.`;
-            
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            "englishPrompt": { "type": "STRING" },
-                            "correctTranslation": { "type": "STRING" },
-                            "grammarFocus": { "type": "STRING" }
-                        },
-                        "propertyOrdering": ["englishPrompt", "correctTranslation", "grammarFocus"]
-                    }
-                }
-            };
-
-            let generatedData = null;
-            for (let attempt = 0; attempt < 3; attempt++) {
-                try {
-                    const response = await fetch(GEMINI_TEXT_API, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (response.status === 429 && attempt < 2) {
-                        const delay = Math.pow(2, attempt) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
-
-                    const result = await response.json();
-                    const jsonString = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    generatedData = JSON.parse(jsonString);
-                    break;
-                } catch (error) {
-                    reportApiError("Sentence Builder Generation", error);
-                }
-            }
-
-            checkBtn.disabled = false;
-            revealBtn.disabled = false;
-            answerInput.disabled = false;
-            isGeneratingPhrase = false;
-            tutorSystemMessageElement.classList.remove('opacity-100', 'text-blue-500');
-
-            if (generatedData && generatedData.englishPrompt && generatedData.correctTranslation) {
-                currentBuilderChallenge = {
-                    en: generatedData.englishPrompt,
-                    it: generatedData.correctTranslation,
-                    grammar: generatedData.grammarFocus || 'Complex Sentence Structure'
-                };
-                
-                builderEnPrompt.textContent = currentBuilderChallenge.en;
-                builderGrammarFocus.textContent = currentBuilderChallenge.grammar;
-                updateMasteryIndicator(0); 
-                
-            } else {
-                builderEnPrompt.textContent = "Error generating challenge. Try again.";
-                builderGrammarFocus.textContent = "Error";
-            }
-        }
-        
-        function checkAnswer() {
-            if (currentMode === 'builder') {
-                checkBuilderAnswer();
-            } else {
-                checkTutorAnswer();
-            }
-        }
-
-        function checkTutorAnswer() {
-            if (isGeneratingPhrase) return;
-
-            const userAnswerClean = cleanString(answerInput.value);
-            let correctAnswerClean;
-            let expectedAnswer;
-
-            if (isReverseChallenge) {
-                correctAnswerClean = cleanString(currentPhrase.en);
-                expectedAnswer = currentPhrase.en;
-            } else {
-                correctAnswerClean = cleanString(currentPhrase.it);
-                expectedAnswer = currentPhrase.it;
-            }
-
-            if (userAnswerClean === correctAnswerClean) {
-                tutorFeedbackElement.textContent = 'Correct! Molto bene!';
-                tutorFeedbackElement.classList.add('text-green-500', 'text-lg', 'font-bold');
-                tutorFeedbackElement.classList.remove('text-red-500', 'text-blue-500', 'text-sm', 'font-semibold');
-                
-                answerInput.classList.add('correct-answer-input');
-                answerInput.classList.remove('border-red-500');
-                answerInput.disabled = true; 
-                
-                if (currentPhrase.mastered !== undefined && currentPhrase.mastered < masteredThreshold) {
-                    currentPhrase.mastered = (currentPhrase.mastered || 0) + 1;
-                    saveProgress();
-                    calculateOverallProgress();
-                }
-                
-                updateMasteryIndicator(currentPhrase.mastered);
-                
-                checkBtn.classList.add('hidden');
-                revealBtn.classList.add('hidden');
-                nextBtn.classList.remove('hidden');
-            } else {
-                tutorFeedbackElement.textContent = 'Incorrect. Try again!';
-                tutorFeedbackElement.classList.add('text-red-500');
-                tutorFeedbackElement.classList.remove('text-green-500', 'text-blue-500', 'text-lg', 'font-bold');
-                answerInput.classList.add('border-red-500');
-                answerInput.classList.remove('correct-answer-input');
-            }
-        }
-        
-        function checkBuilderAnswer() {
-            if (!currentBuilderChallenge) return;
-
-            const userAnswer = answerInput.value.trim();
-            answerInput.disabled = true; 
-
-            tutorFeedbackElement.textContent = 'Review your answer against the solution below.';
-            tutorFeedbackElement.classList.add('text-blue-500');
-            tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
-
-            tutorFeedbackElement.innerHTML = `
-                <div class="mt-4 p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900 border border-yellow-300 dark:border-yellow-700">
-                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Your Attempt:</p>
-                    <p class="text-base text-gray-700 dark:text-gray-200">${userAnswer || 'No answer provided.'}</p>
-                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100 mt-2">Model Solution:</p>
-                    <p class="text-base font-bold text-green-700 dark:text-green-400">${currentBuilderChallenge.it}</p>
-                    <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">Focus: ${currentBuilderChallenge.grammar}</p>
-                </div>
-            `;
-            
-            checkBtn.classList.add('hidden');
-            revealBtn.classList.add('hidden');
-            nextBtn.classList.remove('hidden');
-            answerInput.classList.remove('border-red-500', 'correct-answer-input');
-        }
-
-        function revealAnswer() {
-            answerInput.disabled = true; 
-
-            if (currentMode === 'builder') {
-                 tutorFeedbackElement.textContent = `The correct answer is: ${currentBuilderChallenge.it}`;
-                 tutorFeedbackElement.classList.add('text-blue-500');
-                 tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
-                 checkBtn.classList.add('hidden');
-                 revealBtn.classList.add('hidden');
-                 nextBtn.classList.remove('hidden');
-            } else {
-                let correctAnswer = isReverseChallenge ? currentPhrase.en : currentPhrase.it;
-
-                phraseEnElement.classList.add('hidden');
-                phraseItElement.classList.remove('hidden');
-                checkBtn.classList.add('hidden');
-                revealBtn.classList.add('hidden');
-                nextBtn.classList.remove('hidden');
-                tutorFeedbackElement.textContent = `The correct answer is: ${correctAnswer}`;
-                tutorFeedbackElement.classList.add('text-blue-500');
-                tutorFeedbackElement.classList.remove('text-red-500', 'text-green-500');
-            }
-        }
-        
-        function loadNextChallenge() {
-             if (currentMode === 'builder') {
-                 generateSentenceChallenge();
-             } else {
-                 loadNextPhrase();
-             }
-             
-             // Reset UI common to both
-             tutorFeedbackElement.innerHTML = '';
-             checkBtn.classList.remove('hidden');
-             revealBtn.classList.remove('hidden');
-             nextBtn.classList.add('hidden');
-             answerInput.disabled = false;
-        }
-
-        // --- TTS Function (Using dedicated TTS Model) ---
-
-        async function fetchTutorTTS(text) {
-            tutorListenBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            tutorListenBtn.disabled = true;
-
-            const language = languageSelect.value;
-            const voiceName = language === 'italian' ? 'Kore' : 'Charon'; 
-            
-            for (let attempt = 0; attempt < 3; attempt++) {
-                try {
-                    const payload = {
-                        contents: [{
-                            parts: [{ text: text }]
-                        }],
-                        generationConfig: {
-                            responseModalities: ["AUDIO"],
-                            speechConfig: {
-                                voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } }
-                            }
-                        },
-                        model: "gemini-2.5-flash-preview-tts"
-                    };
-
-                    const response = await fetch(GEMINI_TTS_API, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.status === 429 && attempt < 2) {
-                        const delay = Math.pow(2, attempt) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
-
-                    const result = await response.json();
-                    const part = result?.candidates?.[0]?.content?.parts?.[0];
-                    const audioData = part?.inlineData?.data;
-                    const mimeType = part?.inlineData?.mimeType;
-
-                    if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
-                        playTTSAudio(audioData, mimeType);
-                    } else {
-                        // Throw specific error if data is missing/wrong format
-                        throw new Error("TTS response missing or invalid audio data format.");
-                    }
-                    
-                    break; 
-                } catch (error) {
-                    reportApiError("Audio Playback (TTS)", error);
-                }
-            }
-
-            tutorListenBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-            tutorListenBtn.disabled = false;
-        }
-
-
-        // Event Listeners for Tutor Mode
-        checkBtn.addEventListener('click', checkAnswer);
-        nextBtn.addEventListener('click', loadNextChallenge);
-        revealBtn.addEventListener('click', revealAnswer);
-        tutorListenBtn.addEventListener('click', () => {
-            if (currentMode === 'builder') return;
-            if (!currentPhrase) return;
-            // Only speak the target language phrase
-            const textToSpeak = currentPhrase.it;
-            fetchTutorTTS(textToSpeak);
-        });
-        
-        tutorSpeakBtn.addEventListener('click', () => {
-             tutorSystemMessageElement.textContent = "Speech input is not available in this environment. Please type your answer.";
-             tutorSystemMessageElement.classList.add('opacity-100', 'text-orange-500');
-             setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 3000);
-        });
-
-        // --- Chat Mode Logic ---
-
-        function renderChatMessage(role, text) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('max-w-[80%]', 'p-3', 'rounded-xl', 'shadow-sm', 'break-words');
-
-            if (role === 'user') {
-                messageDiv.classList.add('chat-message-user');
-            } else if (role === 'model') {
-                messageDiv.classList.add('chat-message-ai');
-            } else if (role === 'system') {
-                messageDiv.classList.add('text-center', 'text-xs', 'text-gray-500', 'dark:text-gray-400', 'w-full');
-            }
-
-            messageDiv.textContent = text;
-            chatWindow.appendChild(messageDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
         function renderChatHistory() {
             chatWindow.innerHTML = '';
-            if (chatHistory.length === 0) {
-                 chatWindow.innerHTML = '<div class="text-center text-sm text-gray-500 dark:text-gray-400">Start a conversation with the AI tutor.</div>';
-                 return;
-            }
             chatHistory.forEach(message => {
-                renderChatMessage(message.role, message.parts[0].text);
+                appendChatMessage(message.text, message.sender);
+            });
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // --- UI Functions ---
+        function selectNewPhrase() {
+            const unmasteredPhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
+            if (unmasteredPhrases.length === 0) {
+                currentPhrases.forEach(p => p.mastered = 0);
+                showTutorSystemMessage("You have mastered all phrases! Starting over.");
+            }
+
+            let phraseToUse;
+            const phrasesToRepeat = currentPhrases.filter(p => p.mastered < 0);
+            if (phrasesToRepeat.length > 0) {
+                 phraseToUse = phrasesToRepeat[Math.floor(Math.random() * phrasesToRepeat.length)];
+            } else {
+                 phraseToUse = unmasteredPhrases[Math.floor(Math.random() * unmasteredPhrases.length)];
+            }
+            
+            currentPhrase = phraseToUse;
+            phraseEnElement.textContent = currentPhrase.en;
+            phraseItElement.textContent = currentPhrase.it;
+            answerInput.value = '';
+            answerInput.style.borderColor = '';
+            tutorFeedbackElement.textContent = '';
+            nextBtn.classList.add('hidden');
+            checkBtn.classList.remove('hidden');
+            revealBtn.classList.remove('hidden');
+            phraseItElement.classList.add('hidden');
+            phraseEnElement.classList.remove('hidden'); 
+            
+            answerInput.disabled = false;
+        }
+
+        function showTutorSystemMessage(message) {
+            tutorSystemMessageElement.textContent = message;
+            tutorSystemMessageElement.classList.remove('opacity-0');
+            tutorSystemMessageElement.classList.add('opacity-100');
+            setTimeout(() => {
+                tutorSystemMessageElement.classList.remove('opacity-100');
+                tutorSystemMessageElement.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        function initializeApp(language) {
+            if (language === 'italian') {
+                currentPhrases = italianPhrases;
+            } else if (language === 'sicilian') {
+                currentPhrases = sicilianPhrases;
+            }
+            loadProgress().then(() => {
+                selectNewPhrase();
             });
         }
         
-        async function sendChat() {
-            if (isWaitingForResponse) return;
-            const userQuery = chatInput.value.trim();
-            if (!userQuery) return;
-
-            chatInput.value = '';
-            
-            const userMessage = { role: "user", parts: [{ text: userQuery }] };
-            chatHistory.push(userMessage);
-            renderChatMessage('user', userQuery);
-            
-            isWaitingForResponse = true;
-            chatSendBtn.disabled = true;
-            chatSendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            
-            const language = languageSelect.value;
-            const systemPrompt = `You are a helpful, enthusiastic, and patient language tutor specializing in ${language}. Keep your responses friendly, encouraging, and concise. Only respond in English, but use and teach ${language} phrases relevant to the user's question.`;
-
-            const payload = {
-                contents: chatHistory,
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                }
-            };
-            
-            let modelResponseText = "Sorry, I couldn't get a response from the tutor. This usually means the Gemini API Key is missing or invalid.";
-            
-            for (let attempt = 0; attempt < 3; attempt++) {
-                try {
-                    const response = await fetch(GEMINI_TEXT_API, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.status === 429 && attempt < 2) {
-                        const delay = Math.pow(2, attempt) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-                    
-                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
-
-                    const result = await response.json();
-                    const candidate = result.candidates?.[0];
-                    modelResponseText = candidate?.content?.parts?.[0]?.text || modelResponseText;
-                    
-                    break; 
-                } catch (error) {
-                    reportApiError("AI Chat", error);
-                }
+        function applyDarkMode(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
             }
+        }
 
-            const modelMessage = { role: "model", parts: [{ text: modelResponseText }] };
-            chatHistory.push(modelMessage);
-            renderChatMessage('model', modelResponseText);
-            
+        // --- Chat Functions ---
+        function appendChatMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('my-2', 'p-3', 'rounded-lg', 'max-w-[80%]');
+            if (sender === 'user') {
+                messageDiv.classList.add('bg-blue-500', 'text-white', 'ml-auto');
+            } else {
+                messageDiv.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-600', 'dark:text-gray-100');
+            }
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function speakText(text, language) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                // Use Italian language code for both to ensure best voice compatibility
+                utterance.lang = 'it-IT'; 
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.warn('Browser does not support native Text-to-Speech.');
+            }
+        }
+
+
+        async function getTutorResponse(userMessage) {
+            if (isWaitingForResponse) return;
+            isWaitingForResponse = true;
+
+            appendChatMessage(userMessage, 'user');
+            chatHistory.push({ text: userMessage, sender: 'user' });
             saveChatHistory();
 
+            const prompt = `You are a language tutor for ${languageSelect.value === 'italian' ? 'Italian' : 'Sicilian'}. Respond to the user's message in the target language. Keep the response natural and helpful. Do not provide a translation unless the user asks for it explicitly. Use standard capitalization and punctuation.`;
+            const payload = {
+                contents: chatHistory.map(msg => ({
+                    role: msg.sender === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.text }]
+                })),
+                systemInstruction: { parts: [{ text: prompt }] },
+                generationConfig: {
+                    temperature: 0.8,
+                    maxOutputTokens: 100,
+                },
+            };
+
+            let responseText = "Sorry, I couldn't get a response from the tutor. The Gemini API Key is missing or invalid.";
+            if (API_KEY === "") {
+                appendChatMessage(responseText, 'model');
+                isWaitingForResponse = false;
+                return;
+            }
+
+            try {
+                const response = await fetch(GEMINI_TEXT_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+                    responseText = result.candidates[0].content.parts[0].text;
+                } else if (result.error && result.error.message.includes('API key not valid')) {
+                    responseText = "Error: The provided Gemini API Key is invalid. Please check your key value.";
+                } else if (result.error) {
+                    responseText = `API Error: ${result.error.message}. Please check that your key is valid and not restricted.`;
+                }
+            } catch (error) {
+                console.error('Error with Gemini text generation:', error);
+                responseText = "Sorry, I couldn't connect to the Gemini API. Check your network or API key settings.";
+            }
+
+            appendChatMessage(responseText, 'model');
+            chatHistory.push({ text: responseText, sender: 'model' });
+            saveChatHistory();
+
+            // Use free native browser TTS
+            if (!responseText.startsWith("Error:") && !responseText.startsWith("Sorry,")) {
+                speakText(responseText, languageSelect.value);
+            }
             isWaitingForResponse = false;
-            chatSendBtn.disabled = false;
-            chatSendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
         }
 
-        chatSendBtn.addEventListener('click', sendChat);
+        
+        // --- Event Listeners ---
+        tutorModeBtn.addEventListener('click', () => switchMode('tutor'));
+        chatModeBtn.addEventListener('click', () => switchMode('chat'));
+
+        languageSelect.addEventListener('change', (e) => {
+            if (tutorSection.classList.contains('hidden')) {
+                loadChatHistory();
+            } else {
+                initializeApp(e.target.value);
+            }
+        });
+
+        checkBtn.addEventListener('click', () => {
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            const correctAnswer = currentPhrase.it.toLowerCase();
+
+            if (userAnswer === correctAnswer || (currentPhrase.en === "Yes" && userAnswer === "si")) {
+                tutorFeedbackElement.textContent = "Correct! Fantastico!";
+                tutorFeedbackElement.style.color = '#10B981';
+                checkBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                answerInput.style.borderColor = '#10B981';
+                answerInput.disabled = true;
+                currentPhrase.mastered++;
+                saveProgress(currentPhrases);
+            } else {
+                tutorFeedbackElement.textContent = "Incorrect. Try again or reveal the answer.";
+                tutorFeedbackElement.style.color = '#EF4444';
+                answerInput.style.borderColor = '#EF4444';
+                currentPhrase.mastered = -1;
+                saveProgress(currentPhrases);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => selectNewPhrase());
+
+        revealBtn.addEventListener('click', () => {
+            phraseEnElement.classList.add('hidden');
+            phraseItElement.classList.remove('hidden');
+            tutorFeedbackElement.textContent = `The correct answer is: "${currentPhrase.it}"`;
+            tutorFeedbackElement.style.color = '#4B5563';
+            answerInput.value = currentPhrase.it;
+            checkBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            answerInput.disabled = true;
+            currentPhrase.mastered = -1;
+            saveProgress(currentPhrases);
+        });
+
+        tutorListenBtn.addEventListener('click', () => {
+            // Now using free browser native TTS
+            speakText(currentPhrase.it, languageSelect.value);
+        });
+
+        tutorSpeakBtn.addEventListener('click', () => {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = languageSelect.value === 'italian' ? 'it-IT' : 'it-IT';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+                tutorListeningPulse.classList.add('pulse-animation');
+                recognition.start();
+
+                recognition.onresult = (event) => {
+                    const speechResult = event.results[0][0].transcript;
+                    answerInput.value = speechResult;
+                    tutorListeningPulse.classList.remove('pulse-animation');
+                };
+                recognition.onend = () => tutorListeningPulse.classList.remove('pulse-animation');
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    showTutorSystemMessage('Speech recognition failed.');
+                    tutorListeningPulse.classList.remove('pulse-animation');
+                };
+            } else {
+                showTutorSystemMessage('Speech recognition is not supported in this browser.');
+            }
+        });
+
+        chatSendBtn.addEventListener('click', () => {
+            const userMessage = chatInput.value.trim();
+            if (userMessage) {
+                getTutorResponse(userMessage);
+                chatInput.value = '';
+            }
+        });
+
         chatInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                sendChat();
+                chatSendBtn.click();
             }
+        });
+
+        chatSpeakBtn.addEventListener('click', () => {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = languageSelect.value === 'italian' ? 'it-IT' : 'it-IT';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+                chatSpeakBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+
+                recognition.start();
+                recognition.onresult = (event) => {
+                    const speechResult = event.results[0][0].transcript;
+                    chatInput.value = speechResult;
+                    getTutorResponse(speechResult);
+                };
+                recognition.onend = () => {
+                    chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    showTutorSystemMessage('Speech recognition failed.');
+                    chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+            } else {
+                showTutorSystemMessage('Speech recognition is not supported in this browser.');
+            }
+        });
+
+        // Add a handler for dark mode
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        applyDarkMode(prefersDark.matches);
+        prefersDark.addEventListener('change', (e) => {
+            applyDarkMode(e.matches);
         });
         
-        chatSpeakBtn.addEventListener('click', () => {
-            if (isWaitingForResponse || chatHistory.length === 0) return;
-            
-            const lastModelMessage = [...chatHistory].reverse().find(m => m.role === 'model');
-            if (lastModelMessage) {
-                const textToSpeak = lastModelMessage.parts[0].text;
-                const voiceName = languageSelect.value === 'italian' ? 'Leda' : 'Umbriel';
-
-                fetchChatTTS(textToSpeak, voiceName);
-            }
-        });
-
-        async function fetchChatTTS(text, voiceName) {
-            chatSpeakBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            chatSpeakBtn.disabled = true;
-            
-            for (let attempt = 0; attempt < 3; attempt++) {
+        // Firebase Authentication and Initialization
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                userIdDisplay.textContent = `User ID: ${userId}`;
+                initializeApp(languageSelect.value);
+            } else {
                 try {
-                    const payload = {
-                        contents: [{
-                            parts: [{ text: `Say in a friendly, encouraging tone: ${text}` }]
-                        }],
-                        generationConfig: {
-                            responseModalities: ["AUDIO"],
-                            speechConfig: {
-                                voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } }
-                            }
-                        },
-                        model: "gemini-2.5-flash-preview-tts"
-                    };
-
-                    const response = await fetch(GEMINI_TTS_API, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.status === 429 && attempt < 2) {
-                        const delay = Math.pow(2, attempt) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-
-                    if (!response.ok) throw new Error(`API returned status ${response.status}`);
-
-                    const result = await response.json();
-                    const part = result?.candidates?.[0]?.content?.parts?.[0];
-                    const audioData = part?.inlineData?.data;
-                    const mimeType = part?.inlineData?.mimeType;
-
-                    if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
-                        playTTSAudio(audioData, mimeType); 
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
                     } else {
-                        throw new Error("TTS response missing or invalid audio data format.");
+                        await signInAnonymously(auth);
                     }
-                    
-                    break; 
                 } catch (error) {
-                    reportApiError("Chat Audio Playback (TTS)", error);
+                    console.error("Firebase Auth Error:", error);
+                    userIdDisplay.textContent = "Auth failed";
+                    showTutorSystemMessage("Failed to sign in. Please check your connection.");
                 }
             }
-            
-            chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-            chatSpeakBtn.disabled = false;
-        }
-
-        // --- Initial Load ---
-        window.onload = () => {
-            const initialLanguage = languageSelect.value;
-            currentPhrases = initialLanguage === 'italian' ? italianPhrases : sicilianPhrases;
-            phraseEnElement.textContent = "Loading...";
-            updateFlagDisplay(initialLanguage); 
-            calculateOverallProgress(); 
-        };
-
+        });
     </script>
 </body>
 </html>
