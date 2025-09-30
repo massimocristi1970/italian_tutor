@@ -1416,7 +1416,7 @@
             // Show verb info
             document.getElementById('verb-infinitive').textContent = currentVerb.infinitive;
             document.getElementById('verb-english').textContent = currentVerb.english;
-            document.getElementById('verb-type').textContent = `Type: ${currentVerb.type.replace(/_/g, ' ')}`;
+            document.getElementById('verb-type').textContent = 'Type: ' + currentVerb.type.replace(/_/g, ' ');
             document.getElementById('verb-info').classList.remove('hidden');
             
             // Show exercise
