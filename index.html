@@ -211,25 +211,18 @@
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         let firebaseConfig = null;
-        try {
-            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                firebaseConfig = JSON.parse(__firebase_config);
+        
+        // Fetch Firebase config from Netlify function
+        async function loadFirebaseConfig() {
+            try {
+                const response = await fetch('/.netlify/functions/get-config');
+                const data = await response.json();
+                console.log("Loaded Firebase config from Netlify");
+                return data.firebaseConfig;
+            } catch (e) {
+                console.error("Error loading Firebase config:", e);
+                return null;
             }
-        } catch (e) {
-            console.error("Error parsing __firebase_config:", e);
-        }
-
-        if (!firebaseConfig || !firebaseConfig.apiKey) {
-            // Using a working fallback config to enable persistence when the environment variable is missing
-            console.warn("Using fallback Firebase config. Persistence may not work correctly in all environments.");
-            firebaseConfig = { 
-                apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0",
-                authDomain: "italiantutorapp.firebaseapp.com",
-                projectId: "italiantutorapp",
-                storageBucket: "italiantutorapp.firebasestorage.app",
-                messagingSenderId: "915130971011",
-                appId: "1:915130971011:web:171cfb69941fdf7997fcb6"
-            };
         }
         
         let app;
@@ -408,6 +401,15 @@
 
         async function setupFirebase() {
             try {
+                // Load config from Netlify
+                firebaseConfig = await loadFirebaseConfig();
+                
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                    console.error("Firebase config not available");
+                    showModal('Database Error', 'Could not load database configuration.', true);
+                    return;
+                }
+                
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
