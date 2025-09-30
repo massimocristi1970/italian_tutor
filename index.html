@@ -150,7 +150,8 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         
         // --- Core Application State & Firebase References ---
-        let db, auth;
+        let db = null; // Set to null initially
+        let auth = null; // Set to null initially
         let userId = null;
         let chatHistory = [];
         let isWaitingForResponse = false;
@@ -244,8 +245,9 @@
         const levelIndicator = document.getElementById('level-indicator');
 
         // --- Firebase Data Reference Helpers ---
-        const progressDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'progress', languageSelect.value);
-        const chatHistoryDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value);
+        // Only return a valid reference if the database is initialized
+        const progressDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'progress', languageSelect.value) : null;
+        const chatHistoryDocRef = () => db && userId ? doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value) : null;
 
         // --- Utility Functions for TTS (PCM to WAV conversion) ---
 
@@ -308,7 +310,7 @@
             const audioBtn = document.getElementById('tutor-listen-btn');
             audioBtn.disabled = true;
             const originalText = audioBtn.innerHTML;
-            audioBtn.innerHTML = `<div class="loading-spinner border-t-white ml-2"></div> Generating Audio...`;
+            audioBtn.innerHTML = `<i class="fas fa-volume-up pulse-animation mr-2"></i> Generating Audio...`;
 
             const payload = {
                 contents: [{ parts: [{ text: text }] }],
@@ -524,7 +526,7 @@
         async function generateDynamicPhrase(targetLanguage, level) {
             isGeneratingPhrase = true;
             phraseEnElement.textContent = "Generating new challenge...";
-            wordBankElement.innerHTML = `<div class="loading-spinner"></div>`;
+            wordBankElement.innerHTML = `<i class="fas fa-spinner fa-spin text-xl text-blue-500"></i> Generating...`;
             checkButtonState();
 
             const targetLangFull = targetLanguage === 'italian' ? 'Modern Italian' : 'Sicilian dialect';
@@ -587,6 +589,23 @@
         }
         
         function selectNewPhrase(wasDynamic = false) {
+            // CRITICAL SAFETY CHECK: Ensure phrases are loaded before attempting selection
+            if (currentPhrases.length === 0) {
+                 // Initialize with base phrases if they haven't been loaded by setupFirebase yet
+                 currentPhrases = languageSelect.value === 'italian' 
+                    ? [...baseItalianPhrases] 
+                    : [...baseSicilianPhrases];
+                 
+                 if (currentPhrases.length === 0) {
+                    phraseEnElement.textContent = "Loading error: No phrases available.";
+                    wordBankElement.innerHTML = '';
+                    tutorFeedbackElement.textContent = 'Please refresh or check console for errors.';
+                    console.error("selectNewPhrase aborted: No phrases available in phraseSet.");
+                    return; 
+                 }
+            }
+
+
             // Check current level to decide whether to generate a new phrase
             const staticMastered = currentPhrases.filter(p => p.static && p.mastered >= masteredThreshold).length;
             const staticTotal = baseItalianPhrases.length;
@@ -619,16 +638,6 @@
                 phraseSet = currentPhrases;
             }
 
-            // CRITICAL SAFETY CHECK: If no phrases are available (e.g., initial load failure), stop.
-            if (phraseSet.length === 0) {
-                 phraseEnElement.textContent = "Loading error: No phrases available.";
-                 wordBankElement.innerHTML = '';
-                 tutorFeedbackElement.textContent = 'Please check console for Firebase errors.';
-                 console.error("selectNewPhrase aborted: No phrases available in phraseSet.");
-                 return; // Previene il crash (TypeError)
-            }
-
-
             // Prioritize phrases that need penalty practice (mastered < 0)
             const phrasesToRepeat = phraseSet.filter(p => p.mastered < 0);
             
@@ -649,7 +658,8 @@
             let distractors = [];
             while (distractors.length < 3) {
                 const randomWord = allTargetWords[Math.floor(Math.random() * allTargetWords.length)];
-                if (!correctWords.includes(randomWord) && !distractors.includes(randomWord)) {
+                // Check if it's not a correct word and not already a distractor
+                if (!correctWords.map(w => w.toLowerCase()).includes(randomWord.toLowerCase()) && !distractors.includes(randomWord)) {
                     distractors.push(randomWord);
                 }
             }
@@ -667,7 +677,8 @@
 
         // --- Firebase Handlers ---
         async function saveProgress(phrases) {
-            if (!userId || !db) return console.error("Database not ready.");
+            // Check if DB is initialized before attempting to save
+            if (!db || !userId) return console.error("Database not ready, cannot save progress.");
             try {
                 // Stringify the entire phrase array for simple saving
                 const progressData = { phrases: JSON.stringify(phrases), timestamp: new Date().toISOString() };
@@ -678,7 +689,8 @@
         }
         
         async function loadProgress() {
-            if (!userId || !db) return;
+            // Check if DB is initialized before attempting to load
+            if (!db || !userId) return;
 
             // 1. Set the initial phrase list (Base static phrases)
             currentPhrases = languageSelect.value === 'italian' 
@@ -707,14 +719,18 @@
                     currentPhrases = Array.from(baseStaticMap.values());
                     
                     showTutorSystemMessage("Progress loaded successfully!");
+                } else {
+                    showTutorSystemMessage("No existing progress found. Starting new session.");
                 }
             } catch (error) {
                 console.error("Error loading progress:", error);
+                showTutorSystemMessage("Error loading progress. Using default phrases.");
             }
         }
 
         async function saveChatHistory() {
-            if (!userId || !db) return console.error("Database not ready, cannot save chat.");
+            // Check if DB is initialized before attempting to save
+            if (!db || !userId) return console.error("Database not ready, cannot save chat.");
             try {
                 await setDoc(chatHistoryDocRef(), { history: JSON.stringify(chatHistory) });
             } catch (error) {
@@ -723,7 +739,10 @@
         }
 
         async function loadChatHistory() {
-            if (!userId || !db) return;
+            if (!db || !userId) {
+                renderChatHistory(); // Render empty history if DB is not ready
+                return;
+            }
             try {
                 const docSnap = await getDoc(chatHistoryDocRef());
                 if (docSnap.exists()) {
@@ -803,7 +822,7 @@
         }
 
         // --- Main App Initialization ---
-        function startAppLogic(language) { 
+        function startAppLogic() { 
             updateFlag();
             // Load progress and then select phrase and update UI
             loadProgress().then(() => {
@@ -813,6 +832,15 @@
         }
 
         async function setupFirebase() {
+            // Check if firebaseConfig is minimally populated before attempting init
+            const configKeys = Object.keys(firebaseConfig);
+            if (configKeys.length === 0 || !firebaseConfig.apiKey) {
+                console.error("FATAL FIREBASE CONFIG ERROR: Firebase config is missing or invalid. App will run in non-persistent mode.");
+                userIdDisplay.textContent = "ATTENZIONE: Nessuna persistenza dati (Firebase non configurato).";
+                startAppLogic();
+                return; // Exit early, running in non-persistent mode
+            }
+            
             try {
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
@@ -837,14 +865,17 @@
                     });
                 });
 
-                startAppLogic(languageSelect.value);
+                startAppLogic();
 
             } catch (error) {
                 console.error("FATAL FIREBASE INITIALIZATION ERROR:", error);
-                userIdDisplay.textContent = "FATAL ERROR: Firebase Initialization Failed.";
-                showTutorSystemMessage("Initialization failed. Check console for details.");
-                // Start app logic anyway as fallback, though data saving/loading will fail
-                startAppLogic(languageSelect.value); 
+                userIdDisplay.textContent = `FATAL ERROR: Firebase Initialization Failed (${error.code}). Non-persistent mode active.`;
+                showTutorSystemMessage("Errore critico di inizializzazione Firebase. Proseguo in modalità non persistente.");
+                // Ensure logic starts even if Firebase failed, just without DB/Auth features
+                auth = null;
+                db = null;
+                userId = crypto.randomUUID(); // Set a dummy ID for internal logic
+                startAppLogic(); 
             }
         }
         
@@ -855,7 +886,7 @@
         languageSelect.addEventListener('change', (e) => {
             if (chatSection.classList.contains('hidden')) {
                 // In tutor mode, reload phrases and start new session
-                startAppLogic(e.target.value);
+                startAppLogic();
             } else {
                 // In chat mode, just load the chat history for the new language
                 loadChatHistory();
