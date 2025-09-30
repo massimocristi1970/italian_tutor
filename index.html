@@ -194,6 +194,9 @@
         </div>
 
     </div>
+	
+	<script src="config.js"></script>
+
 
     <!-- Firebase and Application Logic -->
     <script type="module">
@@ -490,9 +493,14 @@
              });
         }
         
+        let saveProgressTimer = null;
+        
         async function saveProgressState(goal, goalId, selectedWords) {
             if (!db || !userId || !auth.currentUser) return;
-            try {
+            
+            clearTimeout(saveProgressTimer);
+            saveProgressTimer = setTimeout(async () => {
+                try {
                  const progressDocRef = doc(db, getPrivateCollectionPath('progress'), 'user_state');
                  
                  // Get existing dynamic phrases to merge (safer read before write)
@@ -510,8 +518,9 @@
                     language: currentLanguage
                  }, { merge: true });
             } catch (error) {
-                 console.warn("Could not save progress state.", error);
-            }
+                     console.warn("Could not save progress state.", error);
+                }
+            }, 500);
         }
         
         async function saveDynamicPhrase(newPhrase) {
@@ -711,18 +720,33 @@
         // --- LLM Interaction ---
         
         async function postToGemini(userPrompt, systemPrompt, useSearch, isChat) {
-            // CRITICAL FIX: The API key must be an empty string for the Canvas environment to inject it securely.
-            const apiKey = ""; 
             const modelName = "gemini-2.5-flash-preview-05-20";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
             
-            const payload = {
-                contents: [{ parts: [{ text: userPrompt }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-            };
+            // Use Netlify function proxy (works in production)
+            // Falls back to direct API call if running locally with API key
+            const useProxy = typeof __gemini_api_key === 'undefined' || !__gemini_api_key;
             
-            if (useSearch) {
-                payload.tools = [{ "google_search": {} }];
+            let apiUrl, payload;
+            
+            if (useProxy) {
+                // Use serverless function proxy
+                apiUrl = '/.netlify/functions/gemini-proxy';
+                payload = {
+                    userPrompt,
+                    systemPrompt,
+                    useSearch,
+                    modelName
+                };
+            } else {
+                // Direct API call (local development only)
+                apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${__gemini_api_key}`;
+                payload = {
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                };
+                if (useSearch) {
+                    payload.tools = [{ "google_search": {} }];
+                }
             }
 
             const maxRetries = 5;
@@ -777,31 +801,43 @@
             
             const targetLang = currentLanguage === 'Sicilian' ? 'Sicilian (Sicilianu)' : 'Italian (Italiano)';
             const structurePrompt = `Generate a new, unique sentence for an intermediate-beginner student in ${targetLang}. The sentence must be 4-7 words long. Provide the sentence in the requested language and its exact English translation.`;
-
             const systemPrompt = `You are a phrase generator. Respond STRICTLY in JSON format with the following schema: 
             {"english": "English translation", "${currentLanguage.toLowerCase()}": "Target language sentence"}. 
             Do not include any other text or explanation.`;
-
+            
+            const useProxy = typeof __gemini_api_key === 'undefined' || !__gemini_api_key;
+            
             try {
-                // CRITICAL FIX: The API key must be an empty string for the Canvas environment to inject it securely.
-                const apiKey = ""; 
                 const modelName = "gemini-2.5-flash-preview-05-20";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+                let apiUrl, payload;
                 
-                const payload = {
-                    contents: [{ parts: [{ text: structurePrompt }] }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                "english": { "type": "STRING" },
-                                [currentLanguage.toLowerCase()]: { "type": "STRING" }
+                if (useProxy) {
+                    // Use serverless function proxy
+                    apiUrl = '/.netlify/functions/gemini-proxy';
+                    payload = {
+                        userPrompt: structurePrompt,
+                        systemPrompt: systemPrompt,
+                        useSearch: false,
+                        modelName: modelName
+                    };
+                } else {
+                    // Direct API call (local development)
+                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${__gemini_api_key}`;
+                    payload = {
+                        contents: [{ parts: [{ text: structurePrompt }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "OBJECT",
+                                properties: {
+                                    "english": { "type": "STRING" },
+                                    [currentLanguage.toLowerCase()]: { "type": "STRING" }
+                                }
                             }
                         }
-                    }
-                };
+                    };
+                }
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
