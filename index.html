@@ -11,9 +11,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        .correct-answer-input {
-            border-color: #10B981; /* Tailwind green-500 */
-        }
         .pulse-animation {
             animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
@@ -27,6 +24,14 @@
                 opacity: 0.5;
             }
         }
+        .word-button {
+            cursor: pointer;
+            @apply bg-white border border-gray-300 text-gray-800 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 hover:bg-blue-500 hover:text-white dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500 dark:hover:bg-blue-600;
+        }
+        .word-button.in-sentence {
+            cursor: pointer;
+            @apply bg-blue-500 text-white shadow-md;
+        }
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,10 +42,13 @@
         <!-- Header with language selection and user ID -->
         <div class="flex items-center justify-between mb-6 flex-wrap">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center flex-grow dark:text-gray-100">Language Tutor</h1>
-            <select id="language-select" class="bg-gray-200 text-gray-800 p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-gray-100 mt-2 sm:mt-0">
-                <option value="italian">Italian</option>
-                <option value="sicilian">Sicilian</option>
-            </select>
+            <div class="flex items-center space-x-2">
+                <span id="flag-display" class="text-3xl">🇮🇹</span>
+                <select id="language-select" class="bg-gray-200 text-gray-800 p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-gray-100 mt-2 sm:mt-0">
+                    <option value="italian">Italian</option>
+                    <option value="sicilian">Sicilian</option>
+                </select>
+            </div>
             <div id="user-id-display" class="w-full text-center text-xs text-gray-600 mt-2 truncate dark:text-gray-400">User ID: Loading...</div>
         </div>
 
@@ -50,42 +58,49 @@
             <button id="chat-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 dark:bg-gray-700 dark:text-gray-100">AI Chat</button>
         </div>
 
-        <!-- Tutor Section -->
+        <!-- Tutor Section (Sentence Builder) -->
         <div id="tutor-section" class="text-center">
             <!-- System message/alert container -->
             <div id="tutor-system-message" class="text-center font-semibold text-sm mb-4 h-6 opacity-0 transition-opacity duration-500 text-gray-800 dark:text-gray-100"></div>
 
-            <!-- Flashcard content -->
-            <div class="h-40 sm:h-48 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700">
-                <p id="phrase-en" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 dark:text-gray-100"></p>
-                <p id="phrase-it" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 hidden dark:text-gray-100"></p>
+            <!-- Flashcard content (English Phrase) -->
+            <div class="h-20 sm:h-24 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700">
+                <div class="flex flex-col">
+                    <p id="phrase-en" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 dark:text-gray-100"></p>
+                    <!-- Mastery Indicator -->
+                    <div id="mastery-indicator" class="text-xs mt-1 font-semibold text-gray-500 dark:text-gray-400"></div>
+                </div>
             </div>
 
-            <!-- Input and action buttons -->
-            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
-                <input id="answer-input" type="text" placeholder="Type your answer here..."
-                       class="w-full sm:flex-grow p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500 transition-all duration-300 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
-                       spellcheck="false" autocomplete="off">
-                <button id="tutor-listen-btn" class="bg-gray-200 text-gray-800 p-3 rounded-lg transition-all duration-300 hover:bg-gray-300 w-1/3 sm:w-auto dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-                <button id="tutor-speak-btn" class="bg-gray-200 text-gray-800 p-3 rounded-lg transition-all duration-300 hover:bg-gray-300 w-1/3 sm:w-auto relative dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
-                    <i class="fas fa-microphone"></i>
-                    <span id="tutor-listening-pulse" class="absolute inset-0 bg-red-500 rounded-full opacity-0"></span>
-                </button>
+            <!-- Sentence Construction Area -->
+            <div class="text-left text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Your Sentence:</div>
+            <div id="current-sentence" class="min-h-[50px] p-3 border-2 border-dashed border-gray-400 rounded-lg mb-4 flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-500">
+                <!-- Selected word buttons will appear here -->
+            </div>
+
+            <!-- Word Bank -->
+            <div class="text-left text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Word Bank:</div>
+            <div id="word-bank" class="min-h-[80px] p-3 bg-gray-100 rounded-lg flex flex-wrap gap-2 justify-center mb-6 transition-colors duration-500 dark:bg-gray-700">
+                <!-- Shuffled word buttons and distractors will appear here -->
             </div>
 
             <!-- Feedback and action buttons -->
             <div id="tutor-feedback" class="text-center text-sm font-semibold h-6 mb-4"></div>
             <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 <button id="check-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md">
-                    Check Answer
+                    Check Sentence
                 </button>
                 <button id="next-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md hidden">
                     Next Phrase
                 </button>
                 <button id="reveal-btn" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105 shadow-md">
                     Reveal Answer
+                </button>
+            </div>
+             <!-- Listen Button -->
+            <div class="mt-4">
+                <button id="tutor-listen-btn" class="bg-gray-200 text-gray-800 p-3 rounded-lg transition-all duration-300 hover:bg-gray-300 w-full dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
+                    <i class="fas fa-volume-up mr-2"></i> Listen to the correct phrase
                 </button>
             </div>
         </div>
@@ -98,9 +113,6 @@
             <div class="flex items-center space-x-2">
                 <input id="chat-input" type="text" placeholder="Send a message..."
                        class="flex-grow p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500 transition-all duration-300 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100">
-                <button id="chat-speak-btn" class="bg-gray-200 text-gray-800 p-3 rounded-lg transition-all duration-300 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
-                    <i class="fas fa-microphone"></i>
-                </button>
                 <button id="chat-send-btn" class="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition-all duration-300">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -110,14 +122,18 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
+        // Ensure Firebase logging is enabled for debugging
+        setLogLevel('debug');
+
         // --- Global Environment Setup (Constants must be present) ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
-        // --- User-Provided Firebase Configuration ---
+        // --- User-Provided Firebase Configuration (Using placeholder config) ---
         const firebaseConfig = {
             apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0",
             authDomain: "italiantutorapp.firebaseapp.com",
@@ -141,56 +157,55 @@
         const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
         
         // --- Phrase Data (Mastery system preserved) ---
-        const masteredThreshold = 2;
+        const masteredThreshold = 2; // Need 2 correct answers to master a phrase
         const italianPhrases = [
             { en: "Hello", it: "Ciao", mastered: 0 },
-            { en: "Thank you", it: "Grazie", mastered: 0 },
-            { en: "Please", it: "Per favore", mastered: 0 },
-            { en: "Excuse me", it: "Mi scusi", mastered: 0 },
-            { en: "Yes", it: "Sì", mastered: 0 },
-            { en: "No", it: "No", mastered: 0 },
-            { en: "Goodbye", it: "Arrivederci", mastered: 0 },
-            { en: "How are you?", it: "Come stai?", mastered: 0 },
-            { en: "I don't understand", it: "Non capisco", mastered: 0 },
-            { en: "Do you speak English?", it: "Parli inglese?", mastered: 0 },
-            { en: "What is your name?", it: "Come ti chiami?", mastered: 0 },
-            { en: "My name is...", it: "Mi chiamo...", mastered: 0 },
-            { en: "Where are you from?", it: "Di dove sei?", mastered: 0 },
-            { en: "I am from...", it: "Sono di...", mastered: 0 },
-            { en: "I am sorry", it: "Mi dispiace", mastered: 0 },
-            { en: "How much does this cost?", it: "Quanto costa?", mastered: 0 },
-            { en: "The food is delicious", it: "Il cibo è delizioso", mastered: 0 },
-            { en: "I would like a coffee", it: "Vorrei un caffè", mastered: 0 },
-            { en: "I am tired", it: "Sono stanco/a", mastered: 0 },
-            { en: "Let's go", it: "Andiamo", mastered: 0 }
+            { en: "Thank you very much", it: "Grazie mille", mastered: 0 },
+            { en: "Please, a bottle of water", it: "Per favore, una bottiglia d'acqua", mastered: 0 },
+            { en: "Excuse me, where is the station?", it: "Mi scusi, dov'è la stazione?", mastered: 0 },
+            { en: "Yes, I like the red wine", it: "Sì, mi piace il vino rosso", mastered: 0 },
+            { en: "No, I do not want the fish", it: "No, non voglio il pesce", mastered: 0 },
+            { en: "Goodbye, see you tomorrow", it: "Arrivederci, a domani", mastered: 0 },
+            { en: "How are you doing today?", it: "Come stai oggi?", mastered: 0 },
+            { en: "I don't understand the question", it: "Non capisco la domanda", mastered: 0 },
+            { en: "Do you speak English or French?", it: "Parli inglese o francese?", mastered: 0 },
+            { en: "What is your name, sir?", it: "Qual è il tuo nome, signore?", mastered: 0 },
+            { en: "My name is Antonio", it: "Mi chiamo Antonio", mastered: 0 },
+            { en: "Where are you from, madam?", it: "Di dove sei, signora?", mastered: 0 },
+            { en: "I am from Rome, in Italy", it: "Sono di Roma, in Italia", mastered: 0 },
+            { en: "I am sorry for the delay", it: "Mi dispiace per il ritardo", mastered: 0 },
+            { en: "How much does this coffee cost?", it: "Quanto costa questo caffè?", mastered: 0 },
+            { en: "The food is delicious and hot", it: "Il cibo è delizioso e caldo", mastered: 0 },
+            { en: "I would like a large cappuccino", it: "Vorrei un cappuccino grande", mastered: 0 },
+            { en: "I am tired after the long trip", it: "Sono stanco dopo il lungo viaggio", mastered: 0 },
+            { en: "Let's go to the market now", it: "Andiamo al mercato ora", mastered: 0 }
         ];
 
         const sicilianPhrases = [
             { en: "Hello", it: "Salutu", mastered: 0 },
-            { en: "Thank you", it: "Grazzî", mastered: 0 },
-            { en: "Please", it: "Pi favuri", mastered: 0 },
-            { en: "Excuse me", it: "M'accatti", mastered: 0 },
-            { en: "Yes", it: "Sì", mastered: 0 },
-            { en: "No", it: "No", mastered: 0 },
-            { en: "Goodbye", it: "Addiu", mastered: 0 },
-            { en: "How are you?", it: "Comu si senti?", mastered: 0 },
-            { en: "I don't understand", it: "Nun capisciu", mastered: 0 },
-            { en: "Do you speak English?", it: "Parra ngrisi?", mastered: 0 },
-            { en: "What is your name?", it: "Comu ti chiami?", mastered: 0 },
-            { en: "My name is...", it: "Mi chiàmu...", mastered: 0 },
-            { en: "Where are you from?", it: "Di unni si?", mastered: 0 },
-            { en: "I am from...", it: "Sugnu di...", mastered: 0 },
-            { en: "I am sorry", it: "M'addulìu", mastered: 0 },
-            { en: "How much does this cost?", it: "Quantu costa?", mastered: 0 },
-            { en: "The food is delicious", it: "Lu manciari è diliziusu", mastered: 0 },
-            { en: "I would like a coffee", it: "Vuògghiu un cafè", mastered: 0 },
-            { en: "I am tired", it: "Sugnu stancu/a", mastered: 0 },
-            { en: "Let's go", it: "Iemu", mastered: 0 }
+            { en: "Thank you very much", it: "Grazzî assai", mastered: 0 },
+            { en: "Please, a bottle of water", it: "Pi favuri, na buttìgghia d'acqua", mastered: 0 },
+            { en: "Excuse me, where is the station?", it: "M'accatti, unni è la stazzioni?", mastered: 0 },
+            { en: "Yes, I like the red wine", it: "Sì, mi piaci lu vinu russu", mastered: 0 },
+            { en: "No, I do not want the fish", it: "No, nun vogghiu lu pisci", mastered: 0 },
+            { en: "Goodbye, see you tomorrow", it: "Addiu, nni videmu dumani", mastered: 0 },
+            { en: "How are you doing today?", it: "Comu si senti òi?", mastered: 0 },
+            { en: "I don't understand the question", it: "Nun capisciu la dumannata", mastered: 0 },
+            { en: "Do you speak English or French?", it: "Parra ngrisi o francisi?", mastered: 0 },
+            { en: "What is your name, sir?", it: "Qual è lu tò nomi, signuri?", mastered: 0 },
+            { en: "My name is Antonio", it: "Mi chiàmu Antoniu", mastered: 0 },
+            { en: "Where are you from, madam?", it: "Di unni si, signura?", mastered: 0 },
+            { en: "I am from Rome, in Italy", it: "Sugnu di Roma, 'n Talia", mastered: 0 },
+            { en: "I am sorry for the delay", it: "M'addulìu pû ritardu", mastered: 0 },
+            { en: "How much does this coffee cost?", it: "Quantu costa stu cafè?", mastered: 0 },
+            { en: "The food is delicious and hot", it: "Lu manciari è diliziusu e càudu", mastered: 0 },
+            { en: "I would like a large cappuccino", it: "Vuògghiu un cappuccinu granni", mastered: 0 },
+            { en: "I am tired after the long trip", it: "Sugnu stancu doppu lu longu viàggiu", mastered: 0 },
+            { en: "Let's go to the market now", it: "Iemu ô mircatu ora", mastered: 0 }
         ];
 
         let currentPhrases = italianPhrases;
         let currentPhrase = null;
-
 
         // --- DOM Element References ---
         const languageSelect = document.getElementById('language-select');
@@ -198,12 +213,12 @@
         const chatSection = document.getElementById('chat-section');
         const tutorModeBtn = document.getElementById('tutor-mode-btn');
         const chatModeBtn = document.getElementById('chat-mode-btn');
+        const flagDisplay = document.getElementById('flag-display');
         const phraseEnElement = document.getElementById('phrase-en');
-        const phraseItElement = document.getElementById('phrase-it');
-        const answerInput = document.getElementById('answer-input');
+        const masteryIndicator = document.getElementById('mastery-indicator');
+        const currentSentenceElement = document.getElementById('current-sentence');
+        const wordBankElement = document.getElementById('word-bank');
         const tutorListenBtn = document.getElementById('tutor-listen-btn');
-        const tutorSpeakBtn = document.getElementById('tutor-speak-btn');
-        const tutorListeningPulse = document.getElementById('tutor-listening-pulse');
         const checkBtn = document.getElementById('check-btn');
         const nextBtn = document.getElementById('next-btn');
         const revealBtn = document.getElementById('reveal-btn');
@@ -212,7 +227,6 @@
         const userIdDisplay = document.getElementById('user-id-display');
         const chatWindow = document.getElementById('chat-window');
         const chatInput = document.getElementById('chat-input');
-        const chatSpeakBtn = document.getElementById('chat-speak-btn');
         const chatSendBtn = document.getElementById('chat-send-btn');
         
 
@@ -223,8 +237,7 @@
         // --- UI & Utility Functions ---
         function switchMode(mode) {
             if (mode === 'tutor') {
-                tutorSection.classList.remove('hidden');
-                tutorSection.classList.add('flex-col');
+                tutorSection.classList.remove('hidden', 'flex');
                 chatSection.classList.add('hidden');
                 tutorModeBtn.classList.add('bg-blue-500', 'text-white');
                 tutorModeBtn.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-100');
@@ -242,6 +255,10 @@
             }
         }
 
+        function updateFlag() {
+            flagDisplay.textContent = languageSelect.value === 'italian' ? '🇮🇹' : '🇸🇮'; // Using Sicily flag
+        }
+
         function showTutorSystemMessage(message) {
             tutorSystemMessageElement.textContent = message;
             tutorSystemMessageElement.classList.remove('opacity-0');
@@ -252,14 +269,6 @@
             }, 3000);
         }
         
-        function applyDarkMode(isDark) {
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-
         function appendChatMessage(message, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('my-2', 'p-3', 'rounded-lg', 'max-w-[80%]');
@@ -283,49 +292,123 @@
                 console.warn('Browser does not support native Text-to-Speech.');
             }
         }
-
-        function renderChatHistory() {
-            chatWindow.innerHTML = '';
-            chatHistory.forEach(message => {
-                appendChatMessage(message.text, message.sender);
-            });
-            chatWindow.scrollTop = chatWindow.scrollHeight;
+        
+        function renderMastery() {
+            if (!currentPhrase) return;
+            const masteredCount = currentPhrase.mastered;
+            const target = masteredThreshold;
+            
+            if (masteredCount >= target) {
+                masteryIndicator.innerHTML = `<i class="fas fa-check-circle text-green-500"></i> Mastered!`;
+            } else if (masteredCount >= 0) {
+                masteryIndicator.innerHTML = `Mastery: <span class="text-blue-500 font-bold">${masteredCount}/${target}</span>`;
+            } else {
+                masteryIndicator.innerHTML = `<i class="fas fa-times-circle text-red-500"></i> Needs practice`;
+            }
         }
 
+        // --- Sentence Builder Logic ---
+        function renderWordBank(words) {
+            wordBankElement.innerHTML = '';
+            currentSentenceElement.innerHTML = '';
+
+            words.forEach(word => {
+                const button = createWordButton(word, 'bank');
+                wordBankElement.appendChild(button);
+            });
+            wordBankElement.classList.remove('opacity-0');
+        }
+
+        function createWordButton(word, location) {
+            const button = document.createElement('button');
+            button.textContent = word;
+            button.classList.add('word-button');
+            button.setAttribute('data-word', word);
+            button.setAttribute('data-location', location);
+            
+            if (location === 'sentence') {
+                button.classList.add('in-sentence');
+            }
+
+            button.addEventListener('click', () => {
+                const currentLoc = button.getAttribute('data-location');
+                if (currentLoc === 'bank') {
+                    // Move from bank to sentence
+                    button.classList.add('in-sentence');
+                    currentSentenceElement.appendChild(button);
+                    button.setAttribute('data-location', 'sentence');
+                    tutorFeedbackElement.textContent = ''; // Clear feedback on move
+                } else {
+                    // Move from sentence back to bank
+                    button.classList.remove('in-sentence');
+                    wordBankElement.appendChild(button);
+                    button.setAttribute('data-location', 'bank');
+                }
+                checkButtonState();
+            });
+            return button;
+        }
+
+        function checkButtonState() {
+            // Only enable check/reveal if there are words in the sentence
+            const hasWords = currentSentenceElement.children.length > 0;
+            checkBtn.disabled = !hasWords;
+            revealBtn.disabled = !hasWords;
+        }
+        
         function selectNewPhrase() {
+            // Find unmastered phrases or reset if all are mastered
             const unmasteredPhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
             if (unmasteredPhrases.length === 0) {
                 currentPhrases.forEach(p => p.mastered = 0);
                 showTutorSystemMessage("You have mastered all phrases! Starting over.");
             }
 
-            let phraseToUse;
+            // Prioritize phrases that need practice (mastered < 0)
             const phrasesToRepeat = currentPhrases.filter(p => p.mastered < 0);
-            if (phrasesToRepeat.length > 0) {
-                 phraseToUse = phrasesToRepeat[Math.floor(Math.random() * phrasesToRepeat.length)];
-            } else {
-                 phraseToUse = unmasteredPhrases[Math.floor(Math.random() * unmasteredPhrases.length)];
+            
+            let phraseSet = phrasesToRepeat.length > 0 ? phrasesToRepeat : unmasteredPhrases;
+            if (phraseSet.length === 0) phraseSet = currentPhrases; // Should not happen after reset, but fallback
+
+            currentPhrase = phraseSet[Math.floor(Math.random() * phraseSet.length)];
+            
+            // 1. Set English phrase
+            phraseEnElement.textContent = currentPhrase.en;
+            renderMastery();
+
+            // 2. Prepare words for the bank
+            const correctWords = currentPhrase.it.split(/[\s,.'’]+/g).filter(w => w.length > 0);
+            let allWords = [...correctWords];
+
+            // 3. Add 3 Distractor words (Difficulty level)
+            const allTargetWords = (currentPhrases.flatMap(p => p.it.split(/[\s,.'’]+/g))).filter(w => w.length > 2);
+            let distractors = [];
+            while (distractors.length < 3) {
+                const randomWord = allTargetWords[Math.floor(Math.random() * allTargetWords.length)];
+                // Ensure the distractor is not a correct word and is unique
+                if (!correctWords.includes(randomWord) && !distractors.includes(randomWord)) {
+                    distractors.push(randomWord);
+                }
             }
             
-            currentPhrase = phraseToUse;
-            phraseEnElement.textContent = currentPhrase.en;
-            phraseItElement.textContent = currentPhrase.it;
-            answerInput.value = '';
-            answerInput.style.borderColor = '';
+            allWords = allWords.concat(distractors);
+            
+            // Shuffle the final list of words
+            allWords.sort(() => Math.random() - 0.5);
+            
+            // 4. Render the UI
+            renderWordBank(allWords);
             tutorFeedbackElement.textContent = '';
             nextBtn.classList.add('hidden');
             checkBtn.classList.remove('hidden');
-            revealBtn.classList.remove('hidden');
-            phraseItElement.classList.add('hidden');
-            phraseEnElement.classList.remove('hidden'); 
-            
-            answerInput.disabled = false;
+            checkButtonState();
         }
 
         // --- Firebase Handlers ---
         async function saveProgress(phrases) {
             if (!userId || !db) return console.error("Database not ready.");
             try {
+                // IMPORTANT: We stringify the entire phrase array for simplicity in Firestore
                 const progressData = { phrases: JSON.stringify(phrases) };
                 await setDoc(progressDocRef(), progressData, { merge: true });
             } catch (error) {
@@ -340,6 +423,8 @@
                 const docSnap = await getDoc(progressDocRef());
                 if (docSnap.exists() && docSnap.data().phrases) {
                     const savedPhrases = JSON.parse(docSnap.data().phrases);
+                    
+                    // Match saved mastery levels to the current phrase set
                     currentPhrases.forEach(phrase => {
                         const saved = savedPhrases.find(p => p.en === phrase.en);
                         if (saved) {
@@ -376,17 +461,27 @@
                 console.error("Error loading chat history:", error);
             }
         }
+        
+        function renderChatHistory() {
+            chatWindow.innerHTML = '';
+            chatHistory.forEach(message => {
+                appendChatMessage(message.text, message.sender);
+            });
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
 
-        // --- Gemini API Handlers ---
+        // --- Gemini API Handlers (Simplified for single file) ---
         async function getTutorResponse(userMessage) {
             if (isWaitingForResponse) return;
             isWaitingForResponse = true;
 
             appendChatMessage(userMessage, 'user');
             chatHistory.push({ text: userMessage, sender: 'user' });
-            saveChatHistory();
+            chatInput.value = '';
+            chatInput.placeholder = "Tutor is typing...";
 
-            const prompt = `You are a language tutor for ${languageSelect.value === 'italian' ? 'Italian' : 'Sicilian'}. Respond to the user's message in the target language. Keep the response natural and helpful. Do not provide a translation unless the user asks for it explicitly. Use standard capitalization and punctuation.`;
+            const targetLang = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
+            const prompt = `You are a conversational language tutor for ${targetLang}. Respond naturally in the target language. Keep the response simple, encouraging, and helpful for a beginner learner. Do not provide a translation unless the user asks for it explicitly.`;
             
             const payload = {
                 contents: chatHistory.map(msg => ({
@@ -394,16 +489,14 @@
                     parts: [{ text: msg.text }]
                 })),
                 systemInstruction: { parts: [{ text: prompt }] },
-                generationConfig: {
-                    temperature: 0.8,
-                    maxOutputTokens: 100,
-                },
+                generationConfig: { temperature: 0.8, maxOutputTokens: 100, },
             };
 
-            let responseText = "Sorry, I couldn't get a response from the tutor. The Gemini API Key is missing or invalid.";
+            let responseText = "Sorry, I couldn't get a response. The Gemini API Key is missing or invalid.";
             if (API_KEY === "") {
                 appendChatMessage(responseText, 'model');
                 isWaitingForResponse = false;
+                chatInput.placeholder = "Send a message...";
                 return;
             }
 
@@ -427,22 +520,21 @@
             appendChatMessage(responseText, 'model');
             chatHistory.push({ text: responseText, sender: 'model' });
             saveChatHistory();
-
-            // Use free native browser TTS
             if (!responseText.startsWith("Error:") && !responseText.startsWith("Sorry,")) {
                 speakText(responseText);
             }
             isWaitingForResponse = false;
+            chatInput.placeholder = "Send a message...";
         }
 
         // --- Main App Initialization ---
-        // RENAMED from initializeApp to startAppLogic to avoid conflict with Firebase SDK import
         function startAppLogic(language) { 
             if (language === 'italian') {
                 currentPhrases = italianPhrases;
             } else if (language === 'sicilian') {
                 currentPhrases = sicilianPhrases;
             }
+            updateFlag();
             loadProgress().then(() => {
                 selectNewPhrase();
             });
@@ -450,12 +542,11 @@
 
         async function setupFirebase() {
             try {
-                // Now uses the hardcoded, user-provided firebaseConfig
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
                 
-                // Sign in anonymously to avoid the 'auth/custom-token-mismatch' error
+                // IMPORTANT FIX: Use signInAnonymously to avoid the custom-token-mismatch error
                 await new Promise((resolve) => {
                     const unsubscribe = onAuthStateChanged(auth, async (user) => {
                         if (user) {
@@ -465,12 +556,10 @@
                             resolve();
                         } else {
                             try {
-                                // Explicitly sign in anonymously to ensure a user is available for Firestore
                                 await signInAnonymously(auth);
                             } catch (error) {
                                 console.error("Firebase Auth Error (Anonymous Failed):", error);
                                 userIdDisplay.textContent = "Auth failed (using random ID)";
-                                // Fallback: If anonymous sign-in fails, generate a random ID
                                 userId = crypto.randomUUID(); 
                             }
                         }
@@ -484,8 +573,7 @@
                 console.error("FATAL FIREBASE INITIALIZATION ERROR:", error);
                 userIdDisplay.textContent = "FATAL ERROR: Firebase Initialization Failed.";
                 showTutorSystemMessage("Initialization failed. Check console for details.");
-                // Ensure the tutor is still usable even if persistence fails
-                startAppLogic(languageSelect.value);
+                startAppLogic(languageSelect.value); // Use app even if Firebase failed
             }
         }
         
@@ -494,103 +582,90 @@
         chatModeBtn.addEventListener('click', () => switchMode('chat'));
 
         languageSelect.addEventListener('change', (e) => {
-            if (tutorSection.classList.contains('hidden')) {
-                loadChatHistory();
-            } else {
-                // Calling the renamed function
+            if (chatSection.classList.contains('hidden')) {
                 startAppLogic(e.target.value);
+            } else {
+                loadChatHistory();
+                updateFlag();
             }
         });
 
         checkBtn.addEventListener('click', () => {
-            // FIX: Prevent crash if currentPhrase is null (due to slow loading or Firebase failure)
-            if (!currentPhrase) {
-                showTutorSystemMessage("The tutor is not ready yet. Please wait for the application to load.");
-                return;
-            }
+            if (!currentPhrase) return showTutorSystemMessage("The tutor is not ready yet.");
 
-            const userAnswer = answerInput.value.trim().toLowerCase();
-            const correctAnswer = currentPhrase.it.toLowerCase();
+            // Get the sentence constructed by the user
+            const sentenceWords = Array.from(currentSentenceElement.children).map(btn => btn.textContent.trim());
+            
+            // Clean the joined sentence for comparison (remove spaces before punctuation)
+            const userAnswer = sentenceWords.join(' ')
+                .replace(/\s([.,?!:;])/g, '$1') // Fix spaces before punctuation
+                .toLowerCase();
+            
+            // Normalize the correct answer for comparison (remove spaces before punctuation)
+            const correctAnswer = currentPhrase.it
+                .replace(/\s([.,?!:;])/g, '$1')
+                .toLowerCase()
+                // Replace special characters that might be confusing (e.g., ' or ’)
+                .replace(/'|’/g, "'"); 
+                
+            const normalizedUserAnswer = userAnswer.replace(/'|’/g, "'");
 
-            if (userAnswer === correctAnswer || (currentPhrase.en === "Yes" && userAnswer === "si")) {
-                tutorFeedbackElement.textContent = "Correct! Fantastico!";
+            if (normalizedUserAnswer === correctAnswer) {
+                tutorFeedbackElement.textContent = "Correct! Great job!";
                 tutorFeedbackElement.style.color = '#10B981';
                 checkBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
-                answerInput.style.borderColor = '#10B981';
-                answerInput.disabled = true;
+                
+                // Set words to green
+                Array.from(currentSentenceElement.children).forEach(btn => {
+                    btn.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600');
+                    btn.classList.remove('bg-blue-500', 'hover:bg-blue-500');
+                    btn.disabled = true;
+                });
+
                 currentPhrase.mastered++;
                 saveProgress(currentPhrases);
             } else {
-                tutorFeedbackElement.textContent = "Incorrect. Try again or reveal the answer.";
+                tutorFeedbackElement.textContent = "That's not quite right. Try re-arranging the words!";
                 tutorFeedbackElement.style.color = '#EF4444';
-                answerInput.style.borderColor = '#EF4444';
-                currentPhrase.mastered = -1;
+                
+                // Mastery score penalty for incorrect answer
+                if (currentPhrase.mastered > 0) currentPhrase.mastered = 0;
+                if (currentPhrase.mastered === 0) currentPhrase.mastered = -1; // Flag for needs review
                 saveProgress(currentPhrases);
             }
+            renderMastery();
         });
 
         nextBtn.addEventListener('click', () => selectNewPhrase());
 
         revealBtn.addEventListener('click', () => {
-            // FIX: Prevent crash if currentPhrase is null
-            if (!currentPhrase) {
-                showTutorSystemMessage("The tutor is not ready yet. Please wait for the application to load.");
-                return;
-            }
+            if (!currentPhrase) return showTutorSystemMessage("The tutor is not ready yet.");
 
-            phraseEnElement.classList.add('hidden');
-            phraseItElement.classList.remove('hidden');
             tutorFeedbackElement.textContent = `The correct answer is: "${currentPhrase.it}"`;
             tutorFeedbackElement.style.color = '#4B5563';
-            answerInput.value = currentPhrase.it;
             checkBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
-            answerInput.disabled = true;
+            
+            // Disable interactions
+            wordBankElement.classList.add('opacity-0');
+            Array.from(currentSentenceElement.children).forEach(btn => btn.disabled = true);
+
+            // Set mastery score to penalty for revealing
             currentPhrase.mastered = -1;
             saveProgress(currentPhrases);
+            renderMastery();
         });
 
         tutorListenBtn.addEventListener('click', () => {
-            // FIX: Prevent crash if currentPhrase is null
-            if (!currentPhrase) {
-                showTutorSystemMessage("The tutor is not ready yet.");
-                return;
-            }
+            if (!currentPhrase) return showTutorSystemMessage("The tutor is not ready yet.");
             speakText(currentPhrase.it);
-        });
-
-        tutorSpeakBtn.addEventListener('click', () => {
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                const recognition = new SpeechRecognition();
-                recognition.lang = languageSelect.value === 'italian' ? 'it-IT' : 'it-IT';
-                recognition.interimResults = false;
-                recognition.maxAlternatives = 1;
-                tutorListeningPulse.classList.add('pulse-animation');
-                recognition.start();
-
-                recognition.onresult = (event) => {
-                    const speechResult = event.results[0][0].transcript;
-                    answerInput.value = speechResult;
-                    tutorListeningPulse.classList.remove('pulse-animation');
-                };
-                recognition.onend = () => tutorListeningPulse.classList.remove('pulse-animation');
-                recognition.onerror = (event) => {
-                    console.error('Speech recognition error:', event.error);
-                    showTutorSystemMessage('Speech recognition failed.');
-                    tutorListeningPulse.classList.remove('pulse-animation');
-                };
-            } else {
-                showTutorSystemMessage('Speech recognition is not supported in this browser.');
-            }
         });
 
         chatSendBtn.addEventListener('click', () => {
             const userMessage = chatInput.value.trim();
             if (userMessage) {
                 getTutorResponse(userMessage);
-                chatInput.value = '';
             }
         });
 
@@ -600,42 +675,7 @@
             }
         });
 
-        chatSpeakBtn.addEventListener('click', () => {
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                const recognition = new SpeechRecognition();
-                recognition.lang = languageSelect.value === 'italian' ? 'it-IT' : 'it-IT';
-                recognition.interimResults = false;
-                recognition.maxAlternatives = 1;
-                chatSpeakBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-
-                recognition.start();
-                recognition.onresult = (event) => {
-                    const speechResult = event.results[0][0].transcript;
-                    chatInput.value = speechResult;
-                    getTutorResponse(speechResult);
-                };
-                recognition.onend = () => {
-                    chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                };
-                recognition.onerror = (event) => {
-                    console.error('Speech recognition error:', event.error);
-                    showTutorSystemMessage('Speech recognition failed.');
-                    chatSpeakBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                };
-            } else {
-                showTutorSystemMessage('Speech recognition is not supported in this browser.');
-            }
-        });
-
         // Initial calls
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-        applyDarkMode(prefersDark.matches);
-        prefersDark.addEventListener('change', (e) => {
-            applyDarkMode(e.matches);
-        });
-
-        // Execute Firebase Setup
         setupFirebase();
     </script>
 </body>
