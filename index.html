@@ -711,7 +711,8 @@
         // --- LLM Interaction ---
         
         async function postToGemini(userPrompt, systemPrompt, useSearch, isChat) {
-            const apiKey = "";
+            // CRITICAL FIX: The API key must be an empty string for the Canvas environment to inject it securely.
+            const apiKey = ""; 
             const modelName = "gemini-2.5-flash-preview-05-20";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
             
@@ -782,7 +783,8 @@
             Do not include any other text or explanation.`;
 
             try {
-                const apiKey = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; 
+                // CRITICAL FIX: The API key must be an empty string for the Canvas environment to inject it securely.
+                const apiKey = ""; 
                 const modelName = "gemini-2.5-flash-preview-05-20";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
                 
