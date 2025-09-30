@@ -257,7 +257,7 @@
         let currentGoalId = null; // Used to track the phrase being mastered
         let masteredPhraseIds = new Set();
         const MAX_STATIC_PHRASES = 20; // Used for the 50% calculation
-        let progressLoadedOnce = false; // NEW FLAG to prevent the initial load loop
+        let progressLoadedOnce = false; // Flag to prevent initial load loop
 
         const wordBankData = [
             'Io', 'Tu', 'Lui', 'Lei', 'Noi', 'Voi', 'Loro', 
@@ -466,21 +466,21 @@
                 currentLanguage = langFromDB;
                 languageSelect.value = currentLanguage;
                 
-                currentSelectedWords = JSON.parse(data.selectedWords || '[]');
-                updateSelectedSentenceUI(false); // Do not save state here to prevent loop
-
                 updateUILanguage(); 
                 
-                // 4. FIX: Use the flag to prevent the initial loop
+                // 4. FIX: Use the flag to prevent the initial loop AND stop re-rendering the selected words on every DB change.
                 if (!progressLoadedOnce) {
                     progressLoadedOnce = true;
+                    // Only load selected words from DB on initial load
+                    currentSelectedWords = JSON.parse(data.selectedWords || '[]');
+                    updateSelectedSentenceUI(false); // Initial render is fine
+
                     // Only select a new goal if the DB didn't provide one
                     if (!currentGoalId) {
                          selectNewPhraseOrGoal(true);
                     }
                 } else if (langFromDB !== languageSelect.value) {
-                    // This handles when a user changes the language selector
-                    // It will trigger a state save and then stop the loop.
+                    // Handle language change from selector
                     currentLanguage = languageSelect.value;
                     selectNewPhraseOrGoal(true);
                 }
@@ -502,6 +502,7 @@
                  await setDoc(progressDocRef, {
                     currentGoal: goal,
                     currentGoalId: goalId,
+                    // Save the user's current word selection
                     selectedWords: JSON.stringify(selectedWords),
                     masteredIds: Array.from(masteredPhraseIds), // Save the set as an array
                     dynamicPhrases: existingData.dynamicPhrases || [],
@@ -670,6 +671,7 @@
                 selectedSentenceContainer.appendChild(listenBtn);
             }
             if (save) {
+                 // The database write is now DECOUPLED from the listener re-render, solving the judder.
                  saveProgressState(currentGoalDisplay.textContent, currentGoalId, currentSelectedWords);
             }
         }
@@ -874,7 +876,6 @@
             await saveProgressState(targetGoal, currentGoalId, currentSelectedWords); 
             
             // The onSnapshot listener will fire now, but it won't re-trigger selectNewPhraseOrGoal
-            // because currentGoalId is no longer null (progressLoadedOnce is true).
         }
         
         function processSentenceCheckResponse(text) {
