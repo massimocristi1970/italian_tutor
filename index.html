@@ -115,9 +115,18 @@
         
         // --- Global Environment Setup (Constants must be present) ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
+        
+        // --- User-Provided Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0",
+            authDomain: "italiantutorapp.firebaseapp.com",
+            projectId: "italiantutorapp",
+            storageBucket: "italiantutorapp.firebasestorage.app",
+            messagingSenderId: "915130971011",
+            appId: "1:915130971011:web:171cfb69941fdf7997fcb6"
+        };
+        
         // --- Core Application State & Firebase References ---
         let db, auth;
         let userId = null;
@@ -441,11 +450,12 @@
 
         async function setupFirebase() {
             try {
+                // Now uses the hardcoded, user-provided firebaseConfig
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
                 
-                // Sign in with custom token or anonymously
+                // Sign in anonymously to avoid the 'auth/custom-token-mismatch' error
                 await new Promise((resolve) => {
                     const unsubscribe = onAuthStateChanged(auth, async (user) => {
                         if (user) {
@@ -455,28 +465,27 @@
                             resolve();
                         } else {
                             try {
-                                if (initialAuthToken) {
-                                    await signInWithCustomToken(auth, initialAuthToken);
-                                } else {
-                                    await signInAnonymously(auth);
-                                }
+                                // Explicitly sign in anonymously to ensure a user is available for Firestore
+                                await signInAnonymously(auth);
                             } catch (error) {
-                                console.error("Firebase Auth Error (Fallback to Anonymous):", error);
-                                userIdDisplay.textContent = "Auth failed (using anonymous session)";
-                                // Even if token auth fails, we should still try to continue with anonymous sign-in
+                                console.error("Firebase Auth Error (Anonymous Failed):", error);
+                                userIdDisplay.textContent = "Auth failed (using random ID)";
+                                // Fallback: If anonymous sign-in fails, generate a random ID
+                                userId = crypto.randomUUID(); 
                             }
                         }
                     });
                 });
 
                 // Start application logic now that auth is ready
-                // Calling the renamed function
                 startAppLogic(languageSelect.value);
 
             } catch (error) {
                 console.error("FATAL FIREBASE INITIALIZATION ERROR:", error);
-                userIdDisplay.textContent = "FATAL ERROR: See Console for Details.";
-                showTutorSystemMessage("Initialization failed. Check Firebase config in console.");
+                userIdDisplay.textContent = "FATAL ERROR: Firebase Initialization Failed.";
+                showTutorSystemMessage("Initialization failed. Check console for details.");
+                // Ensure the tutor is still usable even if persistence fails
+                startAppLogic(languageSelect.value);
             }
         }
         
@@ -494,6 +503,12 @@
         });
 
         checkBtn.addEventListener('click', () => {
+            // FIX: Prevent crash if currentPhrase is null (due to slow loading or Firebase failure)
+            if (!currentPhrase) {
+                showTutorSystemMessage("The tutor is not ready yet. Please wait for the application to load.");
+                return;
+            }
+
             const userAnswer = answerInput.value.trim().toLowerCase();
             const correctAnswer = currentPhrase.it.toLowerCase();
 
@@ -518,6 +533,12 @@
         nextBtn.addEventListener('click', () => selectNewPhrase());
 
         revealBtn.addEventListener('click', () => {
+            // FIX: Prevent crash if currentPhrase is null
+            if (!currentPhrase) {
+                showTutorSystemMessage("The tutor is not ready yet. Please wait for the application to load.");
+                return;
+            }
+
             phraseEnElement.classList.add('hidden');
             phraseItElement.classList.remove('hidden');
             tutorFeedbackElement.textContent = `The correct answer is: "${currentPhrase.it}"`;
@@ -531,6 +552,11 @@
         });
 
         tutorListenBtn.addEventListener('click', () => {
+            // FIX: Prevent crash if currentPhrase is null
+            if (!currentPhrase) {
+                showTutorSystemMessage("The tutor is not ready yet.");
+                return;
+            }
             speakText(currentPhrase.it);
         });
 
