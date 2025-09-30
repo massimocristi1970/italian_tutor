@@ -289,21 +289,129 @@
             { id: 'S20', english: 'The bread is on the table.', italian: 'Il pane è sulla tavola.' },
         ];
         
-        // Common phrases for the chat inspiration list (static and simplified)
+        // Common phrases for the chat inspiration list (expanded)
         const commonPhrases = {
             Italian: [
+                // Greetings & Basic
                 { language: 'Italian', text: 'Ciao!', english: 'Hello / Bye!' },
+                { language: 'Italian', text: 'Buongiorno!', english: 'Good morning!' },
+                { language: 'Italian', text: 'Buonasera!', english: 'Good evening!' },
+                { language: 'Italian', text: 'Buonanotte!', english: 'Good night!' },
                 { language: 'Italian', text: 'Come stai?', english: 'How are you? (informal)' },
+                { language: 'Italian', text: 'Come sta?', english: 'How are you? (formal)' },
                 { language: 'Italian', text: 'Sto bene, grazie.', english: 'I am well, thank you.' },
+                { language: 'Italian', text: 'E tu?', english: 'And you?' },
+                { language: 'Italian', text: 'Piacere di conoscerti.', english: 'Nice to meet you.' },
+                { language: 'Italian', text: 'Come ti chiami?', english: 'What is your name?' },
+                { language: 'Italian', text: 'Mi chiamo...', english: 'My name is...' },
+                
+                // Polite Expressions
                 { language: 'Italian', text: 'Per favore', english: 'Please' },
-                { language: 'Italian', text: 'Non parlo italiano.', english: 'I do not speak Italian.' }
+                { language: 'Italian', text: 'Grazie', english: 'Thank you' },
+                { language: 'Italian', text: 'Grazie mille!', english: 'Thank you very much!' },
+                { language: 'Italian', text: 'Prego', english: 'You\'re welcome' },
+                { language: 'Italian', text: 'Scusa', english: 'Sorry / Excuse me (informal)' },
+                { language: 'Italian', text: 'Mi dispiace', english: 'I\'m sorry' },
+                { language: 'Italian', text: 'Permesso', english: 'Excuse me (to pass)' },
+                
+                // Basic Communication
+                { language: 'Italian', text: 'Sì', english: 'Yes' },
+                { language: 'Italian', text: 'No', english: 'No' },
+                { language: 'Italian', text: 'Non lo so', english: 'I don\'t know' },
+                { language: 'Italian', text: 'Capisco', english: 'I understand' },
+                { language: 'Italian', text: 'Non capisco', english: 'I don\'t understand' },
+                { language: 'Italian', text: 'Parli inglese?', english: 'Do you speak English?' },
+                { language: 'Italian', text: 'Non parlo italiano.', english: 'I do not speak Italian.' },
+                { language: 'Italian', text: 'Parla più lentamente', english: 'Speak more slowly' },
+                { language: 'Italian', text: 'Può ripetere?', english: 'Can you repeat?' },
+                { language: 'Italian', text: 'Come si dice...?', english: 'How do you say...?' },
+                { language: 'Italian', text: 'Cosa significa?', english: 'What does it mean?' },
+                
+                // Questions
+                { language: 'Italian', text: 'Dove?', english: 'Where?' },
+                { language: 'Italian', text: 'Quando?', english: 'When?' },
+                { language: 'Italian', text: 'Perché?', english: 'Why?' },
+                { language: 'Italian', text: 'Come?', english: 'How?' },
+                { language: 'Italian', text: 'Quanto costa?', english: 'How much does it cost?' },
+                { language: 'Italian', text: 'Che ore sono?', english: 'What time is it?' },
+                { language: 'Italian', text: 'Dov\'è il bagno?', english: 'Where is the bathroom?' },
+                
+                // Daily Life
+                { language: 'Italian', text: 'Ho fame', english: 'I am hungry' },
+                { language: 'Italian', text: 'Ho sete', english: 'I am thirsty' },
+                { language: 'Italian', text: 'Sono stanco', english: 'I am tired' },
+                { language: 'Italian', text: 'Va bene', english: 'It\'s okay / Alright' },
+                { language: 'Italian', text: 'Perfetto!', english: 'Perfect!' },
+                { language: 'Italian', text: 'Ottimo!', english: 'Excellent!' },
+                { language: 'Italian', text: 'Bellissimo!', english: 'Beautiful!' },
+                { language: 'Italian', text: 'Che bella giornata!', english: 'What a beautiful day!' },
+                { language: 'Italian', text: 'A domani', english: 'See you tomorrow' },
+                { language: 'Italian', text: 'A presto', english: 'See you soon' },
+                { language: 'Italian', text: 'Ci vediamo', english: 'See you' },
+                { language: 'Italian', text: 'Buon appetito!', english: 'Enjoy your meal!' },
+                { language: 'Italian', text: 'Salute!', english: 'Cheers! / Bless you!' },
+                { language: 'Italian', text: 'In bocca al lupo!', english: 'Good luck!' }
             ],
             Sicilian: [
+                // Greetings & Basic
                 { language: 'Sicilian', text: 'Ciau!', english: 'Hello / Bye!' },
+                { language: 'Sicilian', text: 'Bon jornu!', english: 'Good morning!' },
+                { language: 'Sicilian', text: 'Bona sira!', english: 'Good evening!' },
+                { language: 'Sicilian', text: 'Bona notti!', english: 'Good night!' },
                 { language: 'Sicilian', text: 'Comu stai?', english: 'How are you? (informal)' },
+                { language: 'Sicilian', text: 'Comu sta?', english: 'How are you? (formal)' },
                 { language: 'Sicilian', text: 'Staiu bonu, grazzi.', english: 'I am well, thank you.' },
+                { language: 'Sicilian', text: 'E tu?', english: 'And you?' },
+                { language: 'Sicilian', text: 'Piaciri di canùsciri.', english: 'Nice to meet you.' },
+                { language: 'Sicilian', text: 'Comu ti chiami?', english: 'What is your name?' },
+                { language: 'Sicilian', text: 'Mi chiamu...', english: 'My name is...' },
+                
+                // Polite Expressions
                 { language: 'Sicilian', text: 'Pi favuri', english: 'Please' },
-                { language: 'Sicilian', text: 'Nun parru sicilianu.', english: 'I do not speak Sicilian.' }
+                { language: 'Sicilian', text: 'Grazzi', english: 'Thank you' },
+                { language: 'Sicilian', text: 'Grazzi assai!', english: 'Thank you very much!' },
+                { language: 'Sicilian', text: 'Prego', english: 'You\'re welcome' },
+                { language: 'Sicilian', text: 'Scusa', english: 'Sorry / Excuse me (informal)' },
+                { language: 'Sicilian', text: 'Mi dispiaci', english: 'I\'m sorry' },
+                { language: 'Sicilian', text: 'Pirmessu', english: 'Excuse me (to pass)' },
+                
+                // Basic Communication
+                { language: 'Sicilian', text: 'Sì', english: 'Yes' },
+                { language: 'Sicilian', text: 'No', english: 'No' },
+                { language: 'Sicilian', text: 'Nun sacciu', english: 'I don\'t know' },
+                { language: 'Sicilian', text: 'Capisciu', english: 'I understand' },
+                { language: 'Sicilian', text: 'Nun capisciu', english: 'I don\'t understand' },
+                { language: 'Sicilian', text: 'Parri ngrisi?', english: 'Do you speak English?' },
+                { language: 'Sicilian', text: 'Nun parru sicilianu.', english: 'I do not speak Sicilian.' },
+                { language: 'Sicilian', text: 'Parra cchiù chiano', english: 'Speak more slowly' },
+                { language: 'Sicilian', text: 'Poi ripìtiri?', english: 'Can you repeat?' },
+                { language: 'Sicilian', text: 'Comu si dici...?', english: 'How do you say...?' },
+                { language: 'Sicilian', text: 'Chi voli diri?', english: 'What does it mean?' },
+                
+                // Questions
+                { language: 'Sicilian', text: 'Unni?', english: 'Where?' },
+                { language: 'Sicilian', text: 'Quannu?', english: 'When?' },
+                { language: 'Sicilian', text: 'Picchì?', english: 'Why?' },
+                { language: 'Sicilian', text: 'Comu?', english: 'How?' },
+                { language: 'Sicilian', text: 'Quantu costa?', english: 'How much does it cost?' },
+                { language: 'Sicilian', text: 'Chi ura è?', english: 'What time is it?' },
+                { language: 'Sicilian', text: 'Unni è lu bagnu?', english: 'Where is the bathroom?' },
+                
+                // Daily Life
+                { language: 'Sicilian', text: 'Haiu fami', english: 'I am hungry' },
+                { language: 'Sicilian', text: 'Haiu siti', english: 'I am thirsty' },
+                { language: 'Sicilian', text: 'Sugnu stancu', english: 'I am tired' },
+                { language: 'Sicilian', text: 'Va beni', english: 'It\'s okay / Alright' },
+                { language: 'Sicilian', text: 'Perfettu!', english: 'Perfect!' },
+                { language: 'Sicilian', text: 'Ottimu!', english: 'Excellent!' },
+                { language: 'Sicilian', text: 'Beddu assai!', english: 'Beautiful!' },
+                { language: 'Sicilian', text: 'Chi bedda jurnata!', english: 'What a beautiful day!' },
+                { language: 'Sicilian', text: 'A dumani', english: 'See you tomorrow' },
+                { language: 'Sicilian', text: 'A prestu', english: 'See you soon' },
+                { language: 'Sicilian', text: 'Ci videmu', english: 'See you' },
+                { language: 'Sicilian', text: 'Bonu appetitu!', english: 'Enjoy your meal!' },
+                { language: 'Sicilian', text: 'Saluti!', english: 'Cheers! / Bless you!' },
+                { language: 'Sicilian', text: 'In bucca â lupu!', english: 'Good luck!' }
             ]
         };
         
