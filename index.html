@@ -30,38 +30,6 @@
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Global variables provided by the environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Export Firebase instances for use in the main script
-        window.firebase = {
-            auth,
-            db,
-            appId,
-            initialAuthToken,
-            onAuthStateChanged,
-            signInAnonymously,
-            signInWithCustomToken,
-            doc,
-            getDoc,
-            setDoc,
-            onSnapshot,
-            collection
-        };
-    </script>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 transition-colors duration-500 bg-gray-100 dark:bg-gray-900">
     <!-- Main application container -->
@@ -141,36 +109,30 @@
     </div>
 
     <script type="module">
-        // Import Firebase modules from the `window` object
-        const { auth, db, appId, initialAuthToken, onAuthStateChanged, signInAnonymously, signInWithCustomToken, doc, getDoc, setDoc, onSnapshot, collection } = window.firebase;
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // --- Core Application Logic ---
-        const languageSelect = document.getElementById('language-select');
-        const tutorSection = document.getElementById('tutor-section');
-        const chatSection = document.getElementById('chat-section');
-        const tutorModeBtn = document.getElementById('tutor-mode-btn');
-        const chatModeBtn = document.getElementById('chat-mode-btn');
+        // --- Global Environment Setup (Constants must be present) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // Tutor section elements
-        const phraseEnElement = document.getElementById('phrase-en');
-        const phraseItElement = document.getElementById('phrase-it');
-        const answerInput = document.getElementById('answer-input');
-        const tutorListenBtn = document.getElementById('tutor-listen-btn');
-        const tutorSpeakBtn = document.getElementById('tutor-speak-btn');
-        const tutorListeningPulse = document.getElementById('tutor-listening-pulse');
-        const checkBtn = document.getElementById('check-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const revealBtn = document.getElementById('reveal-btn');
-        const tutorFeedbackElement = document.getElementById('tutor-feedback');
-        const tutorSystemMessageElement = document.getElementById('tutor-system-message');
-        const userIdDisplay = document.getElementById('user-id-display');
-
-        // Chat section elements
-        const chatWindow = document.getElementById('chat-window');
-        const chatInput = document.getElementById('chat-input');
-        const chatSpeakBtn = document.getElementById('chat-speak-btn');
-        const chatSendBtn = document.getElementById('chat-send-btn');
+        // --- Core Application State & Firebase References ---
+        let db, auth;
+        let userId = null;
+        let chatHistory = [];
+        let isWaitingForResponse = false;
         
+        // -----------------------------------------------------------
+        // --- IMPORTANT: PASTE YOUR GEMINI API KEY HERE ---
+        // This key is used for the free AI Chat and Text generation.
+        // -----------------------------------------------------------
+        const API_KEY = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; // <--- PASTE YOUR KEY INSIDE THESE QUOTES
+        const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
+        
+        // --- Phrase Data (Mastery system preserved) ---
+        const masteredThreshold = 2;
         const italianPhrases = [
             { en: "Hello", it: "Ciao", mastered: 0 },
             { en: "Thank you", it: "Grazie", mastered: 0 },
@@ -219,22 +181,37 @@
 
         let currentPhrases = italianPhrases;
         let currentPhrase = null;
-        let userId = null;
-        const masteredThreshold = 2;
+
+
+        // --- DOM Element References ---
+        const languageSelect = document.getElementById('language-select');
+        const tutorSection = document.getElementById('tutor-section');
+        const chatSection = document.getElementById('chat-section');
+        const tutorModeBtn = document.getElementById('tutor-mode-btn');
+        const chatModeBtn = document.getElementById('chat-mode-btn');
+        const phraseEnElement = document.getElementById('phrase-en');
+        const phraseItElement = document.getElementById('phrase-it');
+        const answerInput = document.getElementById('answer-input');
+        const tutorListenBtn = document.getElementById('tutor-listen-btn');
+        const tutorSpeakBtn = document.getElementById('tutor-speak-btn');
+        const tutorListeningPulse = document.getElementById('tutor-listening-pulse');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const revealBtn = document.getElementById('reveal-btn');
+        const tutorFeedbackElement = document.getElementById('tutor-feedback');
+        const tutorSystemMessageElement = document.getElementById('tutor-system-message');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const chatWindow = document.getElementById('chat-window');
+        const chatInput = document.getElementById('chat-input');
+        const chatSpeakBtn = document.getElementById('chat-speak-btn');
+        const chatSendBtn = document.getElementById('chat-send-btn');
+        
+
+        // --- Firebase Data Reference Helpers ---
         const progressDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress');
         const chatHistoryDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value);
 
-        // -----------------------------------------------------------
-        // --- IMPORTANT: PASTE YOUR GEMINI API KEY HERE ---
-        // This key is used for the free AI Chat and Text generation.
-        // The audio features now use your browser's native TTS.
-        // -----------------------------------------------------------
-        const API_KEY = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; // <--- PASTE YOUR KEY INSIDE THESE QUOTES
-        const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
-        
-        let chatHistory = [];
-        let isWaitingForResponse = false;
-
+        // --- UI & Utility Functions ---
         function switchMode(mode) {
             if (mode === 'tutor') {
                 tutorSection.classList.remove('hidden');
@@ -256,72 +233,45 @@
             }
         }
 
-        // --- Firebase Functions ---
-        async function saveProgress(phrases) {
-            if (!userId) {
-                console.error("User not authenticated, cannot save progress.");
-                return;
-            }
-            try {
-                const progressData = {
-                    phrases: JSON.stringify(phrases)
-                };
-                await setDoc(progressDocRef(), progressData, { merge: true });
-                console.log("Progress saved to Firestore.");
-            } catch (error) {
-                console.error("Error saving progress:", error);
-            }
+        function showTutorSystemMessage(message) {
+            tutorSystemMessageElement.textContent = message;
+            tutorSystemMessageElement.classList.remove('opacity-0');
+            tutorSystemMessageElement.classList.add('opacity-100');
+            setTimeout(() => {
+                tutorSystemMessageElement.classList.remove('opacity-100');
+                tutorSystemMessageElement.classList.add('opacity-0');
+            }, 3000);
         }
         
-        async function loadProgress() {
-            if (!userId) return;
-
-            try {
-                const docSnap = await getDoc(progressDocRef());
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.phrases) {
-                        const savedPhrases = JSON.parse(data.phrases);
-                        currentPhrases.forEach(phrase => {
-                            const saved = savedPhrases.find(p => p.en === phrase.en);
-                            if (saved) {
-                                phrase.mastered = saved.mastered;
-                            }
-                        });
-                        showTutorSystemMessage("Progress loaded successfully!");
-                    }
-                }
-            } catch (error) {
-                console.error("Error loading progress:", error);
+        function applyDarkMode(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
             }
         }
 
-        async function saveChatHistory() {
-            if (!userId) {
-                console.error("User not authenticated, cannot save chat.");
-                return;
+        function appendChatMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('my-2', 'p-3', 'rounded-lg', 'max-w-[80%]');
+            if (sender === 'user') {
+                messageDiv.classList.add('bg-blue-500', 'text-white', 'ml-auto');
+            } else {
+                messageDiv.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-600', 'dark:text-gray-100');
             }
-            try {
-                await setDoc(chatHistoryDocRef(), { history: JSON.stringify(chatHistory) });
-            } catch (error) {
-                console.error("Error saving chat history:", error);
-            }
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        async function loadChatHistory() {
-            if (!userId) return;
-
-            try {
-                const docSnap = await getDoc(chatHistoryDocRef());
-                if (docSnap.exists()) {
-                    chatHistory = JSON.parse(docSnap.data().history);
-                    renderChatHistory();
-                } else {
-                    chatHistory = [];
-                    renderChatHistory();
-                }
-            } catch (error) {
-                console.error("Error loading chat history:", error);
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                // Use Italian language code for both Italian and Sicilian for best voice compatibility
+                utterance.lang = 'it-IT'; 
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.warn('Browser does not support native Text-to-Speech.');
             }
         }
 
@@ -333,7 +283,6 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // --- UI Functions ---
         function selectNewPhrase() {
             const unmasteredPhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
             if (unmasteredPhrases.length === 0) {
@@ -364,61 +313,62 @@
             answerInput.disabled = false;
         }
 
-        function showTutorSystemMessage(message) {
-            tutorSystemMessageElement.textContent = message;
-            tutorSystemMessageElement.classList.remove('opacity-0');
-            tutorSystemMessageElement.classList.add('opacity-100');
-            setTimeout(() => {
-                tutorSystemMessageElement.classList.remove('opacity-100');
-                tutorSystemMessageElement.classList.add('opacity-0');
-            }, 3000);
-        }
-
-        function initializeApp(language) {
-            if (language === 'italian') {
-                currentPhrases = italianPhrases;
-            } else if (language === 'sicilian') {
-                currentPhrases = sicilianPhrases;
+        // --- Firebase Handlers ---
+        async function saveProgress(phrases) {
+            if (!userId || !db) return console.error("Database not ready.");
+            try {
+                const progressData = { phrases: JSON.stringify(phrases) };
+                await setDoc(progressDocRef(), progressData, { merge: true });
+            } catch (error) {
+                console.error("Error saving progress:", error);
             }
-            loadProgress().then(() => {
-                selectNewPhrase();
-            });
         }
         
-        function applyDarkMode(isDark) {
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
+        async function loadProgress() {
+            if (!userId || !db) return;
+
+            try {
+                const docSnap = await getDoc(progressDocRef());
+                if (docSnap.exists() && docSnap.data().phrases) {
+                    const savedPhrases = JSON.parse(docSnap.data().phrases);
+                    currentPhrases.forEach(phrase => {
+                        const saved = savedPhrases.find(p => p.en === phrase.en);
+                        if (saved) {
+                            phrase.mastered = saved.mastered;
+                        }
+                    });
+                    showTutorSystemMessage("Progress loaded successfully!");
+                }
+            } catch (error) {
+                console.error("Error loading progress:", error);
             }
         }
 
-        // --- Chat Functions ---
-        function appendChatMessage(message, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('my-2', 'p-3', 'rounded-lg', 'max-w-[80%]');
-            if (sender === 'user') {
-                messageDiv.classList.add('bg-blue-500', 'text-white', 'ml-auto');
-            } else {
-                messageDiv.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-600', 'dark:text-gray-100');
-            }
-            messageDiv.textContent = message;
-            chatWindow.appendChild(messageDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        function speakText(text, language) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                // Use Italian language code for both to ensure best voice compatibility
-                utterance.lang = 'it-IT'; 
-                window.speechSynthesis.speak(utterance);
-            } else {
-                console.warn('Browser does not support native Text-to-Speech.');
+        async function saveChatHistory() {
+            if (!userId || !db) return console.error("Database not ready, cannot save chat.");
+            try {
+                await setDoc(chatHistoryDocRef(), { history: JSON.stringify(chatHistory) });
+            } catch (error) {
+                console.error("Error saving chat history:", error);
             }
         }
 
+        async function loadChatHistory() {
+            if (!userId || !db) return;
+            try {
+                const docSnap = await getDoc(chatHistoryDocRef());
+                if (docSnap.exists()) {
+                    chatHistory = JSON.parse(docSnap.data().history);
+                } else {
+                    chatHistory = [];
+                }
+                renderChatHistory();
+            } catch (error) {
+                console.error("Error loading chat history:", error);
+            }
+        }
 
+        // --- Gemini API Handlers ---
         async function getTutorResponse(userMessage) {
             if (isWaitingForResponse) return;
             isWaitingForResponse = true;
@@ -428,6 +378,7 @@
             saveChatHistory();
 
             const prompt = `You are a language tutor for ${languageSelect.value === 'italian' ? 'Italian' : 'Sicilian'}. Respond to the user's message in the target language. Keep the response natural and helpful. Do not provide a translation unless the user asks for it explicitly. Use standard capitalization and punctuation.`;
+            
             const payload = {
                 contents: chatHistory.map(msg => ({
                     role: msg.sender === 'user' ? 'user' : 'model',
@@ -456,10 +407,8 @@
                 const result = await response.json();
                 if (result.candidates && result.candidates[0] && result.candidates[0].content) {
                     responseText = result.candidates[0].content.parts[0].text;
-                } else if (result.error && result.error.message.includes('API key not valid')) {
-                    responseText = "Error: The provided Gemini API Key is invalid. Please check your key value.";
                 } else if (result.error) {
-                    responseText = `API Error: ${result.error.message}. Please check that your key is valid and not restricted.`;
+                    responseText = `API Error: ${result.error.message}. Please check that your Gemini key is valid and not restricted.`;
                 }
             } catch (error) {
                 console.error('Error with Gemini text generation:', error);
@@ -472,13 +421,66 @@
 
             // Use free native browser TTS
             if (!responseText.startsWith("Error:") && !responseText.startsWith("Sorry,")) {
-                speakText(responseText, languageSelect.value);
+                speakText(responseText);
             }
             isWaitingForResponse = false;
         }
 
+        // --- Main App Initialization ---
+        // RENAMED from initializeApp to startAppLogic to avoid conflict with Firebase SDK import
+        function startAppLogic(language) { 
+            if (language === 'italian') {
+                currentPhrases = italianPhrases;
+            } else if (language === 'sicilian') {
+                currentPhrases = sicilianPhrases;
+            }
+            loadProgress().then(() => {
+                selectNewPhrase();
+            });
+        }
+
+        async function setupFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                // Sign in with custom token or anonymously
+                await new Promise((resolve) => {
+                    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            userId = user.uid;
+                            userIdDisplay.textContent = `User ID: ${userId}`;
+                            unsubscribe();
+                            resolve();
+                        } else {
+                            try {
+                                if (initialAuthToken) {
+                                    await signInWithCustomToken(auth, initialAuthToken);
+                                } else {
+                                    await signInAnonymously(auth);
+                                }
+                            } catch (error) {
+                                console.error("Firebase Auth Error (Fallback to Anonymous):", error);
+                                userIdDisplay.textContent = "Auth failed (using anonymous session)";
+                                // Even if token auth fails, we should still try to continue with anonymous sign-in
+                            }
+                        }
+                    });
+                });
+
+                // Start application logic now that auth is ready
+                // Calling the renamed function
+                startAppLogic(languageSelect.value);
+
+            } catch (error) {
+                console.error("FATAL FIREBASE INITIALIZATION ERROR:", error);
+                userIdDisplay.textContent = "FATAL ERROR: See Console for Details.";
+                showTutorSystemMessage("Initialization failed. Check Firebase config in console.");
+            }
+        }
         
-        // --- Event Listeners ---
+        // --- Event Listeners Setup ---
         tutorModeBtn.addEventListener('click', () => switchMode('tutor'));
         chatModeBtn.addEventListener('click', () => switchMode('chat'));
 
@@ -486,7 +488,8 @@
             if (tutorSection.classList.contains('hidden')) {
                 loadChatHistory();
             } else {
-                initializeApp(e.target.value);
+                // Calling the renamed function
+                startAppLogic(e.target.value);
             }
         });
 
@@ -528,8 +531,7 @@
         });
 
         tutorListenBtn.addEventListener('click', () => {
-            // Now using free browser native TTS
-            speakText(currentPhrase.it, languageSelect.value);
+            speakText(currentPhrase.it);
         });
 
         tutorSpeakBtn.addEventListener('click', () => {
@@ -600,33 +602,15 @@
             }
         });
 
-        // Add a handler for dark mode
+        // Initial calls
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
         applyDarkMode(prefersDark.matches);
         prefersDark.addEventListener('change', (e) => {
             applyDarkMode(e.matches);
         });
-        
-        // Firebase Authentication and Initialization
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                userIdDisplay.textContent = `User ID: ${userId}`;
-                initializeApp(languageSelect.value);
-            } else {
-                try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch (error) {
-                    console.error("Firebase Auth Error:", error);
-                    userIdDisplay.textContent = "Auth failed";
-                    showTutorSystemMessage("Failed to sign in. Please check your connection.");
-                }
-            }
-        });
+
+        // Execute Firebase Setup
+        setupFirebase();
     </script>
 </body>
 </html>
