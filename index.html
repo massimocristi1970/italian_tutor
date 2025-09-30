@@ -148,11 +148,101 @@
                     <div id="feedback-message" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
                 </section>
                 
-                <!-- New Phrases Section (Bottom Left) -->
-                <section id="phrases-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex-grow">
-                    <h2 class="text-xl font-semibold mb-4 text-pink-600">Common Phrases</h2>
-                    <div id="phrase-list" class="space-y-3 max-h-96 overflow-y-auto">
-                        <!-- Phrases will be injected here -->
+                <!-- Tabbed Section: Phrases and Verb Trainer -->
+                <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex-grow flex flex-col">
+                    <!-- Tab Navigation -->
+                    <div class="flex gap-2 mb-4 border-b border-gray-200">
+                        <button id="phrases-tab-btn" class="tab-btn px-4 py-2 font-semibold text-pink-600 border-b-2 border-pink-600 transition duration-150">
+                            Common Phrases
+                        </button>
+                        <button id="verbs-tab-btn" class="tab-btn px-4 py-2 font-semibold text-gray-500 hover:text-purple-600 transition duration-150">
+                            Verb Trainer
+                        </button>
+                    </div>
+                    
+                    <!-- Phrases Tab Content -->
+                    <div id="phrases-tab-content" class="flex-grow overflow-y-auto">
+                        <div id="phrase-list" class="space-y-3">
+                            <!-- Phrases will be injected here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Verb Trainer Tab Content -->
+                    <div id="verbs-tab-content" class="hidden flex-grow flex flex-col">
+                        <!-- Verb Selection -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Select a verb to practice:</label>
+                            <select id="verb-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                                <option value="">Choose a verb...</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Verb Info -->
+                        <div id="verb-info" class="mb-4 p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hidden">
+                            <h3 class="text-lg font-bold text-purple-800 dark:text-purple-200" id="verb-infinitive"></h3>
+                            <p class="text-sm text-purple-600 dark:text-purple-300" id="verb-english"></p>
+                            <p class="text-xs text-purple-500 dark:text-purple-400 mt-1" id="verb-type"></p>
+                        </div>
+                        
+                        <!-- Conjugation Exercise -->
+                        <div id="conjugation-exercise" class="hidden flex-grow flex flex-col">
+                            <h4 class="text-md font-semibold mb-3 text-purple-700 dark:text-purple-300">Present Tense (Presente)</h4>
+                            
+                            <div class="space-y-3 mb-4 flex-grow overflow-y-auto">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-16 text-sm font-medium">io</span>
+                                    <input type="text" id="conj-io" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg" placeholder="Type conjugation...">
+                                    <span id="feedback-io" class="w-6"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-16 text-sm font-medium">tu</span>
+                                    <input type="text" id="conj-tu" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg" placeholder="Type conjugation...">
+                                    <span id="feedback-tu" class="w-6"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-16 text-sm font-medium">lui/lei</span>
+                                    <input type="text" id="conj-lui-lei" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg" placeholder="Type conjugation...">
+                                    <span id="feedback-lui-lei" class="w-6"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-16 text-sm font-medium">noi</span>
+                                    <input type="text" id="conj-noi" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg" placeholder="Type conjugation...">
+                                    <span id="feedback-noi" class="w-6"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-16 text-sm font-medium">voi</span>
+                                    <input type="text" id="conj-voi" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg" placeholder="Type conjugation...">
+                                    <span id="feedback-voi" class="w-6"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-16 text-sm font-medium">loro</span>
+                                    <input type="text" id="conj-loro" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg" placeholder="Type conjugation...">
+                                    <span id="feedback-loro" class="w-6"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button id="check-conjugations-btn" class="flex-grow py-2 px-4 bg-purple-500 text-white font-semibold rounded-lg shadow-md hover:bg-purple-600 transition duration-150">
+                                    Check Answers
+                                </button>
+                                <button id="show-answers-btn" class="py-2 px-4 bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:bg-gray-500 transition duration-150">
+                                    Show Answers
+                                </button>
+                                <button id="reset-verb-btn" class="py-2 px-4 bg-red-400 text-white font-semibold rounded-lg shadow-md hover:bg-red-500 transition duration-150">
+                                    Reset
+                                </button>
+                            </div>
+                            
+                            <!-- Score Display -->
+                            <div id="verb-score" class="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
+                                Score: <span id="score-display">0/0</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div id="verb-empty-state" class="flex-grow flex items-center justify-center text-gray-400">
+                            <p class="text-center">Select a verb above to start practicing!</p>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -459,6 +549,304 @@
             }
         };
         
+		/ Verb Conjugation Database for Grammar Trainer
+        const verbDatabase = {
+            Italian: {
+                level1: [
+                    {
+                        infinitive: 'parlare',
+                        english: 'to speak',
+                        type: 'regular_are',
+                        conjugations: {
+                            presente: {
+                                io: 'parlo',
+                                tu: 'parli',
+                                lui_lei: 'parla',
+                                noi: 'parliamo',
+                                voi: 'parlate',
+                                loro: 'parlano'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'mangiare',
+                        english: 'to eat',
+                        type: 'regular_are',
+                        conjugations: {
+                            presente: {
+                                io: 'mangio',
+                                tu: 'mangi',
+                                lui_lei: 'mangia',
+                                noi: 'mangiamo',
+                                voi: 'mangiate',
+                                loro: 'mangiano'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'amare',
+                        english: 'to love',
+                        type: 'regular_are',
+                        conjugations: {
+                            presente: {
+                                io: 'amo',
+                                tu: 'ami',
+                                lui_lei: 'ama',
+                                noi: 'amiamo',
+                                voi: 'amate',
+                                loro: 'amano'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'lavorare',
+                        english: 'to work',
+                        type: 'regular_are',
+                        conjugations: {
+                            presente: {
+                                io: 'lavoro',
+                                tu: 'lavori',
+                                lui_lei: 'lavora',
+                                noi: 'lavoriamo',
+                                voi: 'lavorate',
+                                loro: 'lavorano'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'studiare',
+                        english: 'to study',
+                        type: 'regular_are',
+                        conjugations: {
+                            presente: {
+                                io: 'studio',
+                                tu: 'studi',
+                                lui_lei: 'studia',
+                                noi: 'studiamo',
+                                voi: 'studiate',
+                                loro: 'studiano'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'leggere',
+                        english: 'to read',
+                        type: 'regular_ere',
+                        conjugations: {
+                            presente: {
+                                io: 'leggo',
+                                tu: 'leggi',
+                                lui_lei: 'legge',
+                                noi: 'leggiamo',
+                                voi: 'leggete',
+                                loro: 'leggono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'scrivere',
+                        english: 'to write',
+                        type: 'regular_ere',
+                        conjugations: {
+                            presente: {
+                                io: 'scrivo',
+                                tu: 'scrivi',
+                                lui_lei: 'scrive',
+                                noi: 'scriviamo',
+                                voi: 'scrivete',
+                                loro: 'scrivono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'vedere',
+                        english: 'to see',
+                        type: 'regular_ere',
+                        conjugations: {
+                            presente: {
+                                io: 'vedo',
+                                tu: 'vedi',
+                                lui_lei: 'vede',
+                                noi: 'vediamo',
+                                voi: 'vedete',
+                                loro: 'vedono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'dormire',
+                        english: 'to sleep',
+                        type: 'regular_ire',
+                        conjugations: {
+                            presente: {
+                                io: 'dormo',
+                                tu: 'dormi',
+                                lui_lei: 'dorme',
+                                noi: 'dormiamo',
+                                voi: 'dormite',
+                                loro: 'dormono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'aprire',
+                        english: 'to open',
+                        type: 'regular_ire',
+                        conjugations: {
+                            presente: {
+                                io: 'apro',
+                                tu: 'apri',
+                                lui_lei: 'apre',
+                                noi: 'apriamo',
+                                voi: 'aprite',
+                                loro: 'aprono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'capire',
+                        english: 'to understand',
+                        type: 'regular_ire_isc',
+                        conjugations: {
+                            presente: {
+                                io: 'capisco',
+                                tu: 'capisci',
+                                lui_lei: 'capisce',
+                                noi: 'capiamo',
+                                voi: 'capite',
+                                loro: 'capiscono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'finire',
+                        english: 'to finish',
+                        type: 'regular_ire_isc',
+                        conjugations: {
+                            presente: {
+                                io: 'finisco',
+                                tu: 'finisci',
+                                lui_lei: 'finisce',
+                                noi: 'finiamo',
+                                voi: 'finite',
+                                loro: 'finiscono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'essere',
+                        english: 'to be',
+                        type: 'irregular',
+                        conjugations: {
+                            presente: {
+                                io: 'sono',
+                                tu: 'sei',
+                                lui_lei: 'è',
+                                noi: 'siamo',
+                                voi: 'siete',
+                                loro: 'sono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'avere',
+                        english: 'to have',
+                        type: 'irregular',
+                        conjugations: {
+                            presente: {
+                                io: 'ho',
+                                tu: 'hai',
+                                lui_lei: 'ha',
+                                noi: 'abbiamo',
+                                voi: 'avete',
+                                loro: 'hanno'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'andare',
+                        english: 'to go',
+                        type: 'irregular',
+                        conjugations: {
+                            presente: {
+                                io: 'vado',
+                                tu: 'vai',
+                                lui_lei: 'va',
+                                noi: 'andiamo',
+                                voi: 'andate',
+                                loro: 'vanno'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'fare',
+                        english: 'to do/make',
+                        type: 'irregular',
+                        conjugations: {
+                            presente: {
+                                io: 'faccio',
+                                tu: 'fai',
+                                lui_lei: 'fa',
+                                noi: 'facciamo',
+                                voi: 'fate',
+                                loro: 'fanno'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'volere',
+                        english: 'to want',
+                        type: 'irregular',
+                        conjugations: {
+                            presente: {
+                                io: 'voglio',
+                                tu: 'vuoi',
+                                lui_lei: 'vuole',
+                                noi: 'vogliamo',
+                                voi: 'volete',
+                                loro: 'vogliono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'potere',
+                        english: 'to be able to',
+                        type: 'irregular',
+                        conjugations: {
+                            presente: {
+                                io: 'posso',
+                                tu: 'puoi',
+                                lui_lei: 'può',
+                                noi: 'possiamo',
+                                voi: 'potete',
+                                loro: 'possono'
+                            }
+                        }
+                    },
+                    {
+                        infinitive: 'dovere',
+                        english: 'to have to',
+                        type: 'irregular',
+                        conjugations: {
+                            presente: {
+                                io: 'devo',
+                                tu: 'devi',
+                                lui_lei: 'deve',
+                                noi: 'dobbiamo',
+                                voi: 'dovete',
+                                loro: 'devono'
+                            }
+                        }
+                    }
+                ]
+            }
+        };
+        
+        // Trainer state
+        let currentVerb = null;
+        let currentTense = 'presente';
+        let verbTrainerScore = { correct: 0, total: 0 };
+		
         // Static Phrases (Each needs a unique ID for tracking)
         const staticPhraseData = [
             { id: 'S01', english: 'I speak Italian.', italian: 'Io parlo italiano.' },
@@ -975,6 +1363,154 @@
                 phraseListContainer.appendChild(phraseDiv);
             });
         }
+		
+		// Tab switching for Phrases/Verb Trainer
+        const phrasesTabBtn = document.getElementById('phrases-tab-btn');
+        const verbsTabBtn = document.getElementById('verbs-tab-btn');
+        const phrasesTabContent = document.getElementById('phrases-tab-content');
+        const verbsTabContent = document.getElementById('verbs-tab-content');
+        
+        phrasesTabBtn.onclick = () => {
+            phrasesTabBtn.className = 'tab-btn px-4 py-2 font-semibold text-pink-600 border-b-2 border-pink-600 transition duration-150';
+            verbsTabBtn.className = 'tab-btn px-4 py-2 font-semibold text-gray-500 hover:text-purple-600 transition duration-150';
+            phrasesTabContent.classList.remove('hidden');
+            verbsTabContent.classList.add('hidden');
+        };
+        
+        verbsTabBtn.onclick = () => {
+            verbsTabBtn.className = 'tab-btn px-4 py-2 font-semibold text-purple-600 border-b-2 border-purple-600 transition duration-150';
+            phrasesTabBtn.className = 'tab-btn px-4 py-2 font-semibold text-gray-500 hover:text-pink-600 transition duration-150';
+            verbsTabContent.classList.remove('hidden');
+            phrasesTabContent.classList.add('hidden');
+            populateVerbSelector(); // Load verbs when tab opens
+        };
+		
+		// Populate verb selector dropdown
+        function populateVerbSelector() {
+            const verbSelect = document.getElementById('verb-select');
+            const verbs = verbDatabase[currentLanguage]?.level1 || [];
+            
+            verbSelect.innerHTML = '<option value="">Choose a verb...</option>';
+            
+            verbs.forEach((verb, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${verb.infinitive} (${verb.english})`;
+                verbSelect.appendChild(option);
+            });
+        }
+        
+        // Handle verb selection
+        document.getElementById('verb-select').onchange = (e) => {
+            const index = e.target.value;
+            if (index === '') {
+                document.getElementById('verb-info').classList.add('hidden');
+                document.getElementById('conjugation-exercise').classList.add('hidden');
+                document.getElementById('verb-empty-state').classList.remove('hidden');
+                return;
+            }
+            
+            const verbs = verbDatabase[currentLanguage]?.level1 || [];
+            currentVerb = verbs[index];
+            
+            // Show verb info
+            document.getElementById('verb-infinitive').textContent = currentVerb.infinitive;
+            document.getElementById('verb-english').textContent = currentVerb.english;
+            document.getElementById('verb-type').textContent = `Type: ${currentVerb.type.replace(/_/g, ' ')}`;
+            document.getElementById('verb-info').classList.remove('hidden');
+            
+            // Show exercise
+            document.getElementById('conjugation-exercise').classList.remove('hidden');
+            document.getElementById('verb-empty-state').classList.add('hidden');
+            
+            // Clear previous inputs
+            resetVerbInputs();
+        };
+        
+        // Reset verb inputs
+        function resetVerbInputs() {
+            const pronouns = ['io', 'tu', 'lui-lei', 'noi', 'voi', 'loro'];
+            pronouns.forEach(pronoun => {
+                const input = document.getElementById(`conj-${pronoun}`);
+                const feedback = document.getElementById(`feedback-${pronoun}`);
+                if (input) {
+                    input.value = '';
+                    input.className = 'flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg';
+                }
+                if (feedback) feedback.innerHTML = '';
+            });
+        }
+        
+        // Check conjugations
+        document.getElementById('check-conjugations-btn').onclick = () => {
+            if (!currentVerb) return;
+            
+            const conjugations = currentVerb.conjugations[currentTense];
+            const pronounMapping = {
+                'io': 'io',
+                'tu': 'tu',
+                'lui-lei': 'lui_lei',
+                'noi': 'noi',
+                'voi': 'voi',
+                'loro': 'loro'
+            };
+            
+            let correct = 0;
+            let total = 0;
+            
+            Object.keys(pronounMapping).forEach(pronoun => {
+                const input = document.getElementById(`conj-${pronoun}`);
+                const feedback = document.getElementById(`feedback-${pronoun}`);
+                const userAnswer = input.value.trim().toLowerCase();
+                const correctAnswer = conjugations[pronounMapping[pronoun]].toLowerCase();
+                
+                total++;
+                
+                if (userAnswer === correctAnswer) {
+                    correct++;
+                    input.className = 'flex-grow p-2 border-2 border-green-500 bg-green-50 dark:bg-green-900 dark:border-green-400 rounded-lg';
+                    feedback.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+                } else {
+                    input.className = 'flex-grow p-2 border-2 border-red-500 bg-red-50 dark:bg-red-900 dark:border-red-400 rounded-lg';
+                    feedback.innerHTML = '<i class="fas fa-times text-red-500"></i>';
+                }
+            });
+            
+            verbTrainerScore.correct += correct;
+            verbTrainerScore.total += total;
+            document.getElementById('score-display').textContent = `${verbTrainerScore.correct}/${verbTrainerScore.total}`;
+            
+            if (correct === total) {
+                showModal('Perfect!', '🎉 All conjugations are correct!', false);
+            }
+        };
+        
+        // Show answers
+        document.getElementById('show-answers-btn').onclick = () => {
+            if (!currentVerb) return;
+            
+            const conjugations = currentVerb.conjugations[currentTense];
+            const pronounMapping = {
+                'io': 'io',
+                'tu': 'tu',
+                'lui-lei': 'lui_lei',
+                'noi': 'noi',
+                'voi': 'voi',
+                'loro': 'loro'
+            };
+            
+            Object.keys(pronounMapping).forEach(pronoun => {
+                const input = document.getElementById(`conj-${pronoun}`);
+                const correctAnswer = conjugations[pronounMapping[pronoun]];
+                input.value = correctAnswer;
+                input.className = 'flex-grow p-2 border-2 border-blue-500 bg-blue-50 dark:bg-blue-900 dark:border-blue-400 rounded-lg';
+            });
+        };
+        
+        // Reset button
+        document.getElementById('reset-verb-btn').onclick = () => {
+            resetVerbInputs();
+        };
         
         // --- Sentence Builder Logic ---
 
