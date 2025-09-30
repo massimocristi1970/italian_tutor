@@ -217,7 +217,8 @@
         }
 
         if (!firebaseConfig || !firebaseConfig.apiKey) {
-            console.warn("FATAL FIREBASE CONFIG ERROR: Using fallback config to enable persistence.");
+            // Using a working fallback config to enable persistence when the environment variable is missing
+            console.warn("Using fallback Firebase config. Persistence may not work correctly in all environments.");
             firebaseConfig = { 
                 apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0",
                 authDomain: "italiantutorapp.firebaseapp.com",
@@ -256,6 +257,7 @@
         let currentGoalId = null; // Used to track the phrase being mastered
         let masteredPhraseIds = new Set();
         const MAX_STATIC_PHRASES = 20; // Used for the 50% calculation
+        let progressLoadedOnce = false; // NEW FLAG to prevent the initial load loop
 
         const wordBankData = [
             'Io', 'Tu', 'Lui', 'Lei', 'Noi', 'Voi', 'Loro', 
@@ -308,6 +310,8 @@
                 { language: 'Sicilian', text: 'Nun parru sicilianu.', english: 'I do not speak Sicilian.' }
             ]
         };
+        
+        let allPhrases = []; // Will hold static + dynamic phrases
 
         // --- Theme Management ---
         function setDarkMode(isDark) {
@@ -363,7 +367,8 @@
             const recognition = new webkitSpeechRecognition();
             recognition.continuous = false;
             recognition.interimResults = false;
-            recognition.lang = currentLanguage === 'Sicilian' ? 'it-IT' : 'it-IT'; 
+            // Use Italian for both, as Sicilian isn't a standard recognition language code
+            recognition.lang = 'it-IT'; 
             
             micChatBtn.disabled = true;
             micChatBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-500');
@@ -426,8 +431,6 @@
             }
         }
         
-        let allPhrases = [];
-
         function startProgressListener() {
              if (!db || !userId || !auth.currentUser) return;
              const progressDocRef = doc(db, getPrivateCollectionPath('progress'), 'user_state');
@@ -441,7 +444,6 @@
                 
                 // Combine static and dynamic phrases
                 allPhrases = [...staticPhraseData];
-                // Ensure dynamic phrases are correctly merged and have unique IDs
                 const existingDynamicIds = new Set(staticPhraseData.map(p => p.id));
                 dynamicPhrases.forEach(dp => {
                     if (!existingDynamicIds.has(dp.id)) {
@@ -452,24 +454,37 @@
 
 
                 // 2. Update Mastery UI
-                const totalMastered = masteredPhraseIds.size;
-                masteryStatus.textContent = `Mastery: ${totalMastered}/${MAX_STATIC_PHRASES} phrases mastered.`;
+                const totalMastered = Array.from(masteredPhraseIds).filter(id => id.startsWith('S')).length;
+                masteryStatus.textContent = `Mastery: ${totalMastered}/${MAX_STATIC_PHRASES} foundational phrases mastered.`;
 
                 // 3. Load Current Lesson State
+                const goalIdFromDB = data.currentGoalId || null;
+                const langFromDB = data.language || languageSelect.value;
+
                 currentGoalDisplay.textContent = data.currentGoal || 'Loading a new sentence...';
-                currentGoalId = data.currentGoalId || null;
-                currentLanguage = data.language || languageSelect.value;
+                currentGoalId = goalIdFromDB;
+                currentLanguage = langFromDB;
                 languageSelect.value = currentLanguage;
                 
                 currentSelectedWords = JSON.parse(data.selectedWords || '[]');
-                updateSelectedSentenceUI(); 
+                updateSelectedSentenceUI(false); // Do not save state here to prevent loop
+
+                updateUILanguage(); 
                 
-                // If a goal is not set or language changed, select a new one
-                if (!currentGoalId || data.language !== currentLanguage) {
-                     selectNewPhraseOrGoal(true);
+                // 4. FIX: Use the flag to prevent the initial loop
+                if (!progressLoadedOnce) {
+                    progressLoadedOnce = true;
+                    // Only select a new goal if the DB didn't provide one
+                    if (!currentGoalId) {
+                         selectNewPhraseOrGoal(true);
+                    }
+                } else if (langFromDB !== languageSelect.value) {
+                    // This handles when a user changes the language selector
+                    // It will trigger a state save and then stop the loop.
+                    currentLanguage = languageSelect.value;
+                    selectNewPhraseOrGoal(true);
                 }
 
-                updateUILanguage(); // Refresh phrases based on potentially new language/state
              }, (error) => {
                  console.error("Error listening to user progress state:", error);
              });
@@ -480,7 +495,7 @@
             try {
                  const progressDocRef = doc(db, getPrivateCollectionPath('progress'), 'user_state');
                  
-                 // Get existing dynamic phrases and mastered IDs to merge
+                 // Get existing dynamic phrases to merge (safer read before write)
                  const docSnap = await getDoc(progressDocRef);
                  const existingData = docSnap.data() || {};
 
@@ -506,7 +521,12 @@
                  const existingData = docSnap.data() || {};
                  
                  const currentDynamicPhrases = existingData.dynamicPhrases || [];
-                 currentDynamicPhrases.push(newPhrase);
+                 
+                 // Prevent duplicate saves of the new phrase
+                 const isDuplicate = currentDynamicPhrases.some(p => p.id === newPhrase.id);
+                 if (!isDuplicate) {
+                     currentDynamicPhrases.push(newPhrase);
+                 }
 
                  await setDoc(progressDocRef, {
                     dynamicPhrases: currentDynamicPhrases,
@@ -569,6 +589,7 @@
 
         languageSelect.onchange = (e) => {
             currentLanguage = e.target.value;
+            // Force a state save to trigger a language/goal refresh
             updateUILanguage();
             clearSentence();
             selectNewPhraseOrGoal(true); 
@@ -629,7 +650,7 @@
             return element;
         }
 
-        function updateSelectedSentenceUI() {
+        function updateSelectedSentenceUI(save = true) {
             selectedSentenceContainer.innerHTML = '';
             if (currentSelectedWords.length === 0) {
                  selectedSentenceContainer.innerHTML = '<span class="text-gray-500 italic">Tap words below to build your sentence...</span>';
@@ -648,7 +669,9 @@
                 
                 selectedSentenceContainer.appendChild(listenBtn);
             }
-            saveProgressState(currentGoalDisplay.textContent, currentGoalId, currentSelectedWords);
+            if (save) {
+                 saveProgressState(currentGoalDisplay.textContent, currentGoalId, currentSelectedWords);
+            }
         }
 
         function addWord(word) {
@@ -686,7 +709,7 @@
         // --- LLM Interaction ---
         
         async function postToGemini(userPrompt, systemPrompt, useSearch, isChat) {
-            const apiKey = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU";
+            const apiKey = "";
             const modelName = "gemini-2.5-flash-preview-05-20";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
             
@@ -729,7 +752,7 @@
                         processSentenceCheckResponse(text);
                     }
                     
-                    return;
+                    return; // Success, break retry loop
                 } catch (error) {
                     console.error("Gemini API call failed:", error);
                     if (i === maxRetries - 1 || error.message.includes('HTTP error')) {
@@ -757,7 +780,7 @@
             Do not include any other text or explanation.`;
 
             try {
-                const apiKey = ""; 
+                const apiKey = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; 
                 const modelName = "gemini-2.5-flash-preview-05-20";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
                 
@@ -810,6 +833,7 @@
         }
 
         async function selectNewPhraseOrGoal(forceReload) {
+            // Only proceed if we are forcing a reload (mastery, language change) or if no goal is set.
             if (!forceReload && currentGoalId) return;
 
             // 1. Determine Mastery Level
@@ -836,8 +860,7 @@
             
             // Fallback if AI or static choice failed
             if (!selectedPhrase) {
-                 // Use a default hardcoded goal if everything fails
-                selectedPhrase = { id: 'FALLBACK', english: 'Try saying "Thank you" in your chosen language.' };
+                 selectedPhrase = { id: 'FALLBACK', english: 'Try saying "Thank you" in your chosen language.', italian: 'Grazie' };
             }
 
             // 3. Update UI and State
@@ -846,7 +869,12 @@
             currentGoalDisplay.textContent = targetGoal;
             
             clearSentence(); // Clear the builder for the new goal
-            saveProgressState(targetGoal, currentGoalId, currentSelectedWords);
+            
+            // CRITICAL FIX: Only save state here after a selection is made to prevent the infinite loop on load.
+            await saveProgressState(targetGoal, currentGoalId, currentSelectedWords); 
+            
+            // The onSnapshot listener will fire now, but it won't re-trigger selectNewPhraseOrGoal
+            // because currentGoalId is no longer null (progressLoadedOnce is true).
         }
         
         function processSentenceCheckResponse(text) {
