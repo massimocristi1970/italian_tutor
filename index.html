@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Italian & Sicilian Tutor</title>
+    <title>Dynamic Italian & Sicilian Tutor</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -41,7 +41,7 @@
     <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-sm sm:max-w-lg transition-colors duration-500 dark:bg-gray-800">
         <!-- Header with language selection and user ID -->
         <div class="flex items-center justify-between mb-6 flex-wrap">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center flex-grow dark:text-gray-100">Language Tutor</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center flex-grow dark:text-gray-100">Dynamic Language Tutor</h1>
             <div class="flex items-center space-x-2">
                 <span id="flag-display" class="text-3xl">🇮🇹</span>
                 <select id="language-select" class="bg-gray-200 text-gray-800 p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-gray-100 mt-2 sm:mt-0">
@@ -51,11 +51,23 @@
             </div>
             <div id="user-id-display" class="w-full text-center text-xs text-gray-600 mt-2 truncate dark:text-gray-400">User ID: Loading...</div>
         </div>
-
+        
         <!-- Mode Toggle Buttons -->
         <div class="flex justify-center space-x-4 mb-6">
             <button id="tutor-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-blue-500 text-white transition-colors duration-300">Phrase Tutor</button>
             <button id="chat-mode-btn" class="py-2 px-4 rounded-lg font-semibold bg-gray-200 text-gray-800 transition-colors duration-300 dark:bg-gray-700 dark:text-gray-100">AI Chat</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progress-container" class="mb-6">
+            <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <span>Total Mastered Phrases</span>
+                <span id="progress-percent">0/0 Mastered</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p id="level-indicator" class="text-xs text-center text-gray-500 mt-2 dark:text-gray-400">Current Level: Beginner</p>
         </div>
 
         <!-- Tutor Section (Sentence Builder) -->
@@ -66,7 +78,7 @@
             <!-- Flashcard content (English Phrase) -->
             <div class="h-20 sm:h-24 flex items-center justify-center bg-gray-50 rounded-lg p-4 mb-6 transition-colors duration-500 dark:bg-gray-700">
                 <div class="flex flex-col">
-                    <p id="phrase-en" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 dark:text-gray-100"></p>
+                    <p id="phrase-en" class="text-lg sm:text-2xl font-medium text-gray-800 transition-opacity duration-300 dark:text-gray-100">Loading phrase...</p>
                     <!-- Mastery Indicator -->
                     <div id="mastery-indicator" class="text-xs mt-1 font-semibold text-gray-500 dark:text-gray-400"></div>
                 </div>
@@ -122,7 +134,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
@@ -133,15 +145,9 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
-        // --- User-Provided Firebase Configuration (Using placeholder config) ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0",
-            authDomain: "italiantutorapp.firebaseapp.com",
-            projectId: "italiantutorapp",
-            storageBucket: "italiantutorapp.firebasestorage.app",
-            messagingSenderId: "915130971011",
-            appId: "1:915130971011:web:171cfb69941fdf7997fcb6"
-        };
+        // --- Ambiente Firebase Configuration (FIX CRITICO) ---
+        // FIX: Sostituzione della configurazione segnaposto con la variabile globale.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         
         // --- Core Application State & Firebase References ---
         let db, auth;
@@ -151,61 +157,66 @@
         
         // -----------------------------------------------------------
         // --- IMPORTANT: PASTE YOUR GEMINI API KEY HERE ---
-        // This key is used for the free AI Chat and Text generation.
         // -----------------------------------------------------------
-        const API_KEY = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; // <--- PASTE YOUR KEY INSIDE THESE QUOTES
+        const API_KEY = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU"; // Key is provided by the environment if left empty
         const GEMINI_TEXT_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + API_KEY;
+        const GEMINI_TTS_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + API_KEY;
         
         // --- Phrase Data (Mastery system preserved) ---
         const masteredThreshold = 2; // Need 2 correct answers to master a phrase
-        const italianPhrases = [
-            { en: "Hello", it: "Ciao", mastered: 0 },
-            { en: "Thank you very much", it: "Grazie mille", mastered: 0 },
-            { en: "Please, a bottle of water", it: "Per favore, una bottiglia d'acqua", mastered: 0 },
-            { en: "Excuse me, where is the station?", it: "Mi scusi, dov'è la stazione?", mastered: 0 },
-            { en: "Yes, I like the red wine", it: "Sì, mi piace il vino rosso", mastered: 0 },
-            { en: "No, I do not want the fish", it: "No, non voglio il pesce", mastered: 0 },
-            { en: "Goodbye, see you tomorrow", it: "Arrivederci, a domani", mastered: 0 },
-            { en: "How are you doing today?", it: "Come stai oggi?", mastered: 0 },
-            { en: "I don't understand the question", it: "Non capisco la domanda", mastered: 0 },
-            { en: "Do you speak English or French?", it: "Parli inglese o francese?", mastered: 0 },
-            { en: "What is your name, sir?", it: "Qual è il tuo nome, signore?", mastered: 0 },
-            { en: "My name is Antonio", it: "Mi chiamo Antonio", mastered: 0 },
-            { en: "Where are you from, madam?", it: "Di dove sei, signora?", mastered: 0 },
-            { en: "I am from Rome, in Italy", it: "Sono di Roma, in Italia", mastered: 0 },
-            { en: "I am sorry for the delay", it: "Mi dispiace per il ritardo", mastered: 0 },
-            { en: "How much does this coffee cost?", it: "Quanto costa questo caffè?", mastered: 0 },
-            { en: "The food is delicious and hot", it: "Il cibo è delizioso e caldo", mastered: 0 },
-            { en: "I would like a large cappuccino", it: "Vorrei un cappuccino grande", mastered: 0 },
-            { en: "I am tired after the long trip", it: "Sono stanco dopo il lungo viaggio", mastered: 0 },
-            { en: "Let's go to the market now", it: "Andiamo al mercato ora", mastered: 0 }
+        
+        // IMPORTANT: We use these as a base, and the live 'currentPhrases' array will grow
+        // as the user generates dynamic content.
+        const baseItalianPhrases = [
+            { en: "Hello", it: "Ciao", mastered: 0, static: true },
+            { en: "Thank you very much", it: "Grazie mille", mastered: 0, static: true },
+            { en: "Please, a bottle of water", it: "Per favore, una bottiglia d'acqua", mastered: 0, static: true },
+            { en: "Excuse me, where is the station?", it: "Mi scusi, dov'è la stazione?", mastered: 0, static: true },
+            { en: "Yes, I like the red wine", it: "Sì, mi piace il vino rosso", mastered: 0, static: true },
+            { en: "No, I do not want the fish", it: "No, non voglio il pesce", mastered: 0, static: true },
+            { en: "Goodbye, see you tomorrow", it: "Arrivederci, a domani", mastered: 0, static: true },
+            { en: "How are you doing today?", it: "Come stai oggi?", mastered: 0, static: true },
+            { en: "I don't understand the question", it: "Non capisco la domanda", mastered: 0, static: true },
+            { en: "Do you speak English or French?", it: "Parli inglese o francese?", mastered: 0, static: true },
+            { en: "What is your name, sir?", it: "Qual è il tuo nome, signore?", mastered: 0, static: true },
+            { en: "My name is Antonio", it: "Mi chiamo Antonio", mastered: 0, static: true },
+            { en: "Where are you from, madam?", it: "Di dove sei, signora?", mastered: 0, static: true },
+            { en: "I am from Rome, in Italy", it: "Sono di Roma, in Italia", mastered: 0, static: true },
+            { en: "I am sorry for the delay", it: "Mi dispiace per il ritardo", mastered: 0, static: true },
+            { en: "How much does this coffee cost?", it: "Quanto costa questo caffè?", mastered: 0, static: true },
+            { en: "The food is delicious and hot", it: "Il cibo è delizioso e caldo", mastered: 0, static: true },
+            { en: "I would like a large cappuccino", it: "Vorrei un cappuccino grande", mastered: 0, static: true },
+            { en: "I am tired after the long trip", it: "Sono stanco dopo il lungo viaggio", mastered: 0, static: true },
+            { en: "Let's go to the market now", it: "Andiamo al mercato ora", mastered: 0, static: true }
         ];
 
-        const sicilianPhrases = [
-            { en: "Hello", it: "Salutu", mastered: 0 },
-            { en: "Thank you very much", it: "Grazzî assai", mastered: 0 },
-            { en: "Please, a bottle of water", it: "Pi favuri, na buttìgghia d'acqua", mastered: 0 },
-            { en: "Excuse me, where is the station?", it: "M'accatti, unni è la stazzioni?", mastered: 0 },
-            { en: "Yes, I like the red wine", it: "Sì, mi piaci lu vinu russu", mastered: 0 },
-            { en: "No, I do not want the fish", it: "No, nun vogghiu lu pisci", mastered: 0 },
-            { en: "Goodbye, see you tomorrow", it: "Addiu, nni videmu dumani", mastered: 0 },
-            { en: "How are you doing today?", it: "Comu si senti òi?", mastered: 0 },
-            { en: "I don't understand the question", it: "Nun capisciu la dumannata", mastered: 0 },
-            { en: "Do you speak English or French?", it: "Parra ngrisi o francisi?", mastered: 0 },
-            { en: "What is your name, sir?", it: "Qual è lu tò nomi, signuri?", mastered: 0 },
-            { en: "My name is Antonio", it: "Mi chiàmu Antoniu", mastered: 0 },
-            { en: "Where are you from, madam?", it: "Di unni si, signura?", mastered: 0 },
-            { en: "I am from Rome, in Italy", it: "Sugnu di Roma, 'n Talia", mastered: 0 },
-            { en: "I am sorry for the delay", it: "M'addulìu pû ritardu", mastered: 0 },
-            { en: "How much does this coffee cost?", it: "Quantu costa stu cafè?", mastered: 0 },
-            { en: "The food is delicious and hot", it: "Lu manciari è diliziusu e càudu", mastered: 0 },
-            { en: "I would like a large cappuccino", it: "Vuògghiu un cappuccinu granni", mastered: 0 },
-            { en: "I am tired after the long trip", it: "Sugnu stancu doppu lu longu viàggiu", mastered: 0 },
-            { en: "Let's go to the market now", it: "Iemu ô mircatu ora", mastered: 0 }
+        const baseSicilianPhrases = [
+            { en: "Hello", it: "Salutu", mastered: 0, static: true },
+            { en: "Thank you very much", it: "Grazzî assai", mastered: 0, static: true },
+            { en: "Please, a bottle of water", it: "Pi favuri, na buttìgghia d'acqua", mastered: 0, static: true },
+            { en: "Excuse me, where is the station?", it: "M'accatti, unni è la stazzioni?", mastered: 0, static: true },
+            { en: "Yes, I like the red wine", it: "Sì, mi piaci lu vinu russu", mastered: 0, static: true },
+            { en: "No, I do not want the fish", it: "No, nun vogghiu lu pisci", mastered: 0, static: true },
+            { en: "Goodbye, see you tomorrow", it: "Addiu, nni videmu dumani", mastered: 0, static: true },
+            { en: "How are you doing today?", it: "Comu si senti òi?", mastered: 0, static: true },
+            { en: "I don't understand the question", it: "Nun capisciu la dumannata", mastered: 0, static: true },
+            { en: "Do you speak English or French?", it: "Parra ngrisi o francisi?", mastered: 0, static: true },
+            { en: "What is your name, sir?", it: "Qual è lu tò nomi, signuri?", mastered: 0, static: true },
+            { en: "My name is Antonio", it: "Mi chiàmu Antoniu", mastered: 0, static: true },
+            { en: "Where are you from, madam?", it: "Di unni si, signura?", mastered: 0, static: true },
+            { en: "I am from Rome, in Italy", it: "Sugnu di Roma, 'n Talia", mastered: 0, static: true },
+            { en: "I am sorry for the delay", it: "M'addulìu pû ritardu", mastered: 0, static: true },
+            { en: "How much does this coffee cost?", it: "Quantu costa stu cafè?", mastered: 0, static: true },
+            { en: "The food is delicious and hot", it: "Lu manciari è diliziusu e càudu", mastered: 0, static: true },
+            { en: "I would like a large cappuccino", it: "Vuògghiu un cappuccinu granni", mastered: 0, static: true },
+            { en: "I am tired after the long trip", it: "Sugnu stancu doppu lu longu viàggiu", mastered: 0, static: true },
+            { en: "Let's go to the market now", it: "Iemu ô mircatu ora", mastered: 0, static: true }
         ];
 
-        let currentPhrases = italianPhrases;
+        let currentPhrases = []; // This will hold all phrases, static and dynamic
         let currentPhrase = null;
+        let isGeneratingPhrase = false;
+
 
         // --- DOM Element References ---
         const languageSelect = document.getElementById('language-select');
@@ -228,11 +239,130 @@
         const chatWindow = document.getElementById('chat-window');
         const chatInput = document.getElementById('chat-input');
         const chatSendBtn = document.getElementById('chat-send-btn');
-        
+        const progressBarElement = document.getElementById('progress-bar');
+        const progressPercentElement = document.getElementById('progress-percent');
+        const levelIndicator = document.getElementById('level-indicator');
 
         // --- Firebase Data Reference Helpers ---
-        const progressDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'progress', 'user_progress');
+        const progressDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'progress', languageSelect.value);
         const chatHistoryDocRef = () => doc(db, 'artifacts', appId, 'users', userId, 'chat', languageSelect.value);
+
+        // --- Utility Functions for TTS (PCM to WAV conversion) ---
+
+        /** Converts base64 to ArrayBuffer */
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        /** Creates a WAV Blob from raw PCM data */
+        function pcmToWav(pcm16, sampleRate) {
+            const numChannels = 1;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            const byteRate = sampleRate * blockAlign;
+            const dataLength = pcm16.length * bytesPerSample;
+            const buffer = new ArrayBuffer(44 + dataLength);
+            const view = new DataView(buffer);
+            let offset = 0;
+
+            // RIFF chunk
+            writeString(view, offset, 'RIFF'); offset += 4;
+            view.setUint32(offset, 36 + dataLength, true); offset += 4;
+            writeString(view, offset, 'WAVE'); offset += 4;
+
+            // FMT chunk
+            writeString(view, offset, 'fmt '); offset += 4;
+            view.setUint32(offset, 16, true); offset += 4; // Sub-chunk size: 16
+            view.setUint16(offset, 1, true); offset += 2; // Audio format (1 for PCM)
+            view.setUint16(offset, numChannels, true); offset += 2;
+            view.setUint32(offset, sampleRate, true); offset += 4;
+            view.setUint32(offset, byteRate, true); offset += 4;
+            view.setUint16(offset, blockAlign, true); offset += 2;
+            view.setUint16(offset, 16, true); offset += 2; // Bits per sample
+
+            // DATA chunk
+            writeString(view, offset, 'data'); offset += 4;
+            view.setUint32(offset, dataLength, true); offset += 4;
+
+            // Write PCM data
+            for (let i = 0; i < pcm16.length; i++, offset += 2) {
+                view.setInt16(offset, pcm16[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        async function speakText(text) {
+            const audioBtn = document.getElementById('tutor-listen-btn');
+            audioBtn.disabled = true;
+            const originalText = audioBtn.innerHTML;
+            audioBtn.innerHTML = `<div class="loading-spinner border-t-white ml-2"></div> Generating Audio...`;
+
+            const payload = {
+                contents: [{ parts: [{ text: text }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            // Using a friendly, clear voice
+                            prebuiltVoiceConfig: { voiceName: "Achird" } 
+                        }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+
+            try {
+                const response = await fetch(GEMINI_TTS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error(`TTS API HTTP error! status: ${response.status}`);
+                
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    if (!sampleRateMatch) throw new Error("Could not determine sample rate from MIME type.");
+
+                    const sampleRate = parseInt(sampleRateMatch[1], 10);
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    
+                    const audio = new Audio(URL.createObjectURL(wavBlob));
+                    audio.play();
+                } else {
+                    console.error("TTS response missing audio data.");
+                    showTutorSystemMessage("TTS failed: Audio data missing.");
+                }
+
+            } catch (error) {
+                console.error('Error with Gemini TTS:', error);
+                showTutorSystemMessage(`TTS failed: ${error.message}`);
+            } finally {
+                audioBtn.innerHTML = originalText;
+                audioBtn.disabled = false;
+            }
+        }
+
 
         // --- UI & Utility Functions ---
         function switchMode(mode) {
@@ -281,17 +411,6 @@
             chatWindow.appendChild(messageDiv);
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
-
-        function speakText(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                // Use Italian language code for both Italian and Sicilian for best voice compatibility
-                utterance.lang = 'it-IT'; 
-                window.speechSynthesis.speak(utterance);
-            } else {
-                console.warn('Browser does not support native Text-to-Speech.');
-            }
-        }
         
         function renderMastery() {
             if (!currentPhrase) return;
@@ -304,6 +423,49 @@
                 masteryIndicator.innerHTML = `Mastery: <span class="text-blue-500 font-bold">${masteredCount}/${target}</span>`;
             } else {
                 masteryIndicator.innerHTML = `<i class="fas fa-times-circle text-red-500"></i> Needs practice`;
+            }
+        }
+
+        function updateProgressBar() {
+            const totalPhrases = currentPhrases.length;
+            if (totalPhrases === 0) {
+                progressPercentElement.textContent = `0/0 Mastered`;
+                progressBarElement.style.width = '0%';
+                levelIndicator.textContent = 'Current Level: Beginner';
+                return;
+            }
+
+            const masteredCount = currentPhrases.filter(p => p.mastered >= masteredThreshold).length;
+            const totalToMaster = currentPhrases.length;
+            
+            // Percentage based on static phrases for initial level determination
+            const staticMastered = currentPhrases.filter(p => p.static && p.mastered >= masteredThreshold).length;
+            const staticTotal = baseItalianPhrases.length; // Use Italian base length (20)
+            const staticPercent = Math.round((staticMastered / staticTotal) * 100);
+
+
+            // Determine Level based on static phrase mastery
+            let levelText = 'Beginner';
+            if (staticPercent >= 50 && staticPercent < 80) {
+                levelText = 'Intermediate';
+            } else if (staticPercent >= 80) {
+                levelText = 'Advanced';
+            }
+
+            progressPercentElement.textContent = `${masteredCount}/${totalToMaster} Mastered`;
+            
+            // Visual bar based on overall count
+            const overallProgress = Math.min(100, Math.round((masteredCount / totalToMaster) * 100));
+            progressBarElement.style.width = `${overallProgress}%`;
+
+            levelIndicator.textContent = `Current Level: ${levelText}`;
+
+            if (masteredCount >= totalToMaster) {
+                progressBarElement.classList.remove('bg-blue-600');
+                progressBarElement.classList.add('bg-green-500');
+            } else {
+                progressBarElement.classList.remove('bg-green-500');
+                progressBarElement.classList.add('bg-blue-600');
             }
         }
 
@@ -352,51 +514,150 @@
         function checkButtonState() {
             // Only enable check/reveal if there are words in the sentence
             const hasWords = currentSentenceElement.children.length > 0;
-            checkBtn.disabled = !hasWords;
-            revealBtn.disabled = !hasWords;
+            checkBtn.disabled = !hasWords || isGeneratingPhrase;
+            revealBtn.disabled = !hasWords || isGeneratingPhrase;
         }
-        
-        function selectNewPhrase() {
-            // Find unmastered phrases or reset if all are mastered
-            const unmasteredPhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
-            if (unmasteredPhrases.length === 0) {
-                currentPhrases.forEach(p => p.mastered = 0);
-                showTutorSystemMessage("You have mastered all phrases! Starting over.");
+
+        /**
+         * Calls Gemini API to generate a new phrase and adds it to currentPhrases.
+         */
+        async function generateDynamicPhrase(targetLanguage, level) {
+            isGeneratingPhrase = true;
+            phraseEnElement.textContent = "Generating new challenge...";
+            wordBankElement.innerHTML = `<div class="loading-spinner"></div>`;
+            checkButtonState();
+
+            const targetLangFull = targetLanguage === 'italian' ? 'Modern Italian' : 'Sicilian dialect';
+            
+            const prompt = `Generate a new, unique phrase in ${targetLangFull} and its English translation. The phrase should be challenging for a ${level} learner. The output MUST be a strict JSON object with two fields: "en" for the English phrase and "it" for the ${targetLangFull} phrase. Do NOT include any markdown, backticks, or other text outside the JSON object. Example: {"en": "I will buy a ticket for the train tomorrow.", "it": "Comprerò un biglietto per il treno domani."}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: "You are a language learning API that generates structured JSON content." }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "en": { "type": "STRING" },
+                            "it": { "type": "STRING" }
+                        },
+                        "propertyOrdering": ["en", "it"]
+                    }
+                }
+            };
+
+            let newPhrase = null;
+            
+            try {
+                const response = await fetch(GEMINI_TEXT_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (jsonText) {
+                    const parsedJson = JSON.parse(jsonText);
+                    newPhrase = {
+                        en: parsedJson.en,
+                        it: parsedJson.it,
+                        mastered: 0,
+                        static: false // Mark as dynamic
+                    };
+                }
+            } catch (error) {
+                console.error('Error generating dynamic phrase:', error);
+                showTutorSystemMessage("Failed to generate new phrase (API Error). Falling back to static content.");
             }
 
-            // Prioritize phrases that need practice (mastered < 0)
-            const phrasesToRepeat = currentPhrases.filter(p => p.mastered < 0);
+            isGeneratingPhrase = false;
+            if (newPhrase) {
+                // Ensure the phrase is unique before adding
+                if (!currentPhrases.some(p => p.en === newPhrase.en)) {
+                    currentPhrases.push(newPhrase);
+                    saveProgress(currentPhrases);
+                    showTutorSystemMessage("New Dynamic Phrase Added! Challenge increased.");
+                }
+            }
             
-            let phraseSet = phrasesToRepeat.length > 0 ? phrasesToRepeat : unmasteredPhrases;
-            if (phraseSet.length === 0) phraseSet = currentPhrases; // Should not happen after reset, but fallback
+            // Force re-select to get the new or a fallback phrase
+            await selectNewPhrase(true);
+        }
+        
+        function selectNewPhrase(wasDynamic = false) {
+            // Check current level to decide whether to generate a new phrase
+            const staticMastered = currentPhrases.filter(p => p.static && p.mastered >= masteredThreshold).length;
+            const staticTotal = baseItalianPhrases.length;
+            const level = staticMastered / staticTotal; // 0.0 to 1.0
 
-            currentPhrase = phraseSet[Math.floor(Math.random() * phraseSet.length)];
+            const unmasteredPhrases = currentPhrases.filter(p => p.mastered < masteredThreshold);
             
-            // 1. Set English phrase
+            let phraseSet = unmasteredPhrases;
+
+            // 1. Dynamic Generation Logic
+            if (!wasDynamic && level >= 0.5 && Math.random() < 0.3) { // 30% chance to generate new phrase after 50% static mastery
+                let levelText = 'Intermediate';
+                if (level >= 0.8) levelText = 'Advanced';
+
+                // Check if we already have too many unmastered dynamic phrases
+                const unmasteredDynamic = currentPhrases.filter(p => !p.static && p.mastered < masteredThreshold).length;
+                
+                if (unmasteredDynamic < 10) { // Limit unmastered dynamic phrases to prevent overload
+                    generateDynamicPhrase(languageSelect.value, levelText);
+                    return; // Return early, the generation function will call selectNewPhrase(true) when done.
+                }
+            }
+            
+            // 2. Fallback/Selection Logic
+            if (phraseSet.length === 0) {
+                // If all are mastered, reset everything
+                currentPhrases.forEach(p => p.mastered = 0);
+                saveProgress(currentPhrases); 
+                showTutorSystemMessage("You have mastered all current phrases! Starting the review cycle.");
+                phraseSet = currentPhrases;
+            }
+
+            // CRITICAL SAFETY CHECK: If no phrases are available (e.g., initial load failure), stop.
+            if (phraseSet.length === 0) {
+                 phraseEnElement.textContent = "Loading error: No phrases available.";
+                 wordBankElement.innerHTML = '';
+                 tutorFeedbackElement.textContent = 'Please check console for Firebase errors.';
+                 console.error("selectNewPhrase aborted: No phrases available in phraseSet.");
+                 return; // Previene il crash (TypeError)
+            }
+
+
+            // Prioritize phrases that need penalty practice (mastered < 0)
+            const phrasesToRepeat = phraseSet.filter(p => p.mastered < 0);
+            
+            currentPhrase = phrasesToRepeat.length > 0 
+                ? phrasesToRepeat[Math.floor(Math.random() * phrasesToRepeat.length)]
+                : phraseSet[Math.floor(Math.random() * phraseSet.length)];
+
+            // Set UI
             phraseEnElement.textContent = currentPhrase.en;
             renderMastery();
 
-            // 2. Prepare words for the bank
+            // Prepare words for the bank
             const correctWords = currentPhrase.it.split(/[\s,.'’]+/g).filter(w => w.length > 0);
             let allWords = [...correctWords];
 
-            // 3. Add 3 Distractor words (Difficulty level)
+            // Add 3 Distractor words
             const allTargetWords = (currentPhrases.flatMap(p => p.it.split(/[\s,.'’]+/g))).filter(w => w.length > 2);
             let distractors = [];
             while (distractors.length < 3) {
                 const randomWord = allTargetWords[Math.floor(Math.random() * allTargetWords.length)];
-                // Ensure the distractor is not a correct word and is unique
                 if (!correctWords.includes(randomWord) && !distractors.includes(randomWord)) {
                     distractors.push(randomWord);
                 }
             }
             
             allWords = allWords.concat(distractors);
-            
-            // Shuffle the final list of words
             allWords.sort(() => Math.random() - 0.5);
             
-            // 4. Render the UI
+            // Render the UI
             renderWordBank(allWords);
             tutorFeedbackElement.textContent = '';
             nextBtn.classList.add('hidden');
@@ -408,8 +669,8 @@
         async function saveProgress(phrases) {
             if (!userId || !db) return console.error("Database not ready.");
             try {
-                // IMPORTANT: We stringify the entire phrase array for simplicity in Firestore
-                const progressData = { phrases: JSON.stringify(phrases) };
+                // Stringify the entire phrase array for simple saving
+                const progressData = { phrases: JSON.stringify(phrases), timestamp: new Date().toISOString() };
                 await setDoc(progressDocRef(), progressData, { merge: true });
             } catch (error) {
                 console.error("Error saving progress:", error);
@@ -419,18 +680,32 @@
         async function loadProgress() {
             if (!userId || !db) return;
 
+            // 1. Set the initial phrase list (Base static phrases)
+            currentPhrases = languageSelect.value === 'italian' 
+                ? [...baseItalianPhrases] 
+                : [...baseSicilianPhrases];
+
             try {
                 const docSnap = await getDoc(progressDocRef());
                 if (docSnap.exists() && docSnap.data().phrases) {
                     const savedPhrases = JSON.parse(docSnap.data().phrases);
                     
-                    // Match saved mastery levels to the current phrase set
-                    currentPhrases.forEach(phrase => {
-                        const saved = savedPhrases.find(p => p.en === phrase.en);
-                        if (saved) {
-                            phrase.mastered = saved.mastered;
+                    // 2. Merge saved dynamic and static phrases
+                    const baseStaticMap = new Map(currentPhrases.map(p => [p.en, p]));
+                    
+                    savedPhrases.forEach(savedP => {
+                        if (savedP.static && baseStaticMap.has(savedP.en)) {
+                            // Update mastery for static phrases
+                            baseStaticMap.get(savedP.en).mastered = savedP.mastered;
+                        } else if (!savedP.static) {
+                            // Add all dynamic phrases back
+                            baseStaticMap.set(savedP.en, savedP);
                         }
                     });
+
+                    // Update the global list with the merged/updated set
+                    currentPhrases = Array.from(baseStaticMap.values());
+                    
                     showTutorSystemMessage("Progress loaded successfully!");
                 }
             } catch (error) {
@@ -470,7 +745,7 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // --- Gemini API Handlers (Simplified for single file) ---
+        // --- Gemini Chat Handlers ---
         async function getTutorResponse(userMessage) {
             if (isWaitingForResponse) return;
             isWaitingForResponse = true;
@@ -481,7 +756,7 @@
             chatInput.placeholder = "Tutor is typing...";
 
             const targetLang = languageSelect.value === 'italian' ? 'Italian' : 'Sicilian';
-            const prompt = `You are a conversational language tutor for ${targetLang}. Respond naturally in the target language. Keep the response simple, encouraging, and helpful for a beginner learner. Do not provide a translation unless the user asks for it explicitly.`;
+            const prompt = `You are a conversational language tutor for ${targetLang}. Respond naturally and encouragingly in the target language. Keep the response simple and helpful for a learner. Do not provide an English translation unless the user asks for it explicitly.`;
             
             const payload = {
                 contents: chatHistory.map(msg => ({
@@ -529,14 +804,11 @@
 
         // --- Main App Initialization ---
         function startAppLogic(language) { 
-            if (language === 'italian') {
-                currentPhrases = italianPhrases;
-            } else if (language === 'sicilian') {
-                currentPhrases = sicilianPhrases;
-            }
             updateFlag();
+            // Load progress and then select phrase and update UI
             loadProgress().then(() => {
                 selectNewPhrase();
+                updateProgressBar();
             });
         }
 
@@ -546,7 +818,7 @@
                 auth = getAuth(app);
                 db = getFirestore(app);
                 
-                // IMPORTANT FIX: Use signInAnonymously to avoid the custom-token-mismatch error
+                // IMPORTANT: Wait for auth state to be resolved before proceeding
                 await new Promise((resolve) => {
                     const unsubscribe = onAuthStateChanged(auth, async (user) => {
                         if (user) {
@@ -555,25 +827,24 @@
                             unsubscribe();
                             resolve();
                         } else {
-                            try {
+                            // Use custom token if available, otherwise sign in anonymously
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
                                 await signInAnonymously(auth);
-                            } catch (error) {
-                                console.error("Firebase Auth Error (Anonymous Failed):", error);
-                                userIdDisplay.textContent = "Auth failed (using random ID)";
-                                userId = crypto.randomUUID(); 
                             }
                         }
                     });
                 });
 
-                // Start application logic now that auth is ready
                 startAppLogic(languageSelect.value);
 
             } catch (error) {
                 console.error("FATAL FIREBASE INITIALIZATION ERROR:", error);
                 userIdDisplay.textContent = "FATAL ERROR: Firebase Initialization Failed.";
                 showTutorSystemMessage("Initialization failed. Check console for details.");
-                startAppLogic(languageSelect.value); // Use app even if Firebase failed
+                // Start app logic anyway as fallback, though data saving/loading will fail
+                startAppLogic(languageSelect.value); 
             }
         }
         
@@ -583,8 +854,10 @@
 
         languageSelect.addEventListener('change', (e) => {
             if (chatSection.classList.contains('hidden')) {
+                // In tutor mode, reload phrases and start new session
                 startAppLogic(e.target.value);
             } else {
+                // In chat mode, just load the chat history for the new language
                 loadChatHistory();
                 updateFlag();
             }
@@ -593,19 +866,16 @@
         checkBtn.addEventListener('click', () => {
             if (!currentPhrase) return showTutorSystemMessage("The tutor is not ready yet.");
 
-            // Get the sentence constructed by the user
             const sentenceWords = Array.from(currentSentenceElement.children).map(btn => btn.textContent.trim());
             
-            // Clean the joined sentence for comparison (remove spaces before punctuation)
+            // Normalize for comparison
             const userAnswer = sentenceWords.join(' ')
-                .replace(/\s([.,?!:;])/g, '$1') // Fix spaces before punctuation
+                .replace(/\s([.,?!:;])/g, '$1')
                 .toLowerCase();
             
-            // Normalize the correct answer for comparison (remove spaces before punctuation)
             const correctAnswer = currentPhrase.it
                 .replace(/\s([.,?!:;])/g, '$1')
                 .toLowerCase()
-                // Replace special characters that might be confusing (e.g., ' or ’)
                 .replace(/'|’/g, "'"); 
                 
             const normalizedUserAnswer = userAnswer.replace(/'|’/g, "'");
@@ -616,7 +886,6 @@
                 checkBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
                 
-                // Set words to green
                 Array.from(currentSentenceElement.children).forEach(btn => {
                     btn.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600');
                     btn.classList.remove('bg-blue-500', 'hover:bg-blue-500');
@@ -625,14 +894,15 @@
 
                 currentPhrase.mastered++;
                 saveProgress(currentPhrases);
+                updateProgressBar();
             } else {
                 tutorFeedbackElement.textContent = "That's not quite right. Try re-arranging the words!";
                 tutorFeedbackElement.style.color = '#EF4444';
                 
-                // Mastery score penalty for incorrect answer
                 if (currentPhrase.mastered > 0) currentPhrase.mastered = 0;
-                if (currentPhrase.mastered === 0) currentPhrase.mastered = -1; // Flag for needs review
+                if (currentPhrase.mastered === 0) currentPhrase.mastered = -1;
                 saveProgress(currentPhrases);
+                updateProgressBar();
             }
             renderMastery();
         });
@@ -647,14 +917,13 @@
             checkBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
             
-            // Disable interactions
             wordBankElement.classList.add('opacity-0');
             Array.from(currentSentenceElement.children).forEach(btn => btn.disabled = true);
 
-            // Set mastery score to penalty for revealing
             currentPhrase.mastered = -1;
             saveProgress(currentPhrases);
             renderMastery();
+            updateProgressBar();
         });
 
         tutorListenBtn.addEventListener('click', () => {
