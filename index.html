@@ -88,6 +88,16 @@
                     </select>
                     <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                 </div>
+                
+                <!-- Level Selector -->
+                <div class="relative">
+                    <select id="level-select" class="p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm appearance-none pr-8 transition duration-150">
+                        <option value="level1" selected>🌱 Beginner (A1-A2)</option>
+                        <option value="level2">🌿 Intermediate (B1-B2)</option>
+                        <option value="level3">🌳 Advanced (C1-C2)</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                </div>
             </div>
         </header>
 
@@ -230,6 +240,7 @@
         let auth;
         let userId = 'loading';
         let currentLanguage = 'Italian'; // Default language
+        let currentLevel = 'level1'; // Default difficulty level: level1, level2, level3
 
         // --- UI Element References ---
         const modalContainer = document.getElementById('modal-container');
@@ -255,15 +266,198 @@
         const MAX_STATIC_PHRASES = 20; // Used for the 50% calculation
         let progressLoadedOnce = false; // Flag to prevent initial load loop
 
-        const wordBankData = [
-            'Io', 'Tu', 'Lui', 'Lei', 'Noi', 'Voi', 'Loro', 
-            'mangio', 'mangi', 'mangia', 'mangiamo', 'mangiate', 'mangiano', 
-            'parlo', 'parli', 'parla', 'parliamo', 'parlate', 'parlano', 
-            'il', 'la', 'un', 'una', 'i', 'le', 'gli', 
-            'pane', 'acqua', 'libro', 'musica', 'treno', 'mela', 'pasta', 'cane', 
-            'e', 'o', 'ma', 'con', 
-            'molto', 'bene', 'adesso', 'sempre'
-        ];
+        const wordBankData = {
+            // LEVEL 1: Beginner (A1-A2)
+            level1: {
+                pronouns: ['Io', 'Tu', 'Lui', 'Lei', 'Noi', 'Voi', 'Loro'],
+                
+                articles: ['il', 'la', 'un', 'una', 'i', 'le', 'gli', 'lo', "l'"],
+                
+                verbs_present: [
+                    // -ARE verbs
+                    'parlo', 'parli', 'parla', 'parliamo', 'parlate', 'parlano', // parlare (to speak)
+                    'mangio', 'mangi', 'mangia', 'mangiamo', 'mangiate', 'mangiano', // mangiare (to eat)
+                    'amo', 'ami', 'ama', 'amiamo', 'amate', 'amano', // amare (to love)
+                    'lavoro', 'lavori', 'lavora', 'lavoriamo', 'lavorate', 'lavorano', // lavorare (to work)
+                    'studio', 'studi', 'studia', 'studiamo', 'studiate', 'studiano', // studiare (to study)
+                    'guardo', 'guardi', 'guarda', 'guardiamo', 'guardate', 'guardano', // guardare (to watch)
+                    'cammino', 'cammini', 'cammina', 'camminiamo', 'camminate', 'camminano', // camminare (to walk)
+                    'compro', 'compri', 'compra', 'compriamo', 'comprate', 'comprano', // comprare (to buy)
+                    'ascolto', 'ascolti', 'ascolta', 'ascoltiamo', 'ascoltate', 'ascoltano', // ascoltare (to listen)
+                    'abito', 'abiti', 'abita', 'abitiamo', 'abitate', 'abitano', // abitare (to live)
+                    
+                    // -ERE verbs
+                    'leggo', 'leggi', 'legge', 'leggiamo', 'leggete', 'leggono', // leggere (to read)
+                    'scrivo', 'scrivi', 'scrive', 'scriviamo', 'scrivete', 'scrivono', // scrivere (to write)
+                    'vedo', 'vedi', 'vede', 'vediamo', 'vedete', 'vedono', // vedere (to see)
+                    'bevo', 'bevi', 'beve', 'beviamo', 'bevete', 'bevono', // bere (to drink)
+                    'prendo', 'prendi', 'prende', 'prendiamo', 'prendete', 'prendono', // prendere (to take)
+                    'metto', 'metti', 'mette', 'mettiamo', 'mettete', 'mettono', // mettere (to put)
+                    'conosco', 'conosci', 'conosce', 'conosciamo', 'conoscete', 'conoscono', // conoscere (to know)
+                    
+                    // -IRE verbs
+                    'dormo', 'dormi', 'dorme', 'dormiamo', 'dormite', 'dormono', // dormire (to sleep)
+                    'apro', 'apri', 'apre', 'apriamo', 'aprite', 'aprono', // aprire (to open)
+                    'sento', 'senti', 'sente', 'sentiamo', 'sentite', 'sentono', // sentire (to hear/feel)
+                    'parto', 'parti', 'parte', 'partiamo', 'partite', 'partono', // partire (to leave)
+                    
+                    // -ISC verbs
+                    'capisco', 'capisci', 'capisce', 'capiamo', 'capite', 'capiscono', // capire (to understand)
+                    'finisco', 'finisci', 'finisce', 'finiamo', 'finite', 'finiscono', // finire (to finish)
+                    'preferisco', 'preferisci', 'preferisce', 'preferiamo', 'preferite', 'preferiscono', // preferire (to prefer)
+                    
+                    // Irregular essentials
+                    'sono', 'sei', 'è', 'siamo', 'siete', 'sono', // essere (to be)
+                    'ho', 'hai', 'ha', 'abbiamo', 'avete', 'hanno', // avere (to have)
+                    'vado', 'vai', 'va', 'andiamo', 'andate', 'vanno', // andare (to go)
+                    'faccio', 'fai', 'fa', 'facciamo', 'fate', 'fanno', // fare (to do/make)
+                    'dico', 'dici', 'dice', 'diciamo', 'dite', 'dicono', // dire (to say)
+                    'vengo', 'vieni', 'viene', 'veniamo', 'venite', 'vengono', // venire (to come)
+                    'voglio', 'vuoi', 'vuole', 'vogliamo', 'volete', 'vogliono', // volere (to want)
+                    'posso', 'puoi', 'può', 'possiamo', 'potete', 'possono', // potere (to be able)
+                    'devo', 'devi', 'deve', 'dobbiamo', 'dovete', 'devono' // dovere (to have to)
+                ],
+                
+                nouns_food: [
+                    'pane', 'pasta', 'pizza', 'acqua', 'vino', 'caffè', 'tè', 
+                    'latte', 'formaggio', 'carne', 'pesce', 'pollo', 'uovo', 
+                    'mela', 'banana', 'arancia', 'pomodoro', 'insalata', 'riso', 
+                    'zucchero', 'sale', 'pepe', 'burro', 'olio'
+                ],
+                
+                nouns_people: [
+                    'uomo', 'donna', 'bambino', 'bambina', 'ragazzo', 'ragazza',
+                    'amico', 'amica', 'madre', 'padre', 'fratello', 'sorella',
+                    'nonno', 'nonna', 'figlio', 'figlia', 'marito', 'moglie',
+                    'famiglia', 'persona', 'studente', 'studentessa', 'professore', 'professoressa'
+                ],
+                
+                nouns_places: [
+                    'casa', 'città', 'paese', 'strada', 'piazza', 'negozio',
+                    'ristorante', 'bar', 'hotel', 'stazione', 'aeroporto', 'scuola',
+                    'università', 'ospedale', 'chiesa', 'museo', 'parco', 'spiaggia',
+                    'montagna', 'mare', 'lago', 'centro', 'ufficio', 'banca'
+                ],
+                
+                nouns_things: [
+                    'libro', 'telefono', 'computer', 'tavolo', 'sedia', 'letto',
+                    'porta', 'finestra', 'chiave', 'borsa', 'valigia', 'auto',
+                    'bicicletta', 'treno', 'autobus', 'aereo', 'biglietto', 'soldi',
+                    'carta', 'penna', 'quaderno', 'orologio', 'giornale', 'rivista'
+                ],
+                
+                nouns_time: [
+                    'giorno', 'settimana', 'mese', 'anno', 'ora', 'minuto',
+                    'mattina', 'pomeriggio', 'sera', 'notte', 'oggi', 'domani',
+                    'ieri', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì',
+                    'sabato', 'domenica'
+                ],
+                
+                adjectives: [
+                    'buono', 'buona', 'cattivo', 'cattiva', 'bello', 'bella',
+                    'brutto', 'brutta', 'grande', 'piccolo', 'piccola', 'nuovo', 'nuova',
+                    'vecchio', 'vecchia', 'giovane', 'felice', 'triste', 'stanco', 'stanca',
+                    'caldo', 'calda', 'freddo', 'fredda', 'facile', 'difficile',
+                    'lungo', 'lunga', 'corto', 'corta', 'alto', 'alta', 'basso', 'bassa',
+                    'rosso', 'rossa', 'blu', 'verde', 'giallo', 'gialla', 'bianco', 'bianca', 'nero', 'nera'
+                ],
+                
+                adverbs: [
+                    'molto', 'poco', 'troppo', 'bene', 'male', 'sempre', 'mai',
+                    'spesso', 'raramente', 'adesso', 'ora', 'già', 'ancora', 'presto',
+                    'tardi', 'qui', 'qua', 'lì', 'là', 'dove', 'quando', 'come', 'perché'
+                ],
+                
+                prepositions: [
+                    'di', 'a', 'da', 'in', 'con', 'su', 'per', 'tra', 'fra',
+                    'dentro', 'fuori', 'sopra', 'sotto', 'vicino', 'lontano',
+                    'davanti', 'dietro', 'prima', 'dopo', 'durante', 'senza'
+                ],
+                
+                conjunctions: ['e', 'o', 'ma', 'però', 'quindi', 'allora', 'se', 'che', 'perché', 'quando', 'mentre']
+            },
+            
+            // LEVEL 2: Intermediate (B1-B2)
+            level2: {
+                verbs_past: [
+                    // Passato prossimo with avere
+                    'parlato', 'mangiato', 'bevuto', 'letto', 'scritto', 'visto',
+                    'fatto', 'detto', 'preso', 'messo', 'chiuso', 'aperto',
+                    
+                    // Passato prossimo with essere
+                    'andato', 'andata', 'venuto', 'venuta', 'stato', 'stata',
+                    'partito', 'partita', 'arrivato', 'arrivata', 'tornato', 'tornata',
+                    'nato', 'nata', 'morto', 'morta', 'uscito', 'uscita',
+                    
+                    // Imperfetto
+                    'ero', 'eri', 'era', 'eravamo', 'eravate', 'erano',
+                    'avevo', 'avevi', 'aveva', 'avevamo', 'avevate', 'avevano',
+                    'facevo', 'facevi', 'faceva', 'facevamo', 'facevate', 'facevano',
+                    'andavo', 'andavi', 'andava', 'andavamo', 'andavate', 'andavano'
+                ],
+                
+                verbs_future: [
+                    'parlerò', 'parlerai', 'parlerà', 'parleremo', 'parlerete', 'parleranno',
+                    'mangerò', 'mangerai', 'mangerà', 'mangeremo', 'mangerete', 'mangeranno',
+                    'sarò', 'sarai', 'sarà', 'saremo', 'sarete', 'saranno',
+                    'avrò', 'avrai', 'avrà', 'avremo', 'avrete', 'avranno',
+                    'farò', 'farai', 'farà', 'faremo', 'farete', 'faranno',
+                    'andrò', 'andrai', 'andrà', 'andremo', 'andrete', 'andranno'
+                ],
+                
+                nouns_abstract: [
+                    'amore', 'vita', 'morte', 'tempo', 'lavoro', 'problema',
+                    'soluzione', 'idea', 'pensiero', 'sentimento', 'emozione', 'sogno',
+                    'speranza', 'paura', 'gioia', 'tristezza', 'pace', 'guerra',
+                    'libertà', 'verità', 'bugia', 'ragione', 'torto'
+                ],
+                
+                adjectives_advanced: [
+                    'interessante', 'noioso', 'noiosa', 'divertente', 'importante',
+                    'necessario', 'necessaria', 'possibile', 'impossibile', 'probabile',
+                    'strano', 'strana', 'normale', 'speciale', 'perfetto', 'perfetta',
+                    'sicuro', 'sicura', 'pericoloso', 'pericolosa', 'sano', 'sana',
+                    'malato', 'malata', 'ricco', 'ricca', 'povero', 'povera'
+                ],
+                
+                pronouns_object: [
+                    'mi', 'ti', 'lo', 'la', 'ci', 'vi', 'li', 'le',  // direct
+                    'ne', 'ci', 'si' // particles
+                ]
+            },
+            
+            // LEVEL 3: Advanced (C1-C2)
+            level3: {
+                verbs_conditional: [
+                    'vorrei', 'vorresti', 'vorrebbe', 'vorremmo', 'vorreste', 'vorrebbero',
+                    'potrei', 'potresti', 'potrebbe', 'potremmo', 'potreste', 'potrebbero',
+                    'dovrei', 'dovresti', 'dovrebbe', 'dovremmo', 'dovreste', 'dovrebbero',
+                    'sarei', 'saresti', 'sarebbe', 'saremmo', 'sareste', 'sarebbero',
+                    'avrei', 'avresti', 'avrebbe', 'avremmo', 'avreste', 'avrebbero',
+                    'farei', 'faresti', 'farebbe', 'faremmo', 'fareste', 'farebbero'
+                ],
+                
+                verbs_subjunctive: [
+                    'sia', 'sia', 'sia', 'siamo', 'siate', 'siano', // essere
+                    'abbia', 'abbia', 'abbia', 'abbiamo', 'abbiate', 'abbiano', // avere
+                    'parli', 'parli', 'parli', 'parliamo', 'parliate', 'parlino', // parlare
+                    'faccia', 'faccia', 'faccia', 'facciamo', 'facciate', 'facciano', // fare
+                    'vada', 'vada', 'vada', 'andiamo', 'andiate', 'vadano' // andare
+                ],
+                
+                conjunctions_advanced: [
+                    'sebbene', 'benché', 'affinché', 'purché', 'nonostante',
+                    'quantunque', 'comunque', 'tuttavia', 'inoltre', 'invece',
+                    'cioè', 'ossia', 'ovvero', 'pertanto', 'dunque'
+                ],
+                
+                expressions_idiomatic: [
+                    'avere fretta', 'avere ragione', 'avere torto', 'fare bella figura',
+                    'fare brutta figura', 'prendere in giro', 'dare una mano',
+                    'andare d\'accordo', 'non veder l\'ora', 'costare un occhio della testa'
+                ]
+            }
+        };
         
         // Static Phrases (Each needs a unique ID for tracking)
         const staticPhraseData = [
@@ -715,9 +909,37 @@
             selectNewPhraseOrGoal(true); 
         };
         
+		// Level selector handler
+        const levelSelect = document.getElementById('level-select');
+        levelSelect.onchange = (e) => {
+            currentLevel = e.target.value;
+            populateWordBank(); // Refresh word bank with new level
+            clearSentence();
+            selectNewPhraseOrGoal(true); // Get new phrase appropriate for level
+        };
+		
         function populateWordBank() {
             wordBankContainer.innerHTML = '';
-            wordBankData.forEach(word => {
+            
+            // Get words for current level
+            const levelData = wordBankData[currentLevel];
+            if (!levelData) return;
+            
+            // Flatten all categories into a single array
+            let allWords = [];
+            Object.keys(levelData).forEach(category => {
+                if (Array.isArray(levelData[category])) {
+                    allWords = allWords.concat(levelData[category]);
+                }
+            });
+            
+            // Shuffle for variety
+            allWords.sort(() => Math.random() - 0.5);
+            
+            // Take first 50 words to avoid overwhelming UI
+            const displayWords = allWords.slice(0, 50);
+            
+            displayWords.forEach(word => {
                 wordBankContainer.appendChild(createWordElement(word, false));
             });
         }
@@ -910,7 +1132,14 @@
             currentGoalDisplay.textContent = 'Generating a new phrase using AI...';
             
             const targetLang = currentLanguage === 'Sicilian' ? 'Sicilian (Sicilianu)' : 'Italian (Italiano)';
-            const structurePrompt = `Generate a new, unique sentence for an intermediate-beginner student in ${targetLang}. The sentence must be 4-7 words long. Provide the sentence in the requested language and its exact English translation.`;
+            const levelDescriptions = {
+                level1: 'beginner (A1-A2) using only present tense and basic vocabulary',
+                level2: 'intermediate (B1-B2) using past/future tenses and expanded vocabulary',
+                level3: 'advanced (C1-C2) using all tenses including subjunctive/conditional and complex structures'
+            };
+            const levelDesc = levelDescriptions[currentLevel] || levelDescriptions.level1;
+            
+            const structurePrompt = `Generate a new, unique sentence for a ${levelDesc} student in ${targetLang}. The sentence must be 5-10 words long. Provide the sentence in the requested language and its exact English translation.`;
             const systemPrompt = `You are a phrase generator. Respond STRICTLY in JSON format with the following schema: 
             {"english": "English translation", "${currentLanguage.toLowerCase()}": "Target language sentence"}. 
             Do not include any other text or explanation.`;
