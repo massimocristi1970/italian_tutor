@@ -251,7 +251,6 @@
         const chatSpeakBtn = document.getElementById('chat-speak-btn');
         const chatSendBtn = document.getElementById('chat-send-btn');
         
-        // Initial phrase data... (omitted for brevity, assume it's still here)
         const initialPhrases = [
             { en: "Hello", it: "Ciao", mastered: 0 },
             { en: "Thank you", it: "Grazie", mastered: 0 },
@@ -282,8 +281,13 @@
                  "Excuse me": "M'accatti", "Goodbye": "Addiu", "How are you?": "Comu si senti?",
                  "I don't understand": "Nun capisciu", "Do you speak English?": "Parra ngrisi?",
                  "I am sorry": "M'addulìu", "The food is delicious": "Lu manciari è diliziusu",
-                 "I would like a coffee": "Vuògghiu un cafè", "I am tired": "Sugnu stancu/a",
+                 "I would like a coffee": "Vuògghiu un cafè",
+                 "I am tired": "Sugnu stancu/a",
                  "Let's go": "Iemu",
+                 // Use Italian translation if Sicilian is unavailable
+                 "Yes": "Sì", "No": "No", "What is your name?": "Comu ti chiami?",
+                 "My name is...": "Mi chiamu...", "Where are you from?": "Di unni si?", 
+                 "I am from...": "Sugnu di...", "How much does this cost?": "Quantu custa?"
              };
              return { 
                  ...p, 
@@ -310,6 +314,7 @@
 
         // API Key and URLs (API_KEY is intentionally left empty for the Canvas runtime to provide it)
         const API_KEY = ""; 
+        // NOTE: Use specific model in URL to ensure correct API is called
         const GEMINI_TEXT_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
         const GEMINI_TTS_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
         
@@ -317,7 +322,7 @@
         let isWaitingForResponse = false;
         let isReverseChallenge = false; 
 
-        // --- TTS Utility Functions (FIXED: Converts PCM to WAV for reliable browser playback) ---
+        // --- TTS Utility Functions (WAV Conversion Logic) ---
         
         function writeString(view, offset, string) {
             for (let i = 0; i < string.length; i++) {
@@ -437,7 +442,6 @@
         }
         
         function switchMode(mode) {
-            // ... (rest of the switchMode function remains the same)
             currentMode = mode;
             // Reset button states
             [tutorModeBtn, builderModeBtn, chatModeBtn].forEach(btn => {
@@ -498,8 +502,7 @@
             switchMode(currentMode);
         });
 
-        // --- Firebase Auth and Data Loading (functions remain the same) ---
-        // ... (initializeAuth, calculateOverallProgress, getLevelName, loadProgress, saveProgress, loadChatHistory, saveChatHistory, onAuthStateChanged, initializeAuth)
+        // --- Firebase Auth and Data Loading ---
         
         async function initializeAuth() {
             if (!auth || !db) {
@@ -567,7 +570,7 @@
 
                     currentPhrases.forEach((phrase) => {
                         const savedPhrase = progressData.find(p => p.en === phrase.en);
-                        phrase.mastered = savedPhrase ? (savedPhrase.mastery || 0) : 0; // Use mastery property
+                        phrase.mastered = savedPhrase ? (savedPhrase.mastered || 0) : 0; 
                     });
                 } else {
                     saveProgress(); 
@@ -668,7 +671,7 @@
         initializeAuth();
 
 
-        // --- Tutor Mode Logic (functions remain the same except for fetchTutorTTS) ---
+        // --- Tutor Mode Logic ---
 
         function updateMasteryIndicator(masteryCount, isDynamic = false) {
              if (currentMode === 'builder') {
@@ -696,7 +699,6 @@
         // --- Phrase Tutor (Recall/Context) Functions ---
 
         async function generateDynamicPhrase() {
-            // ... (Dynamic phrase generation remains the same)
             isGeneratingPhrase = true;
             tutorSystemMessageElement.textContent = "Generating a new, advanced phrase with AI...";
             tutorSystemMessageElement.classList.add('opacity-100', 'text-blue-500');
@@ -747,7 +749,6 @@
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
-                    // Capture API error status explicitly
                     if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
@@ -791,7 +792,6 @@
 
 
         function loadNextPhrase() {
-            // ... (loadNextPhrase remains the same)
             if (!isAuthReady && !userId) {
                 phraseEnElement.textContent = "Authenticating...";
                 return;
@@ -851,7 +851,7 @@
             return str.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ');
         }
         
-        // --- Sentence Builder Functions (remains the same except for error handling detail) ---
+        // --- Sentence Builder Functions ---
 
         async function generateSentenceChallenge() {
             isGeneratingPhrase = true;
@@ -906,7 +906,6 @@
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
-                    // Capture API error status explicitly
                     if (!response.ok) throw new Error(`API returned status ${response.status}`);
 
                     const result = await response.json();
@@ -950,7 +949,6 @@
         }
 
         function checkTutorAnswer() {
-            // ... (checkTutorAnswer remains the same - important to keep the Molto bene logic)
             if (isGeneratingPhrase) return;
 
             const userAnswerClean = cleanString(answerInput.value);
@@ -995,7 +993,6 @@
         }
         
         function checkBuilderAnswer() {
-            // ... (checkBuilderAnswer remains the same)
             if (!currentBuilderChallenge) return;
 
             const userAnswer = answerInput.value.trim();
@@ -1022,7 +1019,6 @@
         }
 
         function revealAnswer() {
-            // ... (revealAnswer remains the same)
             answerInput.disabled = true; 
 
             if (currentMode === 'builder') {
@@ -1047,7 +1043,6 @@
         }
         
         function loadNextChallenge() {
-            // ... (loadNextChallenge remains the same)
              if (currentMode === 'builder') {
                  generateSentenceChallenge();
              } else {
@@ -1062,7 +1057,7 @@
              answerInput.disabled = false;
         }
 
-        // --- TTS Function (UPDATED to use new WAV conversion utilities) ---
+        // --- TTS Function (Using dedicated TTS Model) ---
 
         async function fetchTutorTTS(text) {
             tutorListenBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -1113,7 +1108,6 @@
                     
                     break; 
                 } catch (error) {
-                    // Report network or data processing errors
                     reportApiError("Audio Playback (TTS)", error);
                 }
             }
@@ -1141,10 +1135,9 @@
              setTimeout(() => tutorSystemMessageElement.classList.remove('opacity-100'), 3000);
         });
 
-        // --- Chat Mode Logic (UPDATED to use new WAV conversion utilities) ---
+        // --- Chat Mode Logic ---
 
         function renderChatMessage(role, text) {
-            // ... (renderChatMessage remains the same)
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('max-w-[80%]', 'p-3', 'rounded-xl', 'shadow-sm', 'break-words');
 
@@ -1162,7 +1155,6 @@
         }
 
         function renderChatHistory() {
-            // ... (renderChatHistory remains the same)
             chatWindow.innerHTML = '';
             if (chatHistory.length === 0) {
                  chatWindow.innerHTML = '<div class="text-center text-sm text-gray-500 dark:text-gray-400">Start a conversation with the AI tutor.</div>';
@@ -1174,7 +1166,6 @@
         }
         
         async function sendChat() {
-            // ... (sendChat remains the same except for error handling detail)
             if (isWaitingForResponse) return;
             const userQuery = chatInput.value.trim();
             if (!userQuery) return;
