@@ -1,0 +1,12 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // This rule allows any user who is authenticated (even anonymously)
+    // to read and write data, but ONLY if the 'userId' in the path 
+    // matches their unique Firebase authentication ID (request.auth.uid).
+    match /artifacts/{appId}/users/{userId}/{documents=**} {
+      allow read, write: if request.auth.uid != null && request.auth.uid == userId;
+    }
+  }
+}

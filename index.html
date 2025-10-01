@@ -312,12 +312,12 @@
         
         let firebaseConfig = null;
         
-        // Fetch Firebase config from Netlify function
-        async function loadFirebaseConfig() {
-            try {
-                const response = await fetch('/.netlify/functions/get-config');
-                const data = await response.json();
-                console.log("Loaded Firebase config from Netlify");
+        // Fetch Firebase config from Cloud Function
+		async function loadFirebaseConfig() {
+			try {
+				const response = await fetch('/api/get-config');
+				const data = await response.json();
+				console.log("Loaded Firebase config from Cloud Function");
                 return data.firebaseConfig;
             } catch (e) {
                 console.error("Error loading Firebase config:", e);
@@ -1091,7 +1091,7 @@
 
         async function setupFirebase() {
             try {
-                // Load config from Netlify
+                // Load config from Firebase Cloud Function
                 firebaseConfig = await loadFirebaseConfig();
                 
                 if (!firebaseConfig || !firebaseConfig.apiKey) {
@@ -1590,7 +1590,7 @@
         async function postToGemini(userPrompt, systemPrompt, useSearch, isChat) {
             const modelName = "gemini-2.5-flash-preview-05-20";
             
-            // Use Netlify function proxy (works in production)
+            // Use Firebase Cloud Function proxy
             // Falls back to direct API call if running locally with API key
             const useProxy = typeof __gemini_api_key === 'undefined' || !__gemini_api_key;
             
@@ -1598,7 +1598,7 @@
             
             if (useProxy) {
                 // Use serverless function proxy
-                apiUrl = '/.netlify/functions/gemini-proxy';
+                apiUrl = '/api/gemini-proxy';
                 payload = {
                     userPrompt,
                     systemPrompt,
@@ -1687,8 +1687,8 @@
                 let apiUrl, payload;
                 
                 if (useProxy) {
-                    // Use serverless function proxy
-                    apiUrl = '/.netlify/functions/gemini-proxy';
+					 // Use Firebase Cloud Function proxy
+					 apiUrl = '/api/gemini-proxy';
                     payload = {
                         userPrompt: structurePrompt,
                         systemPrompt: systemPrompt,

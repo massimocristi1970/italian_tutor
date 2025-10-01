@@ -1,1 +1,0 @@
-const __gemini_api_key = "AIzaSyBJzBPjcCDlDaN0G2OyBrm6zwr7oLI1aUU";
