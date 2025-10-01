@@ -1306,31 +1306,58 @@
             selectNewPhraseOrGoal(true); // Get new phrase appropriate for level
         };
 		
-        function populateWordBank() {
-            wordBankContainer.innerHTML = '';
-            
-            // Get words for current level
-            const levelData = wordBankData[currentLevel];
-            if (!levelData) return;
-            
-            // Flatten all categories into a single array
-            let allWords = [];
-            Object.keys(levelData).forEach(category => {
-                if (Array.isArray(levelData[category])) {
-                    allWords = allWords.concat(levelData[category]);
-                }
-            });
-            
-            // Shuffle for variety
-            allWords.sort(() => Math.random() - 0.5);
-            
-            // Take first 50 words to avoid overwhelming UI
-            const displayWords = allWords.slice(0, 50);
-            
-            displayWords.forEach(word => {
-                wordBankContainer.appendChild(createWordElement(word, false));
-            });
-        }
+        function populateWordBank(targetSentence = null) {
+			wordBankContainer.innerHTML = '';
+    
+			// Get words for current level
+			const levelData = wordBankData[currentLevel];
+			if (!levelData) return;
+    
+			// Flatten all categories into a single array for distractor words
+			let allWords = [];
+			Object.keys(levelData).forEach(category => {
+				if (Array.isArray(levelData[category])) {
+					allWords = allWords.concat(levelData[category]);
+				}
+			});
+    
+			// Extract words from target sentence if provided
+			let targetWords = [];
+			if (targetSentence && targetSentence.trim() !== '') {
+				// Split by spaces and clean up punctuation
+				targetWords = targetSentence
+					.split(/\s+/)
+					.map(word => word.replace(/[.,!?;:"""'']/g, '').trim())
+					.filter(word => word.length > 0);
+			}
+    
+			// Remove target words from distractor pool to avoid duplicates
+			const targetWordsLower = targetWords.map(w => w.toLowerCase());
+			const distractorWords = allWords.filter(word => 
+				!targetWordsLower.includes(word.toLowerCase())
+			);
+    
+			// Shuffle distractor words
+			distractorWords.sort(() => Math.random() - 0.5);
+    
+			// Calculate how many distractors we need to reach ~50 total words
+			const totalWords = 50;
+			const distractorCount = Math.max(0, totalWords - targetWords.length);
+    
+			// Combine target words + distractors
+			const finalWordList = [
+				...targetWords,
+				...distractorWords.slice(0, distractorCount)
+			];
+    
+			// Shuffle the final list so target words aren't all at the start
+			finalWordList.sort(() => Math.random() - 0.5);
+    
+			// Display all words
+			finalWordList.forEach(word => {
+				wordBankContainer.appendChild(createWordElement(word, false));
+			});
+		}
 
         function populatePhrases() {
             const phrases = commonPhrases[currentLanguage] || [];
@@ -1779,14 +1806,22 @@
             }
 
             // 3. Update UI and State
-            const targetGoal = selectedPhrase.english;
-            currentGoalId = selectedPhrase.id;
-            currentGoalDisplay.textContent = targetGoal;
-            
-            clearSentence(); // Clear the builder for the new goal
-            
-            // CRITICAL FIX: Only save state here after a selection is made to prevent the infinite loop on load.
-            await saveProgressState(targetGoal, currentGoalId, currentSelectedWords); 
+			const targetGoal = selectedPhrase.english;
+			currentGoalId = selectedPhrase.id;
+			currentGoalDisplay.textContent = targetGoal;
+
+			// Get the Italian/Sicilian sentence for word bank
+			const targetSentence = currentLanguage === 'Italian' 
+				? selectedPhrase.italian 
+				: (selectedPhrase.sicilian || selectedPhrase.italian);
+
+			clearSentence(); // Clear the builder for the new goal
+
+			// Populate word bank with the target sentence words
+			populateWordBank(targetSentence);
+
+			// CRITICAL FIX: Only save state here after a selection is made to prevent the infinite loop on load.
+			await saveProgressState(targetGoal, currentGoalId, currentSelectedWords);
             
             // The onSnapshot listener will fire now, but it won't re-trigger selectNewPhraseOrGoal
         }
@@ -1898,7 +1933,7 @@
         window.onload = function() {
             initializeTheme();
             setupFirebase();
-            populateWordBank(); 
+            
         };
     </script>
 </body>
