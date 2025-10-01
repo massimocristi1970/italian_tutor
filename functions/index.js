@@ -59,7 +59,7 @@ exports.geminiProxy = onRequest((req, res) => {
   });
 });
 
-/ Get Firebase Config Function
+// Get Firebase Config Function
 exports.getConfig = onRequest((req, res) => {
   cors(req, res, () => {
     try {
