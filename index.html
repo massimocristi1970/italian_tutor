@@ -1165,25 +1165,33 @@
                 
                 // 4. FIX: Use the flag to prevent the initial loop AND stop re-rendering the selected words on every DB change.
                 if (!progressLoadedOnce) {
-                    progressLoadedOnce = true;
-                    // Only load selected words from DB on initial load
-                    currentSelectedWords = JSON.parse(data.selectedWords || '[]');
-                    updateSelectedSentenceUI(false); // Initial render is fine
+					progressLoadedOnce = true;
+					// Only load selected words from DB on initial load
+					currentSelectedWords = JSON.parse(data.selectedWords || '[]');
+					updateSelectedSentenceUI(false); // Initial render is fine
+    
+					// Only select a new goal if the DB didn't provide one
+					if (!currentGoalId) {
+						selectNewPhraseOrGoal(true);
+					} else {
+						// If we have a goal from DB, populate word bank with it
+						const currentPhrase = allPhrases.find(p => p.id === currentGoalId);
+						if (currentPhrase) {
+							const targetSentence = currentLanguage === 'Italian' 
+								? currentPhrase.italian 
+								: (currentPhrase.sicilian || currentPhrase.italian);
+							populateWordBank(targetSentence);
+						}
+					}
+				} else if (langFromDB !== languageSelect.value) {
+					// Handle language change from selector
+					currentLanguage = languageSelect.value;
+					selectNewPhraseOrGoal(true);
+				}
 
-                    // Only select a new goal if the DB didn't provide one
-                    if (!currentGoalId) {
-                         selectNewPhraseOrGoal(true);
-                    }
-                } else if (langFromDB !== languageSelect.value) {
-                    // Handle language change from selector
-                    currentLanguage = languageSelect.value;
-                    selectNewPhraseOrGoal(true);
-                }
-
-             }, (error) => {
-                 console.error("Error listening to user progress state:", error);
-             });
-        }
+				}, (error) => {
+					console.error("Error listening to user progress state:", error);
+				});
         
         let saveProgressTimer = null;
         
@@ -1933,7 +1941,8 @@
         window.onload = function() {
             initializeTheme();
             setupFirebase();
-            
+            // Show some default words while loading
+    populateWordBank(null); 
         };
     </script>
 </body>
