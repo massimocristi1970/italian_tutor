@@ -1,17 +1,19 @@
-const functions = require('firebase-functions');
+require('dotenv').config();
+const { onRequest } = require('firebase-functions/v2/https');
 const cors = require('cors')({ origin: true });
 
 // Gemini API Proxy Function
-exports.geminiProxy = functions.https.onRequest((req, res) => {
+exports.geminiProxy = onRequest((req, res) => {
   cors(req, res, async () => {
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const apiKey = functions.config().gemini?.key;
+    // Get API key from environment variable
+    const apiKey = process.env.GEMINI_KEY;
     
     if (!apiKey) {
-      console.error('GEMINI_API_KEY not configured');
+      console.error('GEMINI_KEY not configured');
       return res.status(500).json({ error: 'API key not configured' });
     }
 
@@ -57,18 +59,18 @@ exports.geminiProxy = functions.https.onRequest((req, res) => {
   });
 });
 
-// Get Firebase Config Function
-exports.getConfig = functions.https.onRequest((req, res) => {
+/ Get Firebase Config Function
+exports.getConfig = onRequest((req, res) => {
   cors(req, res, () => {
     try {
       const config = {
-		 apiKey: functions.config().fbconfig?.api_key,
-		 authDomain: functions.config().fbconfig?.auth_domain,
-		 projectId: functions.config().fbconfig?.project_id,
-		 storageBucket: functions.config().fbconfig?.storage_bucket,
-		 messagingSenderId: functions.config().fbconfig?.messaging_sender_id,
-		 appId: functions.config().fbconfig?.app_id
-	  };
+        apiKey: process.env.FB_API_KEY,
+        authDomain: process.env.FB_AUTH_DOMAIN,
+        projectId: process.env.FB_PROJECT_ID,
+        storageBucket: process.env.FB_STORAGE_BUCKET,
+        messagingSenderId: process.env.FB_MESSAGING_SENDER_ID,
+        appId: process.env.FB_APP_ID
+      };
 
       if (!config.apiKey || !config.projectId) {
         console.error('Firebase config incomplete');
