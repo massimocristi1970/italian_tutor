@@ -97,7 +97,16 @@
         </h1>
 
         <div class="flex items-center space-x-4">
-          <!-- Theme Toggle -->
+          <!-- 🌗 Theme Toggle Button -->
+          <button
+            id="theme-toggle"
+            class="p-2 rounded-full text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 transition duration-300"
+            title="Toggle Dark/Light Mode"
+          >
+            <i id="theme-icon" class="fas fa-sun"></i>
+          </button>
+
+          <!-- 🔒 Logout Button -->
           <button
             id="logout-btn"
             class="p-2 rounded-full text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 transition duration-300"
@@ -496,8 +505,6 @@
         </div>
       </div>
     </div>
-
-    <script src="config.js"></script>
 
     <!-- Firebase and Application Logic -->
     <script type="module">
@@ -3162,29 +3169,29 @@
         }
       });
 
-window.onload = function () {
-  initializeTheme();
-  setupFirebase();
-  // Show some default words while loading
-  populateWordBank(null);
-  
-  // Logout handler
-  document.getElementById("logout-btn").onclick = async () => {
-    if (confirm("Are you sure you want to logout?")) {
-      try {
-        await signOut(auth);
-        // User will be redirected to login.html by onAuthStateChanged
-      } catch (error) {
-        console.error("Logout error:", error);
-        showModal(
-          "Logout Error",
-          "Could not logout. Please try again.",
-          true
-        );
-      }
-    }
-  };
-};
-</script>
-</body>
+      window.onload = function () {
+        initializeTheme();
+        setupFirebase();
+        // Show some default words while loading
+        populateWordBank(null);
+
+        // Logout handler
+        document.getElementById("logout-btn").onclick = async () => {
+          if (confirm("Are you sure you want to logout?")) {
+            try {
+              await signOut(auth);
+              // User will be redirected to login.html by onAuthStateChanged
+            } catch (error) {
+              console.error("Logout error:", error);
+              showModal(
+                "Logout Error",
+                "Could not logout. Please try again.",
+                true
+              );
+            }
+          }
+        };
+      };
+    </script>
+  </body>
 </html>
