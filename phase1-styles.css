@@ -1,0 +1,282 @@
+/* ========================================
+   PHASE 1 ENHANCEMENTS - Context System & Alternative Expressions
+   Add this to your existing <style> block in index.html
+   ======================================== */
+
+/* Context Indicator Badges */
+.context-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 2px solid;
+  background-color: rgba(255, 255, 255, 0.95);
+  transition: all 0.2s ease;
+  cursor: help;
+}
+
+.context-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.context-icon {
+  font-size: 1em;
+  line-height: 1;
+}
+
+/* Alternative Expressions Panel */
+.alternatives-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  color: white;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alternatives-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.alternatives-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.alternatives-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.3rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.alternatives-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.alternatives-original {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+}
+
+.alternatives-original strong {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.alternatives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alternative-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 3px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+}
+
+.alternative-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.alternative-item.sicilian {
+  border-left-color: #4CAF50;
+}
+
+.alternative-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.alternative-text {
+  font-size: 1rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.alternative-badge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.alternative-badge.formal {
+  background: rgba(33, 150, 243, 0.3);
+  border: 1px solid rgba(33, 150, 243, 0.6);
+}
+
+.alternative-badge.informal {
+  background: rgba(76, 175, 80, 0.3);
+  border: 1px solid rgba(76, 175, 80, 0.6);
+}
+
+.alternative-note {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.alternatives-section {
+  margin-bottom: 14px;
+}
+
+.alternatives-section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  opacity: 0.95;
+}
+
+.alternatives-tip {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  margin-top: 12px;
+}
+
+/* Sicilian comparison section */
+.sicilian-toggle {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sicilian-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Context filter buttons */
+.context-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 8px;
+}
+
+.context-filter-btn {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 2px solid;
+  background: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.context-filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.context-filter-btn.active {
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode adjustments */
+.dark .context-badge {
+  background-color: rgba(55, 65, 81, 0.95);
+}
+
+.dark .context-filter {
+  background: rgba(55, 65, 81, 0.3);
+}
+
+.dark .context-filter-btn {
+  background: #374151;
+  color: #d1d5db;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .alternatives-panel {
+    padding: 12px;
+  }
+
+  .alternatives-title {
+    font-size: 1rem;
+  }
+
+  .alternative-text {
+    font-size: 0.9rem;
+  }
+
+  .context-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+  }
+
+  .context-filter-btn {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+}
+
+/* Success animation for correct answers */
+@keyframes successPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.success-pulse {
+  animation: successPulse 0.5s ease;
+}

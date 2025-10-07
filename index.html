@@ -24,6 +24,7 @@
         --border-color: #e5e7eb;
         --input-bg: #f3f4f6;
       }
+
       .dark {
         /* Dark Theme Variables */
         --bg-primary: #1f2937;
@@ -40,18 +41,23 @@
         color: var(--text-primary);
         transition: background-color 0.3s, color 0.3s;
       }
+
       .bg-white {
         background-color: var(--bg-secondary);
       }
+
       .border-gray-100 {
         border-color: var(--border-color);
       }
+
       .bg-gray-50 {
         background-color: var(--input-bg);
       }
+
       .text-gray-800 {
         color: var(--text-primary);
       }
+
       .text-gray-500 {
         color: var(--text-secondary);
       }
@@ -60,10 +66,12 @@
         height: calc(100vh - 20rem);
         transition: height 0.3s;
       }
+
       .bubble {
         max-width: 85%;
         word-wrap: break-word;
       }
+
       /* Styling for the audio button to be subtle */
       .audio-btn {
         background-color: transparent;
@@ -72,22 +80,209 @@
         cursor: pointer;
         transition: color 0.15s;
       }
+
       .audio-btn:hover {
         color: #3730a3;
       }
+
       /* Custom scrollbar for aesthetics */
       .chat-area::-webkit-scrollbar {
         width: 6px;
       }
+
       .chat-area::-webkit-scrollbar-thumb {
         background-color: #cbd5e1;
         border-radius: 3px;
       }
+
       .dark .chat-area::-webkit-scrollbar-thumb {
         background-color: #6b7280;
       }
+
+      /* ========================================
+   PHASE 1 ENHANCEMENTS
+   ======================================== */
+
+      /* Context Indicator Badges */
+      .context-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 2px solid;
+        background-color: rgba(255, 255, 255, 0.95);
+        transition: all 0.2s ease;
+        cursor: help;
+        margin-top: 4px;
+      }
+
+      .context-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .context-icon {
+        font-size: 1em;
+        line-height: 1;
+      }
+
+      /* Alternative Expressions Panel */
+      .alternatives-panel {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        color: white;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .alternatives-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .alternatives-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .alternatives-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 1.3rem;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
+
+      .alternatives-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+      }
+
+      .alternatives-original {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-bottom: 14px;
+        font-size: 0.9rem;
+      }
+
+      .alternatives-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .alternative-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px 14px;
+        border-radius: 8px;
+        border-left: 3px solid rgba(255, 255, 255, 0.4);
+        transition: all 0.2s;
+      }
+
+      .alternative-item:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateX(4px);
+      }
+
+      .alternative-item.sicilian {
+        border-left-color: #4caf50;
+      }
+
+      .alternative-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+
+      .alternative-text {
+        font-size: 0.95rem;
+        font-weight: 600;
+        flex: 1;
+      }
+
+      .alternative-badge {
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .alternative-badge.formal {
+        background: rgba(33, 150, 243, 0.3);
+        border: 1px solid rgba(33, 150, 243, 0.6);
+      }
+
+      .alternative-badge.informal {
+        background: rgba(76, 175, 80, 0.3);
+        border: 1px solid rgba(76, 175, 80, 0.6);
+      }
+
+      .alternative-note {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        line-height: 1.4;
+        margin: 0;
+      }
+
+      .alternatives-section {
+        margin-bottom: 14px;
+      }
+
+      .alternatives-section-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0 0 10px 0;
+        opacity: 0.95;
+      }
+
+      .alternatives-tip {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        margin-top: 12px;
+      }
+
+      /* Dark mode */
+      .dark .context-badge {
+        background-color: rgba(55, 65, 81, 0.95);
+      }
     </style>
   </head>
+
   <body class="min-h-screen flex flex-col">
     <div id="app" class="flex flex-col flex-grow container mx-auto p-4 md:p-8">
       <!-- Header -->
@@ -545,13 +740,39 @@
       // Fetch Firebase config from Cloud Function
       async function loadFirebaseConfig() {
         try {
+          // Detect if running locally (localhost or 127.0.0.1)
+          const isLocal =
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1";
+
+          // If local, skip the Cloud Function fetch and use mock config
+          if (isLocal) {
+            console.warn("⚠️ Running locally — using mock Firebase config");
+            return {
+              apiKey: "test-key",
+              authDomain: "test.firebaseapp.com",
+              projectId: "test-project",
+              storageBucket: "test.appspot.com",
+              messagingSenderId: "12345",
+              appId: "1:12345:web:test",
+            };
+          }
+
+          // Otherwise, load config from Cloud Function
           const response = await fetch("/api/get-config");
+
+          if (!response.ok) {
+            throw new Error(
+              `Server returned ${response.status} ${response.statusText}`
+            );
+          }
+
           const data = await response.json();
-          console.log("Loaded Firebase config from Cloud Function");
-          return data.firebaseConfig;
+          console.log("✅ Loaded Firebase config from Cloud Function");
+          return data.firebaseConfig || data; // handles either format
         } catch (e) {
-          console.error("Error loading Firebase config:", e);
-          return null;
+          console.error("❌ Error loading Firebase config:", e.message);
+          return null; // Return null to avoid crashing initializeApp()
         }
       }
 
@@ -1630,436 +1851,887 @@
       let verbTrainerScore = { correct: 0, total: 0 };
 
       // Static Phrases (Each needs a unique ID for tracking)
-      const staticPhraseData = [
+      const staticPhraseDataEnhanced = [
         {
           id: "S01",
           english: "I speak Italian.",
           italian: "Io parlo italiano.",
+          context: "greeting",
         },
         {
           id: "S02",
           english: "You eat the bread.",
           italian: "Tu mangi il pane.",
+          context: "cafe",
         },
         {
           id: "S03",
           english: "He talks with the dog.",
           italian: "Lui parla con il cane.",
+          context: "small_talk",
         },
-        { id: "S04", english: "She drinks water.", italian: "Lei beve acqua." },
+        {
+          id: "S04",
+          english: "She drinks water.",
+          italian: "Lei beve acqua.",
+          context: "cafe",
+        },
         {
           id: "S05",
           english: "We eat pasta.",
           italian: "Noi mangiamo la pasta.",
+          context: "restaurant",
         },
         {
           id: "S06",
           english: "You (pl.) speak well.",
           italian: "Voi parlate bene.",
+          context: "greeting",
         },
         {
           id: "S07",
           english: "They read the book.",
           italian: "Loro leggono il libro.",
+          context: "small_talk",
         },
-        { id: "S08", english: "A fast train.", italian: "Un treno veloce." },
+        {
+          id: "S08",
+          english: "A fast train.",
+          italian: "Un treno veloce.",
+          context: "directions",
+        },
         {
           id: "S09",
           english: "The apple is red.",
           italian: "La mela è rossa.",
+          context: "shopping",
         },
         {
           id: "S10",
           english: "He speaks always.",
           italian: "Lui parla sempre.",
+          context: "small_talk",
         },
         {
           id: "S11",
           english: "I drink water now.",
           italian: "Io bevo acqua adesso.",
+          context: "cafe",
         },
         {
           id: "S12",
           english: "We speak much.",
           italian: "Noi parliamo molto.",
+          context: "small_talk",
         },
         {
           id: "S13",
           english: "The music is beautiful.",
           italian: "La musica è bella.",
+          context: "small_talk",
         },
         {
           id: "S14",
           english: "They eat bread and water.",
           italian: "Loro mangiano pane e acqua.",
+          context: "restaurant",
         },
         {
           id: "S15",
           english: "Do you talk with us?",
           italian: "Parli con noi?",
+          context: "greeting",
         },
         {
           id: "S16",
           english: "She reads a book.",
           italian: "Lei legge un libro.",
+          context: "small_talk",
         },
         {
           id: "S17",
           english: "I like apples.",
           italian: "Mi piacciono le mele.",
+          context: "shopping",
         },
         {
           id: "S18",
           english: "He eats slowly.",
           italian: "Lui mangia lentamente.",
+          context: "restaurant",
         },
-        { id: "S19", english: "We are here.", italian: "Noi siamo qui." },
+        {
+          id: "S19",
+          english: "We are here.",
+          italian: "Noi siamo qui.",
+          context: "directions",
+        },
         {
           id: "S20",
           english: "The bread is on the table.",
           italian: "Il pane è sulla tavola.",
+          context: "restaurant",
         },
       ];
 
-      // Common phrases for the chat inspiration list (expanded)
+      // Enhanced Common Phrases with Context Tags
+      // Replace your existing commonPhrases object in index.html (around line 600)
+
       const commonPhrases = {
         Italian: [
           // Greetings & Basic
-          { language: "Italian", text: "Ciao!", english: "Hello / Bye!" },
+          {
+            language: "Italian",
+            text: "Ciao!",
+            english: "Hello / Bye!",
+            context: "greeting",
+          },
           {
             language: "Italian",
             text: "Buongiorno!",
             english: "Good morning!",
+            context: "greeting",
           },
-          { language: "Italian", text: "Buonasera!", english: "Good evening!" },
-          { language: "Italian", text: "Buonanotte!", english: "Good night!" },
+          {
+            language: "Italian",
+            text: "Buonasera!",
+            english: "Good evening!",
+            context: "greeting",
+          },
+          {
+            language: "Italian",
+            text: "Buonanotte!",
+            english: "Good night!",
+            context: "greeting",
+          },
           {
             language: "Italian",
             text: "Come stai?",
             english: "How are you? (informal)",
+            context: "greeting",
           },
           {
             language: "Italian",
             text: "Come sta?",
             english: "How are you? (formal)",
+            context: "greeting",
           },
           {
             language: "Italian",
             text: "Sto bene, grazie.",
             english: "I am well, thank you.",
+            context: "greeting",
           },
-          { language: "Italian", text: "E tu?", english: "And you?" },
+          {
+            language: "Italian",
+            text: "E tu?",
+            english: "And you?",
+            context: "greeting",
+          },
           {
             language: "Italian",
             text: "Piacere di conoscerti.",
             english: "Nice to meet you.",
+            context: "greeting",
           },
           {
             language: "Italian",
             text: "Come ti chiami?",
             english: "What is your name?",
+            context: "greeting",
           },
           {
             language: "Italian",
             text: "Mi chiamo...",
             english: "My name is...",
+            context: "greeting",
           },
 
           // Polite Expressions
-          { language: "Italian", text: "Per favore", english: "Please" },
-          { language: "Italian", text: "Grazie", english: "Thank you" },
+          {
+            language: "Italian",
+            text: "Per favore",
+            english: "Please",
+            context: "small_talk",
+          },
+          {
+            language: "Italian",
+            text: "Grazie",
+            english: "Thank you",
+            context: "small_talk",
+          },
           {
             language: "Italian",
             text: "Grazie mille!",
             english: "Thank you very much!",
+            context: "small_talk",
           },
-          { language: "Italian", text: "Prego", english: "You're welcome" },
+          {
+            language: "Italian",
+            text: "Prego",
+            english: "You're welcome",
+            context: "small_talk",
+          },
           {
             language: "Italian",
             text: "Scusa",
             english: "Sorry / Excuse me (informal)",
+            context: "small_talk",
           },
-          { language: "Italian", text: "Mi dispiace", english: "I'm sorry" },
+          {
+            language: "Italian",
+            text: "Mi dispiace",
+            english: "I'm sorry",
+            context: "small_talk",
+          },
           {
             language: "Italian",
             text: "Permesso",
             english: "Excuse me (to pass)",
+            context: "small_talk",
           },
 
           // Basic Communication
-          { language: "Italian", text: "Sì", english: "Yes" },
-          { language: "Italian", text: "No", english: "No" },
-          { language: "Italian", text: "Non lo so", english: "I don't know" },
-          { language: "Italian", text: "Capisco", english: "I understand" },
+          {
+            language: "Italian",
+            text: "Sì",
+            english: "Yes",
+            context: "small_talk",
+          },
+          {
+            language: "Italian",
+            text: "No",
+            english: "No",
+            context: "small_talk",
+          },
+          {
+            language: "Italian",
+            text: "Non lo so",
+            english: "I don't know",
+            context: "small_talk",
+          },
+          {
+            language: "Italian",
+            text: "Capisco",
+            english: "I understand",
+            context: "small_talk",
+          },
           {
             language: "Italian",
             text: "Non capisco",
             english: "I don't understand",
+            context: "small_talk",
           },
           {
             language: "Italian",
             text: "Parli inglese?",
             english: "Do you speak English?",
+            context: "small_talk",
           },
           {
             language: "Italian",
             text: "Non parlo italiano.",
             english: "I do not speak Italian.",
+            context: "small_talk",
           },
           {
             language: "Italian",
             text: "Parla più lentamente",
             english: "Speak more slowly",
+            context: "small_talk",
           },
           {
             language: "Italian",
             text: "Può ripetere?",
             english: "Can you repeat?",
+            context: "small_talk",
           },
           {
             language: "Italian",
             text: "Come si dice...?",
             english: "How do you say...?",
+            context: "small_talk",
           },
           {
             language: "Italian",
             text: "Cosa significa?",
             english: "What does it mean?",
+            context: "small_talk",
           },
 
           // Questions
-          { language: "Italian", text: "Dove?", english: "Where?" },
-          { language: "Italian", text: "Quando?", english: "When?" },
-          { language: "Italian", text: "Perché?", english: "Why?" },
-          { language: "Italian", text: "Come?", english: "How?" },
+          {
+            language: "Italian",
+            text: "Dove?",
+            english: "Where?",
+            context: "directions",
+          },
+          {
+            language: "Italian",
+            text: "Quando?",
+            english: "When?",
+            context: "time",
+          },
+          {
+            language: "Italian",
+            text: "Perché?",
+            english: "Why?",
+            context: "small_talk",
+          },
+          {
+            language: "Italian",
+            text: "Come?",
+            english: "How?",
+            context: "small_talk",
+          },
           {
             language: "Italian",
             text: "Quanto costa?",
             english: "How much does it cost?",
+            context: "shopping",
           },
           {
             language: "Italian",
             text: "Che ore sono?",
             english: "What time is it?",
+            context: "time",
           },
           {
             language: "Italian",
             text: "Dov'è il bagno?",
             english: "Where is the bathroom?",
+            context: "emergency",
           },
 
           // Daily Life
-          { language: "Italian", text: "Ho fame", english: "I am hungry" },
-          { language: "Italian", text: "Ho sete", english: "I am thirsty" },
-          { language: "Italian", text: "Sono stanco", english: "I am tired" },
+          {
+            language: "Italian",
+            text: "Ho fame",
+            english: "I am hungry",
+            context: "restaurant",
+          },
+          {
+            language: "Italian",
+            text: "Ho sete",
+            english: "I am thirsty",
+            context: "cafe",
+          },
+          {
+            language: "Italian",
+            text: "Sono stanco",
+            english: "I am tired",
+            context: "hotel",
+          },
           {
             language: "Italian",
             text: "Va bene",
             english: "It's okay / Alright",
+            context: "small_talk",
           },
-          { language: "Italian", text: "Perfetto!", english: "Perfect!" },
-          { language: "Italian", text: "Ottimo!", english: "Excellent!" },
-          { language: "Italian", text: "Bellissimo!", english: "Beautiful!" },
+          {
+            language: "Italian",
+            text: "Perfetto!",
+            english: "Perfect!",
+            context: "small_talk",
+          },
+          {
+            language: "Italian",
+            text: "Ottimo!",
+            english: "Excellent!",
+            context: "restaurant",
+          },
+          {
+            language: "Italian",
+            text: "Bellissimo!",
+            english: "Beautiful!",
+            context: "small_talk",
+          },
           {
             language: "Italian",
             text: "Che bella giornata!",
             english: "What a beautiful day!",
+            context: "small_talk",
           },
           {
             language: "Italian",
             text: "A domani",
             english: "See you tomorrow",
+            context: "greeting",
           },
-          { language: "Italian", text: "A presto", english: "See you soon" },
-          { language: "Italian", text: "Ci vediamo", english: "See you" },
+          {
+            language: "Italian",
+            text: "A presto",
+            english: "See you soon",
+            context: "greeting",
+          },
+          {
+            language: "Italian",
+            text: "Ci vediamo",
+            english: "See you",
+            context: "greeting",
+          },
           {
             language: "Italian",
             text: "Buon appetito!",
             english: "Enjoy your meal!",
+            context: "restaurant",
           },
           {
             language: "Italian",
             text: "Salute!",
             english: "Cheers! / Bless you!",
+            context: "cafe",
           },
           {
             language: "Italian",
             text: "In bocca al lupo!",
             english: "Good luck!",
+            context: "small_talk",
           },
         ],
+
         Sicilian: [
           // Greetings & Basic
-          { language: "Sicilian", text: "Ciau!", english: "Hello / Bye!" },
+          {
+            language: "Sicilian",
+            text: "Ciau!",
+            english: "Hello / Bye!",
+            context: "greeting",
+          },
           {
             language: "Sicilian",
             text: "Bon jornu!",
             english: "Good morning!",
+            context: "greeting",
           },
           {
             language: "Sicilian",
             text: "Bona sira!",
             english: "Good evening!",
+            context: "greeting",
           },
-          { language: "Sicilian", text: "Bona notti!", english: "Good night!" },
+          {
+            language: "Sicilian",
+            text: "Bona notti!",
+            english: "Good night!",
+            context: "greeting",
+          },
           {
             language: "Sicilian",
             text: "Comu stai?",
             english: "How are you? (informal)",
+            context: "greeting",
           },
           {
             language: "Sicilian",
             text: "Comu sta?",
             english: "How are you? (formal)",
+            context: "greeting",
           },
           {
             language: "Sicilian",
             text: "Staiu bonu, grazzi.",
             english: "I am well, thank you.",
+            context: "greeting",
           },
-          { language: "Sicilian", text: "E tu?", english: "And you?" },
+          {
+            language: "Sicilian",
+            text: "E tu?",
+            english: "And you?",
+            context: "greeting",
+          },
           {
             language: "Sicilian",
             text: "Piaciri di canùsciri.",
             english: "Nice to meet you.",
+            context: "greeting",
           },
           {
             language: "Sicilian",
             text: "Comu ti chiami?",
             english: "What is your name?",
+            context: "greeting",
           },
           {
             language: "Sicilian",
             text: "Mi chiamu...",
             english: "My name is...",
+            context: "greeting",
           },
 
           // Polite Expressions
-          { language: "Sicilian", text: "Pi favuri", english: "Please" },
-          { language: "Sicilian", text: "Grazzi", english: "Thank you" },
+          {
+            language: "Sicilian",
+            text: "Pi favuri",
+            english: "Please",
+            context: "small_talk",
+          },
+          {
+            language: "Sicilian",
+            text: "Grazzi",
+            english: "Thank you",
+            context: "small_talk",
+          },
           {
             language: "Sicilian",
             text: "Grazzi assai!",
             english: "Thank you very much!",
+            context: "small_talk",
           },
-          { language: "Sicilian", text: "Prego", english: "You're welcome" },
+          {
+            language: "Sicilian",
+            text: "Prego",
+            english: "You're welcome",
+            context: "small_talk",
+          },
           {
             language: "Sicilian",
             text: "Scusa",
             english: "Sorry / Excuse me (informal)",
+            context: "small_talk",
           },
-          { language: "Sicilian", text: "Mi dispiaci", english: "I'm sorry" },
+          {
+            language: "Sicilian",
+            text: "Mi dispiaci",
+            english: "I'm sorry",
+            context: "small_talk",
+          },
           {
             language: "Sicilian",
             text: "Pirmessu",
             english: "Excuse me (to pass)",
+            context: "small_talk",
           },
 
           // Basic Communication
-          { language: "Sicilian", text: "Sì", english: "Yes" },
-          { language: "Sicilian", text: "No", english: "No" },
-          { language: "Sicilian", text: "Nun sacciu", english: "I don't know" },
-          { language: "Sicilian", text: "Capisciu", english: "I understand" },
+          {
+            language: "Sicilian",
+            text: "Sì",
+            english: "Yes",
+            context: "small_talk",
+          },
+          {
+            language: "Sicilian",
+            text: "No",
+            english: "No",
+            context: "small_talk",
+          },
+          {
+            language: "Sicilian",
+            text: "Nun sacciu",
+            english: "I don't know",
+            context: "small_talk",
+          },
+          {
+            language: "Sicilian",
+            text: "Capisciu",
+            english: "I understand",
+            context: "small_talk",
+          },
           {
             language: "Sicilian",
             text: "Nun capisciu",
             english: "I don't understand",
+            context: "small_talk",
           },
           {
             language: "Sicilian",
             text: "Parri ngrisi?",
             english: "Do you speak English?",
+            context: "small_talk",
           },
           {
             language: "Sicilian",
             text: "Nun parru sicilianu.",
             english: "I do not speak Sicilian.",
+            context: "small_talk",
           },
           {
             language: "Sicilian",
             text: "Parra cchiù chiano",
             english: "Speak more slowly",
+            context: "small_talk",
           },
           {
             language: "Sicilian",
             text: "Poi ripìtiri?",
             english: "Can you repeat?",
+            context: "small_talk",
           },
           {
             language: "Sicilian",
             text: "Comu si dici...?",
             english: "How do you say...?",
+            context: "small_talk",
           },
           {
             language: "Sicilian",
             text: "Chi voli diri?",
             english: "What does it mean?",
+            context: "small_talk",
           },
 
           // Questions
-          { language: "Sicilian", text: "Unni?", english: "Where?" },
-          { language: "Sicilian", text: "Quannu?", english: "When?" },
-          { language: "Sicilian", text: "Picchì?", english: "Why?" },
-          { language: "Sicilian", text: "Comu?", english: "How?" },
+          {
+            language: "Sicilian",
+            text: "Unni?",
+            english: "Where?",
+            context: "directions",
+          },
+          {
+            language: "Sicilian",
+            text: "Quannu?",
+            english: "When?",
+            context: "time",
+          },
+          {
+            language: "Sicilian",
+            text: "Picchì?",
+            english: "Why?",
+            context: "small_talk",
+          },
+          {
+            language: "Sicilian",
+            text: "Comu?",
+            english: "How?",
+            context: "small_talk",
+          },
           {
             language: "Sicilian",
             text: "Quantu costa?",
             english: "How much does it cost?",
+            context: "shopping",
           },
           {
             language: "Sicilian",
             text: "Chi ura è?",
             english: "What time is it?",
+            context: "time",
           },
           {
             language: "Sicilian",
             text: "Unni è lu bagnu?",
             english: "Where is the bathroom?",
+            context: "emergency",
           },
 
           // Daily Life
-          { language: "Sicilian", text: "Haiu fami", english: "I am hungry" },
-          { language: "Sicilian", text: "Haiu siti", english: "I am thirsty" },
-          { language: "Sicilian", text: "Sugnu stancu", english: "I am tired" },
+          {
+            language: "Sicilian",
+            text: "Haiu fami",
+            english: "I am hungry",
+            context: "restaurant",
+          },
+          {
+            language: "Sicilian",
+            text: "Haiu siti",
+            english: "I am thirsty",
+            context: "cafe",
+          },
+          {
+            language: "Sicilian",
+            text: "Sugnu stancu",
+            english: "I am tired",
+            context: "hotel",
+          },
           {
             language: "Sicilian",
             text: "Va beni",
             english: "It's okay / Alright",
+            context: "small_talk",
           },
-          { language: "Sicilian", text: "Perfettu!", english: "Perfect!" },
-          { language: "Sicilian", text: "Ottimu!", english: "Excellent!" },
-          { language: "Sicilian", text: "Beddu assai!", english: "Beautiful!" },
+          {
+            language: "Sicilian",
+            text: "Perfettu!",
+            english: "Perfect!",
+            context: "small_talk",
+          },
+          {
+            language: "Sicilian",
+            text: "Ottimu!",
+            english: "Excellent!",
+            context: "restaurant",
+          },
+          {
+            language: "Sicilian",
+            text: "Beddu assai!",
+            english: "Beautiful!",
+            context: "small_talk",
+          },
           {
             language: "Sicilian",
             text: "Chi bedda jurnata!",
             english: "What a beautiful day!",
+            context: "small_talk",
           },
           {
             language: "Sicilian",
             text: "A dumani",
             english: "See you tomorrow",
+            context: "greeting",
           },
-          { language: "Sicilian", text: "A prestu", english: "See you soon" },
-          { language: "Sicilian", text: "Ci videmu", english: "See you" },
+          {
+            language: "Sicilian",
+            text: "A prestu",
+            english: "See you soon",
+            context: "greeting",
+          },
+          {
+            language: "Sicilian",
+            text: "Ci videmu",
+            english: "See you",
+            context: "greeting",
+          },
           {
             language: "Sicilian",
             text: "Bonu appetitu!",
             english: "Enjoy your meal!",
+            context: "restaurant",
           },
           {
             language: "Sicilian",
             text: "Saluti!",
             english: "Cheers! / Bless you!",
+            context: "cafe",
           },
           {
             language: "Sicilian",
             text: "In bucca â lupu!",
             english: "Good luck!",
+            context: "small_talk",
           },
         ],
       };
 
       let allPhrases = []; // Will hold static + dynamic phrases
+
+      // PHASE 1: Enhancement data
+      let contextsData = null;
+      let alternativeExpressionsData = null;
+
+      // Load enhancement data
+      async function loadEnhancementData() {
+        try {
+          const contextsResponse = await fetch("contexts.json");
+          contextsData = await contextsResponse.json();
+
+          const altExpResponse = await fetch("alternativeExpressions.json");
+          alternativeExpressionsData = await altExpResponse.json();
+
+          console.log("✅ Phase 1 enhancement data loaded");
+          return true;
+        } catch (error) {
+          console.warn("⚠️ Could not load enhancement data:", error);
+          return false;
+        }
+      }
+
+      // Create context badge
+      function createContextBadge(contextId) {
+        if (!contextsData || !contextId) return null;
+
+        const context = contextsData.contexts.find((c) => c.id === contextId);
+        if (!context) return null;
+
+        const badge = document.createElement("span");
+        badge.className = "context-badge";
+        badge.style.borderColor = context.color;
+        badge.title = context.description;
+        badge.innerHTML = `<span class="context-icon">${context.icon}</span> ${context.name}`;
+
+        return badge;
+      }
+
+      // Show alternative expressions
+      function showAlternativeExpressions(phraseText) {
+        if (!alternativeExpressionsData) return null;
+
+        const alternatives =
+          alternativeExpressionsData.alternativeExpressions[phraseText];
+        if (!alternatives || alternatives.length === 0) return null;
+
+        const panel = document.createElement("div");
+        panel.className = "alternatives-panel";
+
+        // Header
+        panel.innerHTML = `
+    <div class="alternatives-header">
+      <h4 class="alternatives-title">✨ Native speakers also say:</h4>
+      <button class="alternatives-close" onclick="this.parentElement.parentElement.remove()">×</button>
+    </div>
+    <div class="alternatives-original"><strong>You said:</strong> ${phraseText}</div>
+  `;
+
+        // Italian alternatives
+        const italianAlts = alternatives.filter(
+          (alt) => alt.region === "standard"
+        );
+        if (italianAlts.length > 0) {
+          const section = document.createElement("div");
+          section.className = "alternatives-section";
+          section.innerHTML =
+            '<h5 class="alternatives-section-title">🇮🇹 Italian Variations</h5>';
+
+          const list = document.createElement("div");
+          list.className = "alternatives-list";
+
+          italianAlts.forEach((alt) => {
+            const item = document.createElement("div");
+            item.className = "alternative-item";
+            item.innerHTML = `
+        <div class="alternative-header">
+          <span>${alt.type === "formal" ? "🎩" : "😊"}</span>
+          <span class="alternative-text">${alt.text}</span>
+          <span class="alternative-badge ${alt.type}">${alt.type}</span>
+        </div>
+        <p class="alternative-note">${alt.note}</p>
+      `;
+            list.appendChild(item);
+          });
+
+          section.appendChild(list);
+          panel.appendChild(section);
+        }
+
+        // Sicilian alternatives
+        const sicilianAlts = alternatives.filter(
+          (alt) => alt.region === "sicilian"
+        );
+        if (sicilianAlts.length > 0) {
+          const section = document.createElement("div");
+          section.className = "alternatives-section";
+          section.innerHTML =
+            '<h5 class="alternatives-section-title">🏝️ Sicilian Says...</h5>';
+
+          const list = document.createElement("div");
+          list.className = "alternatives-list";
+
+          sicilianAlts.forEach((alt) => {
+            const item = document.createElement("div");
+            item.className = "alternative-item sicilian";
+            item.innerHTML = `
+        <div class="alternative-header">
+          <span>🌊</span>
+          <span class="alternative-text">${alt.text}</span>
+        </div>
+        <p class="alternative-note">${alt.note}</p>
+      `;
+            list.appendChild(item);
+          });
+
+          section.appendChild(list);
+          panel.appendChild(section);
+        }
+
+        // Tip
+        const tip = document.createElement("div");
+        tip.className = "alternatives-tip";
+        tip.innerHTML =
+          "💡 <strong>Tip:</strong> Understanding these variations helps you sound more natural!";
+        panel.appendChild(tip);
+
+        return panel;
+      }
 
       // --- Theme Management ---
       function setDarkMode(isDark) {
@@ -2518,13 +3190,17 @@
         phrases.forEach((phrase) => {
           const phraseDiv = document.createElement("div");
           phraseDiv.className =
-            "p-3 rounded-lg border border-gray-200 hover:bg-indigo-50 transition duration-150 cursor-pointer flex items-center justify-between dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-500";
-          phraseDiv.innerHTML = `
-                    <div>
-                        <p class="font-semibold">${phrase.text}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 italic">${phrase.english}</p>
-                    </div>
-                `;
+            "p-3 rounded-lg border border-gray-200 hover:bg-indigo-50 transition duration-150 cursor-pointer flex flex-col gap-2 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-500";
+
+          // Top row with text and listen button
+          const topRow = document.createElement("div");
+          topRow.className = "flex items-center justify-between";
+
+          const textContainer = document.createElement("div");
+          textContainer.innerHTML = `
+      <p class="font-semibold">${phrase.text}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 italic">${phrase.english}</p>
+    `;
 
           const listenBtn = document.createElement("button");
           listenBtn.className = "audio-btn text-pink-600 dark:text-pink-400";
@@ -2535,11 +3211,40 @@
             speakText(phrase.text, currentLanguage);
           };
 
-          phraseDiv.appendChild(listenBtn);
+          topRow.appendChild(textContainer);
+          topRow.appendChild(listenBtn);
+          phraseDiv.appendChild(topRow);
+
+          // Add context badge if available
+          if (phrase.context && contextsData) {
+            const badge = createContextBadge(phrase.context);
+            if (badge) {
+              phraseDiv.appendChild(badge);
+            }
+          }
+
+          // Click handler for phrase
           phraseDiv.onclick = () => {
             chatInput.value = phrase.text;
             chatInput.focus();
+
+            // Show alternative expressions
+            const existingPanel = phraseListContainer.querySelector(
+              ".alternatives-panel"
+            );
+            if (existingPanel) {
+              existingPanel.remove();
+            }
+
+            const altPanel = showAlternativeExpressions(phrase.text);
+            if (altPanel) {
+              phraseDiv.parentElement.insertBefore(
+                altPanel,
+                phraseDiv.nextSibling
+              );
+            }
           };
+
           phraseListContainer.appendChild(phraseDiv);
         });
       }
@@ -3170,6 +3875,7 @@
       });
 
       window.onload = function () {
+        loadEnhancementData();
         initializeTheme();
         setupFirebase();
         // Show some default words while loading

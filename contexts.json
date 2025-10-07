@@ -1,0 +1,74 @@
+{
+  "contexts": [
+    {
+      "id": "greeting",
+      "name": "Greetings & Introductions",
+      "icon": "👋",
+      "description": "Meeting people and basic social interactions",
+      "color": "#4CAF50"
+    },
+    {
+      "id": "cafe",
+      "name": "At the Café",
+      "icon": "☕",
+      "description": "Ordering food and drinks",
+      "color": "#FF9800"
+    },
+    {
+      "id": "shopping",
+      "name": "Shopping & Market",
+      "icon": "🛒",
+      "description": "Buying things and asking prices",
+      "color": "#2196F3"
+    },
+    {
+      "id": "directions",
+      "name": "Directions & Travel",
+      "icon": "🗺️",
+      "description": "Finding your way around",
+      "color": "#9C27B0"
+    },
+    {
+      "id": "restaurant",
+      "name": "At the Restaurant",
+      "icon": "🍝",
+      "description": "Dining out and ordering meals",
+      "color": "#F44336"
+    },
+    {
+      "id": "hotel",
+      "name": "At the Hotel",
+      "icon": "🏨",
+      "description": "Check-in, check-out, and hotel services",
+      "color": "#00BCD4"
+    },
+    {
+      "id": "emergency",
+      "name": "Emergencies & Help",
+      "icon": "🆘",
+      "description": "Getting help when you need it",
+      "color": "#E91E63"
+    },
+    {
+      "id": "small_talk",
+      "name": "Small Talk",
+      "icon": "💬",
+      "description": "Casual conversation and pleasantries",
+      "color": "#8BC34A"
+    },
+    {
+      "id": "family",
+      "name": "Family & Friends",
+      "icon": "👨‍👩‍👧‍👦",
+      "description": "Talking about relationships and people",
+      "color": "#FF5722"
+    },
+    {
+      "id": "time",
+      "name": "Time & Dates",
+      "icon": "⏰",
+      "description": "Discussing when things happen",
+      "color": "#607D8B"
+    }
+  ]
+}
