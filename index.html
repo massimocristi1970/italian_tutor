@@ -1765,6 +1765,40 @@
     const chatLoadingIndicator = document.getElementById(
       "chat-loading-indicator"
     );
+
+    // --- Playback (authoritative) ---
+    function speakText(text, lang) {
+      try {
+        const utterance = new SpeechSynthesisUtterance(text);
+
+        // Pick language automatically (Sicilian → Italian as a fallback)
+        const chosenLang = (() => {
+          const lower = (lang || '').toLowerCase();
+          if (lower.includes('sicilian')) return 'it-IT';
+          if (lower.includes('italian') || lower === 'it') return 'it-IT';
+          return 'en-GB';
+        })();
+
+        utterance.lang = chosenLang;
+
+        // Choose a matching voice if available
+        const voices = window.speechSynthesis.getVoices();
+        const match = voices.find(v => v.lang?.startsWith(chosenLang));
+        if (match) utterance.voice = match;
+
+        utterance.rate = 0.95;
+        utterance.pitch = 1.0;
+
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.warn('speakText failed:', e);
+      }
+    }
+
+    // Make this available to inline onclicks (scenarios etc.)
+    window.speakText = speakText;
+
     const phraseListContainer = document.getElementById("phrase-list");
     const micChatBtn = document.getElementById("mic-chat-btn");
     const listenGoalBtn = document.getElementById("listen-goal-btn");
@@ -6002,23 +6036,6 @@ If no, respond with "INCORRECT" and provide a gentle correction with one of the 
     window.closeScenariosModal = function () {
       const modal = getScenariosModalEl();
       if (modal) modal.classList.add('hidden');
-    };
-
-    window.speakText = function (text, lang = 'it-IT') {
-      try {
-        const toSay = (text ?? '').toString().trim();
-        if (!toSay) return;
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-          const utter = new SpeechSynthesisUtterance(toSay);
-          utter.lang = lang;
-          window.speechSynthesis.speak(utter);
-        } else {
-          console.warn('Speech synthesis not supported.');
-        }
-      } catch (e) {
-        console.warn('speakText failed:', e);
-      }
     };
 
     window.submitScenarioResponse = function () {
