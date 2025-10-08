@@ -5991,6 +5991,55 @@ If no, respond with "INCORRECT" and provide a gentle correction with one of the 
         }
       };
     };
+
+    // === Expose functions used by inline onclick handlers ===
+    // These make the inline onclick="..." buttons work even inside a module.
+
+    function getScenariosModalEl() {
+      return document.querySelector('.scenarios-modal');
+    }
+
+    window.closeScenariosModal = function () {
+      const modal = getScenariosModalEl();
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.speakText = function (text, lang = 'it-IT') {
+      try {
+        const toSay = (text ?? '').toString().trim();
+        if (!toSay) return;
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(toSay);
+          utter.lang = lang;
+          window.speechSynthesis.speak(utter);
+        } else {
+          console.warn('Speech synthesis not supported.');
+        }
+      } catch (e) {
+        console.warn('speakText failed:', e);
+      }
+    };
+
+    window.submitScenarioResponse = function () {
+      const input = document.querySelector('.scenario-input');
+      const value = (input?.value ?? '').trim();
+      if (!value) return;
+
+      document.dispatchEvent(new CustomEvent('scenario:submit', { detail: { value } }));
+
+      if (input) input.value = '';
+    };
+
+    window.exitScenario = function () {
+      const active = document.querySelector('.scenario-active');
+      if (active) active.classList.add('hidden');
+
+      const modal = getScenariosModalEl();
+      if (modal) modal.classList.add('hidden');
+
+      document.dispatchEvent(new Event('scenario:exit'));
+    };    
   </script>
 </body>
 
