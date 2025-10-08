@@ -1,0 +1,557 @@
+{
+  "scenarios": [
+    {
+      "id": "cafe_basic",
+      "name": "Ordering at a Café",
+      "icon": "☕",
+      "difficulty": "beginner",
+      "category": "dining",
+      "description": "Order a coffee and pastry at an Italian café",
+      "cultural_note": "In Italy, espresso is typically drunk standing at the bar. Sitting down often costs extra!",
+      "location": "café",
+      "characters": ["customer", "barista"],
+      "unlocked_by_default": true,
+      "estimated_turns": 6,
+      "dialogue_flow": [
+        {
+          "turn": 1,
+          "speaker": "barista",
+          "text_italian": "Buongiorno! Cosa desidera?",
+          "text_english": "Good morning! What would you like?",
+          "audio_hint": "buon-JOR-no KO-za de-zee-DE-ra"
+        },
+        {
+          "turn": 2,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Vorrei un caffè",
+            "Un caffè per favore",
+            "Prendo un caffè"
+          ],
+          "hints": ["Use 'vorrei' (I would like) or 'prendo' (I'll take)", "Don't forget 'per favore'"],
+          "vocabulary": ["vorrei", "un", "caffè", "per favore"]
+        },
+        {
+          "turn": 3,
+          "speaker": "barista",
+          "text_italian": "Certo! Vuole anche qualcosa da mangiare?",
+          "text_english": "Of course! Would you also like something to eat?",
+          "audio_hint": "CHER-to VWO-le AN-ke kwal-KO-za da man-JA-re"
+        },
+        {
+          "turn": 4,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Sì, un cornetto per favore",
+            "Prendo anche un cornetto",
+            "Vorrei un cornetto"
+          ],
+          "hints": ["'cornetto' is an Italian croissant", "'anche' means 'also'"],
+          "vocabulary": ["sì", "anche", "un", "cornetto", "per favore"]
+        },
+        {
+          "turn": 5,
+          "speaker": "barista",
+          "text_italian": "Perfetto! Sono tre euro e cinquanta.",
+          "text_english": "Perfect! That's three euros and fifty cents.",
+          "audio_hint": "per-FET-to SO-no tre E-oo-ro e chin-KWAN-ta"
+        },
+        {
+          "turn": 6,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Ecco a lei",
+            "Tenga",
+            "Ecco"
+          ],
+          "hints": ["'Ecco' means 'here you are'", "'Grazie' is always appreciated!"],
+          "vocabulary": ["ecco", "grazie"]
+        }
+      ],
+      "completion_phrases": {
+        "italian": ["Grazie!", "Buona giornata!", "Arrivederci!"],
+        "english": ["Thank you!", "Have a good day!", "Goodbye!"]
+      }
+    },
+    {
+      "id": "directions_basic",
+      "name": "Asking for Directions",
+      "icon": "🗺️",
+      "difficulty": "beginner",
+      "category": "navigation",
+      "description": "Ask how to get to a landmark",
+      "cultural_note": "Italians are generally very helpful with directions, and will often walk with you part of the way!",
+      "location": "street",
+      "characters": ["tourist", "local"],
+      "unlocked_by_default": true,
+      "estimated_turns": 4,
+      "dialogue_flow": [
+        {
+          "turn": 1,
+          "speaker": "tourist",
+          "expected_patterns": [
+            "Scusi, dov'è la stazione",
+            "Mi scusi, dove si trova la stazione",
+            "Scusi, come arrivo alla stazione"
+          ],
+          "hints": ["Start with 'Scusi' (excuse me)", "Use 'dov'è' (where is) or 'dove si trova' (where is located)"],
+          "vocabulary": ["scusi", "dov'è", "la", "stazione"]
+        },
+        {
+          "turn": 2,
+          "speaker": "local",
+          "text_italian": "La stazione? Vada sempre dritto, poi giri a sinistra.",
+          "text_english": "The station? Go straight ahead, then turn left.",
+          "audio_hint": "VA-da SEM-pre DRIT-to po-i JI-ri a si-NIS-tra"
+        },
+        {
+          "turn": 3,
+          "speaker": "tourist",
+          "expected_patterns": [
+            "Grazie mille",
+            "Grazie",
+            "La ringrazio"
+          ],
+          "hints": ["'Grazie mille' means 'thank you very much'"],
+          "vocabulary": ["grazie", "mille"]
+        },
+        {
+          "turn": 4,
+          "speaker": "local",
+          "text_italian": "Prego! Buona giornata!",
+          "text_english": "You're welcome! Have a good day!",
+          "audio_hint": "PRE-go BWO-na jor-NA-ta"
+        }
+      ],
+      "completion_phrases": {
+        "italian": ["Arrivederci!", "Buona giornata!"],
+        "english": ["Goodbye!", "Have a good day!"]
+      }
+    },
+    {
+      "id": "shopping_basic",
+      "name": "Shopping for Clothes",
+      "icon": "👕",
+      "difficulty": "beginner",
+      "category": "shopping",
+      "description": "Buy a piece of clothing at a shop",
+      "cultural_note": "In Italian shops, it's polite to greet the staff when entering, even if you're just browsing.",
+      "location": "clothing_store",
+      "characters": ["customer", "shopkeeper"],
+      "unlocked_by_default": true,
+      "estimated_turns": 8,
+      "dialogue_flow": [
+        {
+          "turn": 1,
+          "speaker": "shopkeeper",
+          "text_italian": "Buongiorno! Posso aiutarla?",
+          "text_english": "Good morning! Can I help you?",
+          "audio_hint": "buon-JOR-no POS-so a-ju-TAR-la"
+        },
+        {
+          "turn": 2,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Cerco una maglietta",
+            "Vorrei una maglietta",
+            "Sto cercando una maglietta"
+          ],
+          "hints": ["'Cerco' means 'I'm looking for'", "'maglietta' is a t-shirt"],
+          "vocabulary": ["cerco", "una", "maglietta"]
+        },
+        {
+          "turn": 3,
+          "speaker": "shopkeeper",
+          "text_italian": "Che taglia porta?",
+          "text_english": "What size do you wear?",
+          "audio_hint": "ke TA-lya POR-ta"
+        },
+        {
+          "turn": 4,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Porto la taglia media",
+            "La taglia media",
+            "Media"
+          ],
+          "hints": ["Sizes: piccola (small), media (medium), grande (large)"],
+          "vocabulary": ["porto", "la", "taglia", "media"]
+        },
+        {
+          "turn": 5,
+          "speaker": "shopkeeper",
+          "text_italian": "Ecco, queste sono molto belle. Vuole provarle?",
+          "text_english": "Here, these are very beautiful. Would you like to try them on?",
+          "audio_hint": "EK-ko KWES-te SO-no MOL-to BEL-le VWO-le pro-VAR-le"
+        },
+        {
+          "turn": 6,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Sì, grazie",
+            "Sì, dove sono i camerini",
+            "Sì, posso provare"
+          ],
+          "hints": ["'camerini' are fitting rooms"],
+          "vocabulary": ["sì", "grazie", "dove", "sono", "i", "camerini"]
+        },
+        {
+          "turn": 7,
+          "speaker": "shopkeeper",
+          "text_italian": "I camerini sono là in fondo a destra.",
+          "text_english": "The fitting rooms are over there at the back on the right.",
+          "audio_hint": "i ka-me-RI-ni SO-no LA in FON-do a DES-tra"
+        },
+        {
+          "turn": 8,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Grazie mille",
+            "Va bene, grazie",
+            "Perfetto, grazie"
+          ],
+          "hints": ["Always thank the shopkeeper!"],
+          "vocabulary": ["grazie", "mille"]
+        }
+      ],
+      "completion_phrases": {
+        "italian": ["La prendo!", "Quanto costa?", "Grazie!"],
+        "english": ["I'll take it!", "How much is it?", "Thank you!"]
+      }
+    },
+    {
+      "id": "restaurant_ordering",
+      "name": "Ordering at a Restaurant",
+      "icon": "🍝",
+      "difficulty": "intermediate",
+      "category": "dining",
+      "description": "Order a full Italian meal",
+      "cultural_note": "Italians typically order: antipasto (appetizer), primo (first course - pasta/risotto), secondo (main - meat/fish), and dolce (dessert).",
+      "location": "restaurant",
+      "characters": ["diner", "waiter"],
+      "unlocked_by_default": false,
+      "unlocks_after": ["cafe_basic"],
+      "estimated_turns": 10,
+      "dialogue_flow": [
+        {
+          "turn": 1,
+          "speaker": "waiter",
+          "text_italian": "Buonasera! Ha già scelto?",
+          "text_english": "Good evening! Have you already chosen?",
+          "audio_hint": "bwo-na-SE-ra a JA SHEL-to"
+        },
+        {
+          "turn": 2,
+          "speaker": "diner",
+          "expected_patterns": [
+            "Sì, per primo vorrei la pasta",
+            "Prendo la pasta al pomodoro",
+            "Vorrei le penne all'arrabbiata"
+          ],
+          "hints": ["Start with 'per primo' (for first course)", "Name your pasta choice"],
+          "vocabulary": ["per", "primo", "vorrei", "la", "pasta"]
+        },
+        {
+          "turn": 3,
+          "speaker": "waiter",
+          "text_italian": "Ottima scelta! E per secondo?",
+          "text_english": "Excellent choice! And for the main course?",
+          "audio_hint": "OT-ti-ma SHEL-ta e per se-KON-do"
+        },
+        {
+          "turn": 4,
+          "speaker": "diner",
+          "expected_patterns": [
+            "Per secondo prendo il pesce",
+            "Vorrei la carne",
+            "Il pollo per favore"
+          ],
+          "hints": ["Common options: pesce (fish), carne (meat), pollo (chicken)"],
+          "vocabulary": ["per", "secondo", "prendo", "il", "pesce", "carne", "pollo"]
+        },
+        {
+          "turn": 5,
+          "speaker": "waiter",
+          "text_italian": "Perfetto! E da bere?",
+          "text_english": "Perfect! And to drink?",
+          "audio_hint": "per-FET-to e da BE-re"
+        },
+        {
+          "turn": 6,
+          "speaker": "diner",
+          "expected_patterns": [
+            "Un bicchiere di vino rosso",
+            "Acqua naturale per favore",
+            "Vino bianco"
+          ],
+          "hints": ["Options: vino (wine), acqua (water), birra (beer)"],
+          "vocabulary": ["un", "bicchiere", "di", "vino", "acqua"]
+        }
+      ],
+      "completion_phrases": {
+        "italian": ["Il conto per favore", "Grazie, buonasera!", "Era delizioso!"],
+        "english": ["The bill please", "Thank you, good evening!", "It was delicious!"]
+      }
+    },
+    {
+      "id": "hotel_checkin",
+      "name": "Checking into a Hotel",
+      "icon": "🏨",
+      "difficulty": "intermediate",
+      "category": "accommodation",
+      "description": "Check in at your hotel reservation",
+      "cultural_note": "Hotels in Italy often require your passport for registration. Have it ready!",
+      "location": "hotel",
+      "characters": ["guest", "receptionist"],
+      "unlocked_by_default": false,
+      "unlocks_after": ["cafe_basic"],
+      "estimated_turns": 8,
+      "dialogue_flow": [
+        {
+          "turn": 1,
+          "speaker": "receptionist",
+          "text_italian": "Buongiorno! Ha una prenotazione?",
+          "text_english": "Good morning! Do you have a reservation?",
+          "audio_hint": "buon-JOR-no a U-na pre-no-ta-TSYO-ne"
+        },
+        {
+          "turn": 2,
+          "speaker": "guest",
+          "expected_patterns": [
+            "Sì, ho una prenotazione",
+            "Sì, a nome di",
+            "Ho prenotato una camera"
+          ],
+          "hints": ["Say 'Sì, ho una prenotazione' (Yes, I have a reservation)", "Add 'a nome di' (in the name of)"],
+          "vocabulary": ["sì", "ho", "una", "prenotazione", "a", "nome", "di"]
+        },
+        {
+          "turn": 3,
+          "speaker": "receptionist",
+          "text_italian": "Perfetto! Può mostrarmi il suo documento, per favore?",
+          "text_english": "Perfect! Can you show me your ID, please?",
+          "audio_hint": "per-FET-to pwo mos-TRAR-mi il SU-o do-ku-MEN-to"
+        },
+        {
+          "turn": 4,
+          "speaker": "guest",
+          "expected_patterns": [
+            "Ecco il passaporto",
+            "Certo, ecco",
+            "Sì, tenga"
+          ],
+          "hints": ["'Ecco' means 'here it is'", "'passaporto' is passport"],
+          "vocabulary": ["ecco", "il", "passaporto", "certo"]
+        },
+        {
+          "turn": 5,
+          "speaker": "receptionist",
+          "text_italian": "Grazie! Ha la camera 305 al terzo piano. La colazione è inclusa dalle 7 alle 10.",
+          "text_english": "Thank you! You have room 305 on the third floor. Breakfast is included from 7 to 10.",
+          "audio_hint": "GRA-tsye a la KA-me-ra tre-cen-to-CHIN-kwe al TER-tso PYA-no"
+        },
+        {
+          "turn": 6,
+          "speaker": "guest",
+          "expected_patterns": [
+            "Grazie mille",
+            "Perfetto, grazie",
+            "Va bene, grazie"
+          ],
+          "hints": ["Always thank for the information!"],
+          "vocabulary": ["grazie", "mille", "perfetto"]
+        }
+      ],
+      "completion_phrases": {
+        "italian": ["A che ora è il check-out?", "C'è il wifi?", "Dove sono gli ascensori?"],
+        "english": ["What time is check-out?", "Is there wifi?", "Where are the elevators?"]
+      }
+    },
+    {
+      "id": "phone_conversation",
+      "name": "Making a Phone Reservation",
+      "icon": "📞",
+      "difficulty": "advanced",
+      "category": "services",
+      "description": "Call to reserve a table at a restaurant",
+      "cultural_note": "Phone etiquette in Italy: always introduce yourself with 'Sono...' (I am...) or 'Mi chiamo...' (My name is...).",
+      "location": "phone",
+      "characters": ["caller", "restaurant_staff"],
+      "unlocked_by_default": false,
+      "unlocks_after": ["restaurant_ordering"],
+      "estimated_turns": 8,
+      "dialogue_flow": [
+        {
+          "turn": 1,
+          "speaker": "restaurant_staff",
+          "text_italian": "Pronto, Ristorante Da Vinci, buonasera!",
+          "text_english": "Hello, Da Vinci Restaurant, good evening!",
+          "audio_hint": "PRON-to ris-to-RAN-te da VIN-chi bwo-na-SE-ra"
+        },
+        {
+          "turn": 2,
+          "speaker": "caller",
+          "expected_patterns": [
+            "Buonasera, vorrei prenotare un tavolo",
+            "Vorrei fare una prenotazione",
+            "Buonasera, posso prenotare"
+          ],
+          "hints": ["Start with 'Buonasera'", "Use 'vorrei prenotare' (I would like to reserve)"],
+          "vocabulary": ["buonasera", "vorrei", "prenotare", "un", "tavolo"]
+        },
+        {
+          "turn": 3,
+          "speaker": "restaurant_staff",
+          "text_italian": "Certo! Per quante persone e per quando?",
+          "text_english": "Of course! For how many people and for when?",
+          "audio_hint": "CHER-to per KWAN-te per-SO-ne e per KWAN-do"
+        },
+        {
+          "turn": 4,
+          "speaker": "caller",
+          "expected_patterns": [
+            "Per due persone, domani sera alle otto",
+            "Per quattro, sabato alle venti",
+            "Siamo in tre, giovedì sera"
+          ],
+          "hints": ["State number of people: 'per due/tre/quattro persone'", "Give day and time: 'domani/sabato alle otto'"],
+          "vocabulary": ["per", "due", "persone", "domani", "sera", "alle", "otto"]
+        },
+        {
+          "turn": 5,
+          "speaker": "restaurant_staff",
+          "text_italian": "Perfetto! A che nome?",
+          "text_english": "Perfect! Under what name?",
+          "audio_hint": "per-FET-to a ke NO-me"
+        },
+        {
+          "turn": 6,
+          "speaker": "caller",
+          "expected_patterns": [
+            "A nome Smith",
+            "Il mio nome è",
+            "Sono [name]"
+          ],
+          "hints": ["Say 'A nome...' (under the name of)", "Or 'Il mio nome è...' (my name is)"],
+          "vocabulary": ["a", "nome", "il", "mio", "sono"]
+        }
+      ],
+      "completion_phrases": {
+        "italian": ["Grazie mille!", "A domani!", "Arrivederci!"],
+        "english": ["Thank you very much!", "See you tomorrow!", "Goodbye!"]
+      }
+    },
+    {
+      "id": "emergency_pharmacy",
+      "name": "At the Pharmacy",
+      "icon": "💊",
+      "difficulty": "intermediate",
+      "category": "health",
+      "description": "Ask for medicine at a pharmacy",
+      "cultural_note": "Italian pharmacists are highly trained and can often provide medical advice for minor ailments.",
+      "location": "pharmacy",
+      "characters": ["customer", "pharmacist"],
+      "unlocked_by_default": false,
+      "unlocks_after": ["shopping_basic"],
+      "estimated_turns": 6,
+      "dialogue_flow": [
+        {
+          "turn": 1,
+          "speaker": "pharmacist",
+          "text_italian": "Buongiorno! In cosa posso aiutarla?",
+          "text_english": "Good morning! How can I help you?",
+          "audio_hint": "buon-JOR-no in KO-za POS-so a-ju-TAR-la"
+        },
+        {
+          "turn": 2,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Ho mal di testa",
+            "Mi fa male la testa",
+            "Cerco qualcosa per il mal di testa"
+          ],
+          "hints": ["'Ho mal di...' means 'I have a pain in...'", "Common: mal di testa (headache), mal di stomaco (stomach ache)"],
+          "vocabulary": ["ho", "mal", "di", "testa", "stomaco"]
+        },
+        {
+          "turn": 3,
+          "speaker": "pharmacist",
+          "text_italian": "Le consiglio questo antidolorifico. Ne prenda una ogni sei ore.",
+          "text_english": "I recommend this painkiller. Take one every six hours.",
+          "audio_hint": "le kon-SI-lyo KWES-to an-ti-do-lo-RI-fi-ko"
+        },
+        {
+          "turn": 4,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Quanto costa",
+            "Quant'è",
+            "Il prezzo"
+          ],
+          "hints": ["Ask 'Quanto costa?' (How much does it cost?)"],
+          "vocabulary": ["quanto", "costa", "prezzo"]
+        },
+        {
+          "turn": 5,
+          "speaker": "pharmacist",
+          "text_italian": "Sono otto euro e cinquanta.",
+          "text_english": "It's eight euros and fifty cents.",
+          "audio_hint": "SO-no OT-to E-oo-ro e chin-KWAN-ta"
+        },
+        {
+          "turn": 6,
+          "speaker": "customer",
+          "expected_patterns": [
+            "Va bene, grazie",
+            "Perfetto, grazie",
+            "La prendo, grazie"
+          ],
+          "hints": ["Accept with 'Va bene' (That's fine) and thank them"],
+          "vocabulary": ["va", "bene", "grazie", "la", "prendo"]
+        }
+      ],
+      "completion_phrases": {
+        "italian": ["Grazie mille!", "Buona giornata!", "Arrivederci!"],
+        "english": ["Thank you very much!", "Have a good day!", "Goodbye!"]
+      }
+    }
+  ],
+  "categories": [
+    {
+      "id": "dining",
+      "name": "Dining & Food",
+      "icon": "🍝",
+      "color": "#F59E0B"
+    },
+    {
+      "id": "navigation",
+      "name": "Getting Around",
+      "icon": "🗺️",
+      "color": "#3B82F6"
+    },
+    {
+      "id": "shopping",
+      "name": "Shopping",
+      "icon": "🛍️",
+      "color": "#EC4899"
+    },
+    {
+      "id": "accommodation",
+      "name": "Accommodation",
+      "icon": "🏨",
+      "color": "#8B5CF6"
+    },
+    {
+      "id": "services",
+      "name": "Services",
+      "icon": "📞",
+      "color": "#10B981"
+    },
+    {
+      "id": "health",
+      "name": "Health & Emergencies",
+      "icon": "💊",
+      "color": "#EF4444"
+    }
+  ]
+}
