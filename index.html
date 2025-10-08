@@ -4379,7 +4379,7 @@
           id="scenario-input" 
           placeholder="Type your response in Italian..."
         />
-        <button class="scenario-submit-btn" onclick="submitScenarioResponse()">Send</button>
+        <button class="scenario-submit-btn" id="scenario-submit-btn">Send</button>
       </div>
     </div>
   `;
@@ -4390,6 +4390,12 @@
       // Update progress dots
       updateProgressDots();
     }
+
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.id === 'scenario-submit-btn') {
+        submitScenarioResponse();
+      }
+    });
 
     // Process next turn in dialogue
     function processNextTurn() {
