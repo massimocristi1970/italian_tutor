@@ -4108,26 +4108,6 @@
       }
     }
 
-    // PHASE 3: Conversation Scenarios
-    let conversationScenariosData = null;
-    let activeScenario = null;
-    let currentTurn = 0;
-    let scenarioDialogue = [];
-    let completedScenarios = new Set();
-
-    // Load conversation scenarios data
-    async function loadConversationScenarios() {
-      try {
-        const response = await fetch('conversationScenarios.json');
-        conversationScenariosData = await response.json();
-        console.log('✅ Conversation scenarios loaded');
-        return true;
-      } catch (error) {
-        console.warn('⚠️ Could not load conversation scenarios:', error);
-        return false;
-      }
-    }
-
     // Global state for Phase 3
     let conversationScenariosData = null;
     let activeScenario = null;
