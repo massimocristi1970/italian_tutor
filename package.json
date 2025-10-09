@@ -1,0 +1,25 @@
+{
+  "name": "italian_tutor",
+  "version": "1.0.0",
+  "description": "An interactive, AI-powered language learning application for mastering Italian and Sicilian through sentence construction, conversational practice, and adaptive learning.",
+  "main": "commonPhrasesEnhanced.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/massimocristi1970/italian_tutor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/massimocristi1970/italian_tutor/issues"
+  },
+  "homepage": "https://github.com/massimocristi1970/italian_tutor#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.10"
+  }
+}
