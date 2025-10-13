@@ -1,0 +1,302 @@
+{
+  "conversation_modes": [
+    {
+      "id": "freeform",
+      "name": "Free Conversation",
+      "icon": "💬",
+      "description": "Chat naturally about any topic",
+      "correction_style": "gentle",
+      "difficulty": "adaptive"
+    },
+    {
+      "id": "guided",
+      "name": "Guided Practice",
+      "icon": "🎯",
+      "description": "Practice with structured topics and prompts",
+      "correction_style": "detailed",
+      "difficulty": "progressive"
+    },
+    {
+      "id": "immersive",
+      "name": "Immersive Mode",
+      "icon": "🌊",
+      "description": "Italian-only conversation (no English)",
+      "correction_style": "minimal",
+      "difficulty": "advanced"
+    }
+  ],
+  "correction_styles": {
+    "gentle": {
+      "timing": "after_conversation",
+      "format": "summary",
+      "encouragement": "high",
+      "interrupt": false
+    },
+    "detailed": {
+      "timing": "immediate",
+      "format": "inline",
+      "encouragement": "moderate",
+      "interrupt": true,
+      "explanations": true
+    },
+    "minimal": {
+      "timing": "on_request",
+      "format": "brief",
+      "encouragement": "low",
+      "interrupt": false
+    }
+  },
+  "conversation_topics": [
+    {
+      "id": "daily_life",
+      "name": "Daily Life",
+      "icon": "🏠",
+      "difficulty": "beginner",
+      "subtopics": [
+        "Morning routine",
+        "Family and friends",
+        "Hobbies and interests",
+        "Weekend plans",
+        "Favorite foods"
+      ],
+      "starter_questions": [
+        "Cosa fai di solito la mattina?",
+        "Hai fratelli o sorelle?",
+        "Quali sono i tuoi hobby?",
+        "Cosa ti piace fare nel weekend?",
+        "Qual è il tuo cibo preferito?"
+      ],
+      "vocabulary_focus": ["daily_activities", "time_expressions", "preferences"],
+      "grammar_focus": ["present_tense", "articles", "possessives"]
+    },
+    {
+      "id": "food_culture",
+      "name": "Food & Dining",
+      "icon": "🍝",
+      "difficulty": "beginner",
+      "subtopics": [
+        "Italian cuisine",
+        "Ordering at restaurants",
+        "Cooking at home",
+        "Favorite dishes",
+        "Food preferences"
+      ],
+      "starter_questions": [
+        "Ti piace la cucina italiana?",
+        "Qual è il tuo piatto italiano preferito?",
+        "Sai cucinare?",
+        "Cosa hai mangiato oggi?",
+        "Preferisci il dolce o il salato?"
+      ],
+      "vocabulary_focus": ["food_items", "cooking_verbs", "taste_adjectives"],
+      "grammar_focus": ["piacere_verb", "partitive_articles", "quantities"]
+    },
+    {
+      "id": "travel",
+      "name": "Travel & Places",
+      "icon": "✈️",
+      "difficulty": "intermediate",
+      "subtopics": [
+        "Dream destinations",
+        "Past trips",
+        "Italian cities",
+        "Travel experiences",
+        "Cultural differences"
+      ],
+      "starter_questions": [
+        "Hai mai visitato l'Italia?",
+        "Quale città italiana vorresti visitare?",
+        "Dove sei andato in vacanza l'anno scorso?",
+        "Preferisci il mare o la montagna?",
+        "Qual è il posto più bello che hai visitato?"
+      ],
+      "vocabulary_focus": ["places", "transportation", "accommodation", "directions"],
+      "grammar_focus": ["passato_prossimo", "prepositions", "comparative"]
+    },
+    {
+      "id": "work_study",
+      "name": "Work & Education",
+      "icon": "💼",
+      "difficulty": "intermediate",
+      "subtopics": [
+        "Current job/studies",
+        "Career goals",
+        "Educational background",
+        "Work-life balance",
+        "Learning experiences"
+      ],
+      "starter_questions": [
+        "Che lavoro fai?",
+        "Cosa studi?",
+        "Ti piace il tuo lavoro?",
+        "Quali sono i tuoi obiettivi professionali?",
+        "Come descriveresti una giornata tipica di lavoro?"
+      ],
+      "vocabulary_focus": ["professions", "workplace", "education", "skills"],
+      "grammar_focus": ["present_tense", "future_tense", "modal_verbs"]
+    },
+    {
+      "id": "culture_arts",
+      "name": "Culture & Arts",
+      "icon": "🎨",
+      "difficulty": "intermediate",
+      "subtopics": [
+        "Italian art and artists",
+        "Music and cinema",
+        "Literature",
+        "Museums and galleries",
+        "Cultural traditions"
+      ],
+      "starter_questions": [
+        "Ti piace l'arte?",
+        "Conosci qualche artista italiano famoso?",
+        "Che tipo di musica ascolti?",
+        "Hai un film italiano preferito?",
+        "Hai mai visitato un museo in Italia?"
+      ],
+      "vocabulary_focus": ["arts", "culture", "entertainment", "opinions"],
+      "grammar_focus": ["present_perfect", "subjunctive", "opinion_expressions"]
+    },
+    {
+      "id": "current_events",
+      "name": "News & Current Events",
+      "icon": "📰",
+      "difficulty": "advanced",
+      "subtopics": [
+        "World news",
+        "Environmental issues",
+        "Technology",
+        "Politics",
+        "Social topics"
+      ],
+      "starter_questions": [
+        "Cosa pensi delle notizie recenti?",
+        "Quali sono i problemi ambientali più importanti?",
+        "Come la tecnologia ha cambiato la tua vita?",
+        "Segui la politica italiana?",
+        "Qual è la tua opinione su...?"
+      ],
+      "vocabulary_focus": ["abstract_concepts", "debate", "analysis", "opinions"],
+      "grammar_focus": ["subjunctive", "conditional", "complex_sentences"]
+    },
+    {
+      "id": "personal_growth",
+      "name": "Personal Development",
+      "icon": "🌱",
+      "difficulty": "advanced",
+      "subtopics": [
+        "Goals and aspirations",
+        "Challenges and achievements",
+        "Life philosophy",
+        "Self-improvement",
+        "Future plans"
+      ],
+      "starter_questions": [
+        "Quali sono i tuoi obiettivi per il futuro?",
+        "Qual è stata la tua sfida più grande?",
+        "Cosa ti rende felice?",
+        "Come ti piacerebbe migliorare te stesso?",
+        "Dove ti vedi tra cinque anni?"
+      ],
+      "vocabulary_focus": ["emotions", "abstract_ideas", "aspirations", "reflection"],
+      "grammar_focus": ["conditional", "subjunctive", "future_tense", "reflexive_verbs"]
+    },
+    {
+      "id": "storytelling",
+      "name": "Storytelling",
+      "icon": "📖",
+      "difficulty": "advanced",
+      "subtopics": [
+        "Personal anecdotes",
+        "Memorable experiences",
+        "Funny stories",
+        "Travel adventures",
+        "Childhood memories"
+      ],
+      "starter_questions": [
+        "Raccontami una storia divertente.",
+        "Qual è il tuo ricordo d'infanzia preferito?",
+        "Mi puoi raccontare un'esperienza memorabile?",
+        "Cosa ti è successo di strano recentemente?",
+        "Hai mai avuto un'avventura interessante?"
+      ],
+      "vocabulary_focus": ["narrative", "sequencing", "descriptive", "emotions"],
+      "grammar_focus": ["past_tenses", "imperfect", "narrative_structure"]
+    }
+  ],
+  "conversation_prompts": {
+    "ice_breakers": [
+      "Ciao! Come va oggi?",
+      "Dimmi qualcosa di interessante su di te.",
+      "Di cosa ti piacerebbe parlare?",
+      "Hai fatto qualcosa di divertente di recente?"
+    ],
+    "follow_ups": [
+      "Davvero? Raccontami di più!",
+      "Che interessante! E poi?",
+      "Come ti sei sentito?",
+      "Puoi spiegare meglio?",
+      "E cosa è successo dopo?"
+    ],
+    "encouragements": [
+      "Ottimo! Stai facendo molto bene!",
+      "Perfetto! La tua pronuncia sta migliorando!",
+      "Bravissimo! Continua così!",
+      "Molto bene! Stai progredendo!",
+      "Eccellente! Hai capito il concetto!"
+    ],
+    "transitions": [
+      "Parliamo di qualcos'altro.",
+      "Cambiamo argomento.",
+      "Posso farti una domanda diversa?",
+      "Ora parliamo di...",
+      "Passiamo a un altro tema."
+    ]
+  },
+  "error_correction_templates": {
+    "grammar": {
+      "template": "Hai detto: '{incorrect}'. Sarebbe più corretto: '{correct}'. Spiegazione: {explanation}",
+      "severity_levels": {
+        "critical": "Correct immediately",
+        "moderate": "Note for later",
+        "minor": "Optional mention"
+      }
+    },
+    "vocabulary": {
+      "template": "Invece di '{used_word}', potresti dire '{better_word}' che è più naturale/preciso.",
+      "suggestions": true
+    },
+    "pronunciation": {
+      "template": "Attenzione alla pronuncia di '{word}'. Si pronuncia: {ipa}. Ascolta: [audio]",
+      "audio_feedback": true
+    },
+    "style": {
+      "template": "Buona frase! Per sembrare più naturale, potresti dire: '{alternative}'.",
+      "context_aware": true
+    }
+  },
+  "conversation_settings": {
+    "max_length": 30,
+    "min_length": 5,
+    "auto_correction": true,
+    "real_time_feedback": false,
+    "save_corrections": true,
+    "difficulty_adaptation": true,
+    "topic_suggestions": true,
+    "vocabulary_tracking": true
+  },
+  "ai_tutor_personality": {
+    "tone": "friendly and encouraging",
+    "patience_level": "very high",
+    "formality": "casual but respectful",
+    "humor": "light and appropriate",
+    "cultural_insights": true,
+    "personality_traits": [
+      "Supportive",
+      "Knowledgeable",
+      "Patient",
+      "Enthusiastic about Italian culture",
+      "Celebrates progress"
+    ]
+  }
+}

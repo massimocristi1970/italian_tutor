@@ -1,0 +1,263 @@
+<!-- ========================================
+     PHASE 4 MODALS - ADD BEFORE </body>
+     ======================================== -->
+
+<!-- Fluency Challenge Modal -->
+<div id="fluency-modal" class="fluency-modal">
+  <div class="fluency-panel">
+    <div class="scenarios-header">
+      <h2 class="scenarios-title">⚡ Fluency Challenges</h2>
+      <button class="scenarios-close-btn" onclick="closeFluencyModal()">×</button>
+    </div>
+
+    <!-- Challenge Selection -->
+    <div id="fluency-challenges-list" class="challenge-grid">
+      <!-- Challenges will be dynamically inserted -->
+    </div>
+
+    <!-- Active Challenge -->
+    <div id="fluency-challenge-active" style="display: none;">
+      <div class="challenge-active">
+        <!-- Timer -->
+        <div class="challenge-timer">
+          <div class="timer-display" id="challenge-timer">03:00</div>
+          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px;">
+            Time Remaining
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="challenge-progress-text" id="challenge-progress">
+          Completed: <span id="challenge-completed">0</span> / <span id="challenge-target">5</span>
+        </div>
+
+        <!-- Challenge Area (reuses existing sentence builder) -->
+        <div id="challenge-instruction" style="text-align: center; margin: 20px 0; font-size: 1.1rem; color: var(--text-primary);">
+          Build the sentence as fast as you can!
+        </div>
+
+        <!-- Controls -->
+        <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+          <button class="pronunciation-btn pronunciation-btn-listen" onclick="pauseChallenge()">
+            <i class="fas fa-pause"></i> Pause
+          </button>
+          <button class="scenario-exit-btn" onclick="exitChallenge()">
+            Exit Challenge
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Challenge Results -->
+    <div id="fluency-results" style="display: none;">
+      <div class="scenario-completion">
+        <div class="completion-icon" id="result-icon">🏆</div>
+        <h2 class="completion-title" id="result-title">Challenge Complete!</h2>
+        
+        <div class="challenge-score-display">
+          <div class="score-number" id="final-score">0</div>
+          <div class="score-label">Final Score</div>
+        </div>
+
+        <div class="completion-stats">
+          <div class="completion-stat">
+            <div class="completion-stat-value" id="result-time">--</div>
+            <div class="completion-stat-label">Time</div>
+          </div>
+          <div class="completion-stat">
+            <div class="completion-stat-value" id="result-accuracy">--</div>
+            <div class="completion-stat-label">Accuracy</div>
+          </div>
+          <div class="completion-stat">
+            <div class="completion-stat-value" id="result-streak">--</div>
+            <div class="completion-stat-label">Bonus</div>
+          </div>
+        </div>
+
+        <div class="completion-actions">
+          <button class="completion-btn completion-btn-primary" onclick="retryChallenge()">
+            Try Again
+          </button>
+          <button class="completion-btn completion-btn-secondary" onclick="closeFluencyModal()">
+            Back to Challenges
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SRS Daily Review Section (add to main page, not modal) -->
+<div id="srs-daily-review" class="srs-container" style="display: none;">
+  <div class="srs-header">
+    <h3 class="srs-title">🧠 Daily Review</h3>
+    <span class="srs-due-count" id="srs-due-count">0</span>
+  </div>
+
+  <!-- Flashcard -->
+  <div class="flashcard" id="srs-flashcard" onclick="flipCard()">
+    <div class="flashcard-front">
+      <div class="flashcard-text" id="card-front-text">casa</div>
+      <div class="flashcard-pronunciation" id="card-pronunciation">/ˈka.sa/</div>
+      <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 20px;">
+        Click to reveal answer
+      </div>
+    </div>
+    <div class="flashcard-back">
+      <div class="flashcard-text" id="card-back-text">house</div>
+      <div class="flashcard-example" id="card-example">
+        La mia casa è grande.<br>
+        <span style="font-size: 0.85rem; opacity: 0.8;">My house is big.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response Buttons -->
+  <div class="srs-buttons" id="srs-response-buttons" style="display: none;">
+    <button class="srs-btn srs-btn-again" onclick="rateCard(0)">
+      <i class="fas fa-times"></i> Again
+      <span style="font-size: 0.75rem; opacity: 0.8;">&lt;1m</span>
+    </button>
+    <button class="srs-btn srs-btn-hard" onclick="rateCard(3)">
+      <i class="fas fa-frown"></i> Hard
+      <span style="font-size: 0.75rem; opacity: 0.8;">&lt;10m</span>
+    </button>
+    <button class="srs-btn srs-btn-good" onclick="rateCard(4)">
+      <i class="fas fa-check"></i> Good
+      <span style="font-size: 0.75rem; opacity: 0.8;" id="good-interval">4d</span>
+    </button>
+    <button class="srs-btn srs-btn-easy" onclick="rateCard(5)">
+      <i class="fas fa-smile"></i> Easy
+      <span style="font-size: 0.75rem; opacity: 0.8;" id="easy-interval">10d</span>
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="srs-stats">
+    <div class="srs-stat-card">
+      <div class="srs-stat-number" id="srs-new-count">0</div>
+      <div class="srs-stat-label">New</div>
+    </div>
+    <div class="srs-stat-card">
+      <div class="srs-stat-number" id="srs-learning-count">0</div>
+      <div class="srs-stat-label">Learning</div>
+    </div>
+    <div class="srs-stat-card">
+      <div class="srs-stat-number" id="srs-review-count">0</div>
+      <div class="srs-stat-label">Review</div>
+    </div>
+    <div class="srs-stat-card">
+      <div class="srs-stat-number" id="srs-mastered-count">0</div>
+      <div class="srs-stat-label">Mastered</div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Report Modal -->
+<div id="progress-report-modal" class="progress-report-modal">
+  <div class="progress-report-panel">
+    <div class="scenarios-header">
+      <h2 class="scenarios-title">📊 Your Progress Report</h2>
+      <button class="scenarios-close-btn" onclick="closeProgressReport()">×</button>
+    </div>
+
+    <div class="report-header">
+      <div class="report-title" id="report-period">Weekly Progress</div>
+      <div class="report-subtitle" id="report-date-range">--</div>
+    </div>
+
+    <!-- Highlight Stats -->
+    <div class="report-highlight">
+      <div class="report-highlight-stat" id="report-main-stat">127</div>
+      <div class="report-highlight-label">Total Practice Minutes This Week</div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="report-section">
+      <h3 class="report-section-title">📈 Key Metrics</h3>
+      <div class="report-grid">
+        <div class="report-metric">
+          <div class="report-metric-value" id="report-sentences">42</div>
+          <div class="report-metric-label">Sentences Built</div>
+          <div class="report-metric-change positive" id="report-sentences-change">+15% from last week</div>
+        </div>
+        <div class="report-metric">
+          <div class="report-metric-value" id="report-accuracy">87%</div>
+          <div class="report-metric-label">Accuracy</div>
+          <div class="report-metric-change positive" id="report-accuracy-change">+5% from last week</div>
+        </div>
+        <div class="report-metric">
+          <div class="report-metric-value" id="report-streak">7</div>
+          <div class="report-metric-label">Day Streak</div>
+          <div class="report-metric-change positive" id="report-streak-change">Keep it up!</div>
+        </div>
+        <div class="report-metric">
+          <div class="report-metric-value" id="report-vocab">23</div>
+          <div class="report-metric-label">New Words</div>
+          <div class="report-metric-change positive" id="report-vocab-change">+8 from last week</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="report-section">
+      <h3 class="report-section-title">💡 Insights</h3>
+      <div id="report-insights-container">
+        <div class="report-insight">
+          <div class="report-insight-title">🎯 Strongest Area</div>
+          <div class="report-insight-text">You're excelling at present tense conjugations! Your accuracy is 94%.</div>
+        </div>
+        <div class="report-insight">
+          <div class="report-insight-title">📚 Most Practiced</div>
+          <div class="report-insight-text">You practiced vocabulary most this week, spending 45 minutes on new words.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="report-section">
+      <h3 class="report-section-title">🎯 Recommendations</h3>
+      <div id="report-recommendations-container">
+        <div class="report-recommendation">
+          <div class="report-recommendation-title">
+            <i class="fas fa-arrow-up"></i> Focus Area
+          </div>
+          <div class="report-recommendation-text">
+            Consider practicing past tense more. Your accuracy (68%) could improve with focused practice.
+          </div>
+        </div>
+        <div class="report-recommendation">
+          <div class="report-recommendation-title">
+            <i class="fas fa-star"></i> Next Goal
+          </div>
+          <div class="report-recommendation-text">
+            You're close to reaching 50 unique words! Keep learning to unlock the Vocabulary Explorer milestone.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px;">
+      <button class="pronunciation-btn pronunciation-btn-next" onclick="generateNewReport()">
+        Generate New Report
+      </button>
+      <button class="completion-btn completion-btn-secondary" onclick="closeProgressReport()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Conversation Mode Toggle (add to chat section) -->
+<div class="conversation-mode-toggle" id="conversation-mode-toggle" style="display: none;">
+  <button class="mode-btn active" data-mode="normal" onclick="setConversationMode('normal')">
+    <i class="fas fa-comments"></i> Normal
+  </button>
+  <button class="mode-btn" data-mode="freeform" onclick="setConversationMode('freeform')">
+    <i class="fas fa-comment-dots"></i> Free Talk
+  </button>
+  <button class="mode-btn" data-mode="immersive" onclick="setConversationMode('immersive')">
+    <i class="fas fa-language"></i> Italian Only
+  </button>
+</div>

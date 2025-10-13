@@ -1,0 +1,147 @@
+{
+  "challenges": [
+    {
+      "id": "speed_builder_1",
+      "name": "Speed Sentence Builder",
+      "type": "speed_building",
+      "difficulty": "beginner",
+      "icon": "⚡",
+      "description": "Build 5 correct sentences as fast as possible",
+      "time_limit": 180,
+      "target_count": 5,
+      "level": "level1",
+      "min_words": 3,
+      "scoring": {
+        "time_bonus": true,
+        "accuracy_weight": 0.6,
+        "speed_weight": 0.4
+      }
+    },
+    {
+      "id": "speed_builder_2",
+      "name": "Intermediate Sprint",
+      "type": "speed_building",
+      "difficulty": "intermediate",
+      "icon": "⚡⚡",
+      "description": "Build 7 complex sentences in record time",
+      "time_limit": 240,
+      "target_count": 7,
+      "level": "level2",
+      "min_words": 5,
+      "scoring": {
+        "time_bonus": true,
+        "accuracy_weight": 0.7,
+        "speed_weight": 0.3
+      }
+    },
+    {
+      "id": "rapid_response_1",
+      "name": "Rapid Response",
+      "type": "rapid_translation",
+      "difficulty": "beginner",
+      "icon": "💨",
+      "description": "Translate 10 phrases within the time limit",
+      "time_limit": 120,
+      "target_count": 10,
+      "level": "level1",
+      "phrases": [
+        {"english": "Good morning", "italian": "Buongiorno"},
+        {"english": "Thank you", "italian": "Grazie"},
+        {"english": "How are you?", "italian": "Come stai?"},
+        {"english": "I am hungry", "italian": "Ho fame"},
+        {"english": "Where is the bathroom?", "italian": "Dov'è il bagno?"},
+        {"english": "I don't understand", "italian": "Non capisco"},
+        {"english": "Please speak slowly", "italian": "Parla piano per favore"},
+        {"english": "How much does it cost?", "italian": "Quanto costa?"},
+        {"english": "I would like water", "italian": "Vorrei acqua"},
+        {"english": "See you tomorrow", "italian": "A domani"}
+      ],
+      "scoring": {
+        "time_bonus": true,
+        "accuracy_weight": 0.8,
+        "speed_weight": 0.2
+      }
+    },
+    {
+      "id": "conversation_flow",
+      "name": "Conversation Flow",
+      "type": "timed_conversation",
+      "difficulty": "intermediate",
+      "icon": "💬",
+      "description": "Complete a natural conversation within 3 minutes",
+      "time_limit": 180,
+      "target_count": 6,
+      "scenario": "ordering_food",
+      "scoring": {
+        "fluency_bonus": true,
+        "natural_flow": true,
+        "accuracy_weight": 0.5,
+        "speed_weight": 0.3,
+        "fluency_weight": 0.2
+      }
+    },
+    {
+      "id": "verb_sprint",
+      "name": "Verb Conjugation Sprint",
+      "type": "verb_drill",
+      "difficulty": "intermediate",
+      "icon": "🏃",
+      "description": "Conjugate 5 verbs correctly under time pressure",
+      "time_limit": 150,
+      "target_count": 5,
+      "verbs": ["parlare", "mangiare", "essere", "avere", "andare"],
+      "tense": "presente",
+      "scoring": {
+        "time_bonus": true,
+        "accuracy_weight": 0.7,
+        "speed_weight": 0.3
+      }
+    }
+  ],
+  "scoring_system": {
+    "perfect_time_bonus": 1.2,
+    "good_time_bonus": 1.1,
+    "time_thresholds": {
+      "perfect": 0.7,
+      "good": 0.85
+    },
+    "accuracy_tiers": {
+      "perfect": {"min": 100, "multiplier": 1.5, "badge": "🏆"},
+      "excellent": {"min": 90, "multiplier": 1.3, "badge": "🌟"},
+      "good": {"min": 75, "multiplier": 1.1, "badge": "✨"},
+      "pass": {"min": 60, "multiplier": 1.0, "badge": "✓"}
+    },
+    "streak_bonuses": {
+      "3": 1.05,
+      "5": 1.1,
+      "10": 1.2
+    }
+  },
+  "leaderboard": {
+    "categories": ["speed_building", "rapid_translation", "timed_conversation", "verb_drill"],
+    "time_periods": ["daily", "weekly", "all_time"]
+  },
+  "achievements": [
+    {
+      "id": "speed_demon",
+      "name": "Speed Demon",
+      "description": "Complete any challenge 50% faster than the time limit",
+      "icon": "⚡",
+      "reward": "fluency_badge"
+    },
+    {
+      "id": "perfect_sprint",
+      "name": "Perfect Sprint",
+      "description": "Complete a challenge with 100% accuracy",
+      "icon": "💯",
+      "reward": "perfection_badge"
+    },
+    {
+      "id": "marathon_runner",
+      "name": "Marathon Runner",
+      "description": "Complete 20 fluency challenges",
+      "icon": "🏃‍♂️",
+      "reward": "endurance_badge"
+    }
+  ]
+}
