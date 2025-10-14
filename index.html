@@ -2525,6 +2525,13 @@
           </button>
           <button
             class="mobile-menu-item"
+            onclick="closeMobileMenu(); showScenariosModal();"
+          >
+            <i class="fas fa-comments"></i>
+            <span>Practice Conversations</span>
+          </button>
+          <button
+            class="mobile-menu-item"
             onclick="closeMobileMenu(); openProgressReport();"
           >
             <i class="fas fa-chart-bar"></i>
@@ -2532,28 +2539,17 @@
           </button>
           <button
             class="mobile-menu-item"
-            onclick="closeMobileMenu(); openPronunciationPractice();"
+            onclick="closeMobileMenu(); openPronunciationModal();"
           >
             <i class="fas fa-microphone"></i>
             <span>Pronunciation</span>
           </button>
           <button
             class="mobile-menu-item"
-            onclick="closeMobileMenu(); openFluencyPanel();"
+            onclick="closeMobileMenu(); openFluencyModal();"
           >
             <i class="fas fa-clock"></i>
             <span>Fluency Challenges</span>
-          </button>
-          <button
-            class="mobile-menu-item"
-            onclick="closeMobileMenu(); openSRSPanel();"
-          >
-            <i class="fas fa-layer-group"></i>
-            <span>Flashcards</span>
-          </button>
-          <button class="mobile-menu-item" onclick="closeMobileMenu();">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
           </button>
         </div>
       </div>
@@ -8811,7 +8807,7 @@
 
         const loaded = await loadPhase4Data();
 
-        if (loaded && auth.currentUser) {
+        if (loaded && auth.currentUser?.uid) {
           // Add UI buttons
           // addPhase4Buttons(); // DISABLED - moved to hamburger menu
 
