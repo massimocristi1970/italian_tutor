@@ -8877,12 +8877,28 @@
       window.openPronunciationModal = openPronunciationModal;
       window.openFluencyModal = openFluencyModal;
 
-      window.onload = function () {
+      window.onload = async function () {
         loadEnhancementData();
         initializeTheme();
-        setupFirebase();
+  
+        // Wait for Firebase to initialize
+        await setupFirebase();
+  
+        // Wait for auth to be ready
+        await new Promise(resolve => {
+          const unsubscribe = auth.onAuthStateChanged(user => {
+            if (user) {
+              unsubscribe();
+              resolve();
+            }
+          });
+        });
+  
         populateWordBank(null);
-        initializePhase4();
+  
+        // Now Phase 3 and Phase 4 will have auth.currentUser available
+        await initializePhase3();
+        await initializePhase4();
 
         // Logout handler
         document.getElementById("logout-btn").onclick = async () => {
@@ -9026,7 +9042,7 @@
           <h2 class="pronunciation-title">🗣️ Pronunciation Practice</h2>
           <button
             class="scenarios-close-btn"
-            onclick="closePronunciationModal()"
+            onclick="exitScenario()()"
           >
             ×
           </button>
