@@ -5611,12 +5611,12 @@
         panel.appendChild(grid);
         modal.appendChild(panel);
 
-        // Close on backdrop click
-        modal.onclick = (e) => {
-          if (e.target === modal) {
-            exitScenario();  // ← Changed from closeScenariosModal()
-          }
-        };
+        /// Close on backdrop click
+		modal.onclick = (e) => {
+		if (e.target === modal) {
+			closeScenariosModal();  // ← Correct
+		}
+		};
 
         return modal;
       }
@@ -5701,14 +5701,6 @@
         }
 
         return card;
-      }
-
-      // Close scenarios modal
-      function closeScenariosModal() {
-        const modal = document.getElementById("scenarios-modal");
-        if (modal) {
-          modal.classList.remove("active");
-        }
       }
 
       // Start a scenario
@@ -6043,6 +6035,14 @@
         currentTurn = 0;
         scenarioDialogue = [];
       }
+
+	  // Close scenarios modal
+	  function closeScenariosModal() {
+	    const modal = document.getElementById("scenarios-modal");
+	    if (modal) {
+         modal.remove();
+        } 
+      } 
 
       // Update progress dots
       function updateProgressDots() {
@@ -8933,12 +8933,7 @@
         return document.querySelector(".scenarios-modal");
       }
 
-      window.closeScenariosModal = function () {
-        const modal = getScenariosModalEl();
-        if (modal) modal.classList.add("hidden");
-      };
-
-      window.submitScenarioResponse = function () {
+        window.submitScenarioResponse = function () {
         const input = document.querySelector(".scenario-input");
         const value = (input?.value ?? "").trim();
         if (!value) return;
