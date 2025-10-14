@@ -28,6 +28,30 @@
   padding: 8px 0;
 }
 
+/* ===== UNIVERSAL BUTTON FIXES (ALL SCREEN SIZES) ===== */
+/* These fixes apply to ALL breakpoints to prevent button overflow */
+
+/* Prevent horizontal scrolling from buttons */
+body {
+  overflow-x: hidden;
+}
+
+/* Target the container that holds those colorful buttons */
+.progress-dashboard > div:not(.progress-header):not(.stats-grid):not(.skills-grid),
+div[style*="display: flex"][style*="gap"],
+div[style*="display:flex"][style*="gap"] {
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ensure no button causes horizontal overflow */
+button,
+a[role="button"] {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 .mobile-nav-items {
   display: flex;
   justify-content: space-around;
@@ -201,13 +225,13 @@
   header {
     padding: 10px !important;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
 
   header h1 {
-    font-size: 1.2rem !important;
+    font-size: 1.1rem !important;
     width: 100%;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .header-controls {
@@ -218,15 +242,23 @@
     align-items: center;
   }
 
-  /* Make dropdowns much smaller and allow wrapping if needed */
+  /* Make dropdowns VERY small with text overflow handling */
   #language-select,
   #level-select {
     flex: 1 1 auto;
-    min-width: 75px;
-    max-width: 120px;
-    font-size: 0.7rem !important;
+    min-width: 70px;
+    max-width: 110px;
+    font-size: 0.65rem !important;
     padding: 6px 4px !important;
-    padding-right: 20px !important; /* Space for dropdown arrow */
+    padding-right: 18px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Force option text to be shorter on mobile */
+  #level-select option {
+    font-size: 0.65rem;
   }
 
   /* Ensure icons/buttons don't push dropdowns off screen */
@@ -235,14 +267,14 @@
     width: 40px;
     height: 40px;
     min-width: 40px;
+    max-width: 40px;
     padding: 8px !important;
     flex-shrink: 0;
   }
 
   /* Make dropdown arrows smaller */
-  #language-select + i,
-  #level-select + i {
-    font-size: 0.8rem;
+  .relative i.fa-chevron-down {
+    font-size: 0.7rem !important;
   }
 
   /* ===== MAIN LAYOUT ===== */
@@ -405,6 +437,7 @@
   .progress-dashboard {
     padding: var(--mobile-padding) !important;
     margin-bottom: 16px !important;
+    overflow: visible !important;
   }
 
   .progress-header h2 {
@@ -412,25 +445,46 @@
   }
 
   /* Fix for feature buttons (Practice Conversations, etc.) */
+  /* Target all possible button containers */
   .progress-dashboard .feature-buttons,
+  .progress-dashboard > div:last-child,
   .quick-actions,
-  .practice-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    margin-top: 12px;
+  .practice-buttons,
+  .action-buttons,
+  div[class*="button"],
+  div[class*="action"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 12px !important;
   }
 
+  /* Force ALL buttons in progress dashboard to be full width */
   .progress-dashboard button,
+  .progress-dashboard a[role="button"],
   .quick-actions button,
-  .practice-buttons button {
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .practice-buttons button,
+  .action-buttons button {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    text-align: center !important;
     padding: 12px 16px !important;
     font-size: 0.9rem !important;
+    display: block !important;
+    margin: 0 !important;
+  }
+
+  /* Specifically target those colorful gradient buttons */
+  button[class*="gradient"],
+  button[class*="bg-purple"],
+  button[class*="bg-orange"],
+  button[class*="bg-yellow"],
+  button[class*="bg-green"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 8px !important;
   }
 
   .stats-grid {
@@ -721,6 +775,19 @@
     min-width: 42px;
   }
 
+  /* TABLET: Feature buttons should wrap properly */
+  .progress-dashboard > div:not(.progress-header):not(.stats-grid):not(.skills-grid) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .progress-dashboard button {
+    flex: 0 1 auto;
+    min-width: 140px;
+    max-width: calc(50% - 5px);
+  }
+
   /* Progress dashboard */
   .stats-grid {
     grid-template-columns: repeat(4, 1fr) !important;
@@ -758,6 +825,26 @@
 
   .scenarios-modal-content {
     max-width: 1000px;
+  }
+
+  /* DESKTOP: Fix for feature buttons */
+  /* Make them wrap instead of overflow */
+  .progress-dashboard > div:not(.progress-header):not(.stats-grid):not(.skills-grid) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  /* Desktop buttons should be inline but not cause overflow */
+  .progress-dashboard button,
+  .quick-actions button {
+    flex: 0 1 auto;
+    min-width: 150px;
+    max-width: calc(50% - 6px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
