@@ -199,42 +199,50 @@
 
   /* ===== HEADER ADJUSTMENTS ===== */
   header {
-    padding: var(--mobile-padding) !important;
+    padding: 10px !important;
     flex-wrap: wrap;
     gap: 8px;
   }
 
   header h1 {
-    font-size: 1.3rem !important;
-    flex: 1 1 100%;
-    margin-bottom: 8px;
+    font-size: 1.2rem !important;
+    width: 100%;
+    margin-bottom: 6px;
   }
 
   .header-controls {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     width: 100%;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
   }
 
+  /* Make dropdowns much smaller and allow wrapping if needed */
   #language-select,
   #level-select {
-    flex: 1;
-    min-width: 90px;
-    font-size: 0.75rem;
-    padding: 6px 8px !important;
+    flex: 1 1 auto;
+    min-width: 75px;
+    max-width: 120px;
+    font-size: 0.7rem !important;
+    padding: 6px 4px !important;
+    padding-right: 20px !important; /* Space for dropdown arrow */
   }
 
-  #logout-btn {
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
+  /* Ensure icons/buttons don't push dropdowns off screen */
+  #logout-btn,
+  .mobile-menu-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
     padding: 8px !important;
     flex-shrink: 0;
   }
 
-  .mobile-menu-btn {
-    flex-shrink: 0;
+  /* Make dropdown arrows smaller */
+  #language-select + i,
+  #level-select + i {
+    font-size: 0.8rem;
   }
 
   /* ===== MAIN LAYOUT ===== */
@@ -774,6 +782,35 @@
 
   .scenarios-modal-content {
     max-height: 85vh !important;
+  }
+}
+
+/* ===== EXTRA SMALL SCREENS (< 360px) ===== */
+@media (max-width: 359px) {
+  /* Stack header controls vertically on very small screens */
+  .header-controls {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  #language-select,
+  #level-select {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  #logout-btn,
+  .mobile-menu-btn {
+    align-self: flex-end;
+  }
+
+  .mobile-nav-item {
+    font-size: 0.6rem;
+  }
+
+  .mobile-nav-item i {
+    font-size: 1rem;
   }
 }
 
