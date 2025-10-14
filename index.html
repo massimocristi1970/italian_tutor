@@ -5707,7 +5707,7 @@
       function closeScenariosModal() {
         const modal = document.getElementById("scenarios-modal");
         if (modal) {
-          modal.remove();
+          modal.classList.remove("active");
         }
       }
 
@@ -8882,6 +8882,8 @@
       window.openPronunciationModal = openPronunciationModal;
       window.openFluencyModal = openFluencyModal;
       window.exitScenario = exitScenario;
+      window.closeScenariosModal = closeScenariosModal;
+
 
       window.onload = async function () {
         loadEnhancementData();
