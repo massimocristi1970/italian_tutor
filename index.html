@@ -5577,7 +5577,7 @@
         panel.innerHTML = `
                 <div class="scenarios-header">
                   <h2 class="scenarios-title">🎭 Conversation Scenarios</h2>
-                  <button class="scenarios-close-btn" onclick="closeScenariosModal()">×</button>
+                  <button class="scenarios-close-btn" onclick="exitScenario()">×</button>
                 </div>
               `;
 
@@ -5614,7 +5614,7 @@
         // Close on backdrop click
         modal.onclick = (e) => {
           if (e.target === modal) {
-            closeScenariosModal();
+            exitScenario();  // ← Changed from closeScenariosModal()
           }
         };
 
@@ -5717,7 +5717,7 @@
         currentTurn = 0;
         scenarioDialogue = [];
 
-        closeScenariosModal();
+        exitScenario();
         renderActiveScenario();
 
         // Start with first turn (usually NPC speaking)
