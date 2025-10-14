@@ -1,0 +1,9 @@
+[2025-10-13T15:57:11.389Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[2025-10-13T15:57:11.391Z] > authorizing via signed-in user (massimocristi@gmail.com)
+[2025-10-13T15:57:11.391Z] [iam] checking project italiantutorapp for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[2025-10-13T15:57:11.394Z] Checked if tokens are valid: true, expires at: 1760373031259
+[2025-10-13T15:57:11.394Z] Checked if tokens are valid: true, expires at: 1760373031259
+[2025-10-13T15:57:11.396Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/italiantutorapp:testIamPermissions [none]
+[2025-10-13T15:57:11.397Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/italiantutorapp:testIamPermissions x-goog-quota-user=projects/italiantutorapp
+[2025-10-13T15:57:11.397Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/italiantutorapp:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+^C
