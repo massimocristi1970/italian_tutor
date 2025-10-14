@@ -7911,22 +7911,6 @@
               renderCategories();
             }
 
-            // Initialize Phase 4
-            async function initializePhase4() {
-              console.log("🚀 Initializing Phase 4: Pronunciation Practice...");
-
-              const loaded = await loadPronunciationTargets();
-
-              if (loaded) {
-                addPronunciationButton();
-                console.log("✅ Phase 4 ready!");
-                return true;
-              } else {
-                console.warn("⚠️ Phase 4 data not fully loaded");
-                return false;
-              }
-            }
-
             // Add pronunciation button to UI
             function addPronunciationButton() {
               // Find the conversation button
