@@ -2526,7 +2526,7 @@
           <button
             class="mobile-menu-item"
             onclick="closeMobileMenu(); openScenariosModal();"
->
+          >
             <i class="fas fa-comments"></i>
             <span>Practice Conversations</span>
           </button>
@@ -8009,6 +8009,11 @@
 
       async function loadPhase4Data() {
         try {
+          // Load Pronunciation Targets
+          const pronResponse = await fetch("pronunciationTargets.json");
+          pronunciationTargetsData = await pronResponse.json();
+          console.log("✅ Pronunciation targets loaded");
+
           // Load Fluency Challenges
           const fluencyResponse = await fetch("fluencyChallenges.json");
           fluencyChallengesData = await fluencyResponse.json();
@@ -8876,26 +8881,27 @@
       window.openScenariosModal = openScenariosModal;
       window.openPronunciationModal = openPronunciationModal;
       window.openFluencyModal = openFluencyModal;
+      window.exitScenario = exitScenario;
 
       window.onload = async function () {
         loadEnhancementData();
         initializeTheme();
-  
+
         // Wait for Firebase to initialize
         await setupFirebase();
-  
+
         // Wait for auth to be ready
-        await new Promise(resolve => {
-          const unsubscribe = auth.onAuthStateChanged(user => {
+        await new Promise((resolve) => {
+          const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
               unsubscribe();
               resolve();
             }
           });
         });
-  
+
         populateWordBank(null);
-  
+
         // Now Phase 3 and Phase 4 will have auth.currentUser available
         await initializePhase3();
         await initializePhase4();
@@ -9040,10 +9046,7 @@
         <!-- Header -->
         <div class="pronunciation-header">
           <h2 class="pronunciation-title">🗣️ Pronunciation Practice</h2>
-          <button
-            class="scenarios-close-btn"
-            onclick="exitScenario()()"
-          >
+          <button class="scenarios-close-btn" onclick="exitScenario()()">
             ×
           </button>
         </div>
