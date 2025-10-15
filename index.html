@@ -7201,10 +7201,8 @@
     submitButton.onclick = async () => {
       if (currentSelectedWords.length === 0) {
         const feedbackMessage = document.getElementById("feedback-message");
-        feedbackMessage.textContent =
-          "Please select some words to form a sentence.";
-        feedbackMessage.className =
-          "mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 block dark:bg-red-900 dark:text-red-200";
+        feedbackMessage.textContent = "Please select some words to form a sentence.";
+        feedbackMessage.className = "mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 block dark:bg-red-900 dark:text-red-200";
         return;
       }
 
@@ -7231,6 +7229,71 @@
       submitButton.disabled = false;
       chatLoadingIndicator.classList.add("hidden");
     };
+
+    // Fluency Mode Sentence Checker
+    async function checkSentence(userSentence, isFluencyMode) {
+      const goal = isFluencyMode
+        ? document.getElementById("fluency-goal-display").textContent
+        : currentGoalDisplay.textContent;
+
+      const currentPhrase = allPhrases.find((p) => p.id === currentGoalId);
+      const expectedAnswer = currentPhrase
+        ? currentLanguage === "Italian"
+          ? currentPhrase.italian
+          : currentPhrase.sicilian || currentPhrase.italian || ""
+        : "";
+
+      const userPrompt = `The user built the ${currentLanguage} sentence: "${userSentence}". The goal was the English phrase: "${goal}". The expected target language answer is: "${expectedAnswer}". Analyze the user's sentence against the expected answer. 1) If it is grammatically correct and meets the goal, start your response with "Correct: " and provide positive feedback. 2) If it is incorrect or fails to meet the goal, start with "Incorrect: " and explain the error and provide the correct sentence.`;
+      const systemPrompt = `You are a supportive, knowledgeable ${currentLanguage} language tutor. Your response must be concise and actionable.`;
+
+      // Call API
+      try {
+        const modelName = "gemini-2.5-flash-preview-05-20";
+        const useProxy = typeof __gemini_api_key === "undefined" || !__gemini_api_key;
+
+        let apiUrl, payload;
+        if (useProxy) {
+          apiUrl = "/api/gemini-proxy";
+          payload = { userPrompt, systemPrompt, useSearch: false, modelName };
+        } else {
+          apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${__gemini_api_key}`;
+          payload = {
+            contents: [{ parts: [{ text: userPrompt }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+          };
+        }
+
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Could not check sentence.";
+
+        // Handle response based on mode
+        if (isFluencyMode) {
+          const isCorrect = text.toLowerCase().trim().startsWith("correct");
+          showFluencyFeedback(text, isCorrect);
+        } else {
+          processSentenceCheckResponse(text);
+        }
+      } catch (error) {
+        console.error("Sentence check failed:", error);
+        if (isFluencyMode) {
+          showFluencyFeedback("Error checking sentence. Please try again.", false);
+        } else {
+          const feedbackMessage = document.getElementById("feedback-message");
+          feedbackMessage.textContent = "Error: Could not check sentence. Please try again.";
+          feedbackMessage.className = "mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 block dark:bg-red-900 dark:text-red-200";
+        }
+      }
+    }
 
     // Mic for Chat Handler
     micChatBtn.onclick = () => {
@@ -8850,6 +8913,9 @@
     window.closeScenariosModal = closeScenariosModal;
     window.closePronunciationModal = closePronunciationModal;
     window.closeEntirePronunciationModal = closeEntirePronunciationModal;
+    window.checkFluencySentence = checkFluencySentence;
+    window.addWordToFluencySentence = addWordToFluencySentence;
+    window.clearFluencySentence = clearFluencySentence;
 
 
     window.onload = async function () {
