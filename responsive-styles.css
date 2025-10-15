@@ -99,7 +99,7 @@ a[role="button"] {
 
 /* ===== MOBILE HAMBURGER MENU ===== */
 .mobile-menu-btn {
-  display: none;
+  display: flex;
   background: transparent;
   border: none;
   font-size: 1.5rem;
