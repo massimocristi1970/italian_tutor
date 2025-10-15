@@ -8137,66 +8137,7 @@
       checkSentence(userSentence, true); // true flag for fluency mode
     }
 
-    // ===== BEGIN INSERT: checkSentence (restored) =====
-      async function checkSentence(sentence, isFluencyMode = false) {
-      try {
-        const goal = currentGoalDisplay.textContent;
-
-        const currentPhrase = allPhrases.find((p) => p.id === currentGoalId);
-      const expectedAnswer = currentPhrase
-      ? currentLanguage === "Italian"
-      ? currentPhrase.italian
-      : currentPhrase.sicilian || currentPhrase.italian || ""
-      : "";
-
-      const userPrompt = `The user built the ${currentLanguage} sentence: "${sentence}". The goal was the English phrase: "${goal}". The expected target language answer is: "${expectedAnswer}". Analyze the user's sentence against the expected answer. 1) If it is grammatically correct and meets the goal, start your response with "Correct: " and provide positive feedback. 2) If it is incorrect or fails to meet the goal, start with "Incorrect: " and explain the error and provide the correct sentence.`;
-
-      const systemPrompt = `You are a supportive, knowledgeable ${currentLanguage} language tutor. Your response must be concise and actionable.`;
-
-      const result = await postToGemini(userPrompt, systemPrompt, false, false);
-
-      const feedbackMessage = document.getElementById("feedback-message");
-
-      if (!result || typeof result !== "string") {
-        feedbackMessage.textContent =
-        "Error: Could not check the sentence. Please try again.";
-      feedbackMessage.className =
-      "mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 block dark:bg-red-900 dark:text-red-200";
-      return;
-        }
-
-      const isCorrect = result.startsWith("Correct:");
-      feedbackMessage.textContent = result;
-      feedbackMessage.className = isCorrect
-      ? "mt-4 p-3 rounded-lg text-sm bg-green-100 text-green-700 block dark:bg-green-900 dark:text-green-200"
-      : "mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 block dark:bg-red-900 dark:text-red-200";
-
-      // Track progress
-      if (typeof userProgress !== "undefined") {
-        trackSentenceBuilt(isCorrect, "simple");
-      if (typeof trackVocabularyUsage === "function") {
-        trackVocabularyUsage(currentSelectedWords);
-          }
-        }
-
-      // Advance if correct
-      if (isCorrect && currentGoalId && currentGoalId !== "FALLBACK") {
-        masteredPhraseIds.add(currentGoalId);
-      clearSentence();
-      selectNewPhraseOrGoal(true);
-        }
-      } catch (error) {
-        console.error("Error checking sentence:", error);
-      const feedbackMessage = document.getElementById("feedback-message");
-      feedbackMessage.textContent =
-      "Error: Could not check the sentence. Please try again.";
-      feedbackMessage.className =
-      "mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 block dark:bg-red-900 dark:text-red-200";
-      }
-    }
-  
-  // ===== END INSERT: checkSentence (restored) =====
-
+    
   // ✅ ADD THIS NEW FUNCTION HERE:
   function showFluencyFeedback(message, isCorrect) {
   const feedback = document.getElementById("fluency-feedback");
