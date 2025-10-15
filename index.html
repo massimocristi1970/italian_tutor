@@ -7950,7 +7950,7 @@
       });
     }
 
-    function startFluencyChallenge(challenge) {
+    async function startFluencyChallenge(challenge) {
       activeFluencyChallenge = challenge;
       challengeStartTime = Date.now();
       challengeCorrectCount = 0;
@@ -7960,7 +7960,16 @@
       document.getElementById("fluency-challenges-list").style.display = "none";
       document.getElementById("fluency-challenge-active").style.display = "block";
 
-      // Set up timer
+      // Show the sentence builder sections FIRST
+      const wordBankSection = document.querySelector('.word-bank-section');
+      const sentenceBuilder = document.querySelector('.sentence-builder-section');
+      if (wordBankSection) wordBankSection.style.display = 'block';
+      if (sentenceBuilder) sentenceBuilder.style.display = 'block';
+
+      // Start first item - AWAIT it and it will populate the word bank itself
+      await selectNewPhraseOrGoal(true);
+
+      // Set up timer AFTER the phrase is loaded
       let timeRemaining = challenge.time_limit;
       updateChallengeTimer(timeRemaining);
 
@@ -7976,20 +7985,6 @@
       // Update UI
       document.getElementById("challenge-completed").textContent = "0";
       document.getElementById("challenge-target").textContent = challenge.target_count;
-
-      // Start first item
-      selectNewPhraseOrGoal(true);
-
-      // Show the sentence builder and populate word bank
-      const wordBankSection = document.querySelector('.word-bank-section');
-      const sentenceBuilder = document.querySelector('.sentence-builder-section');
-      if (wordBankSection) wordBankSection.style.display = 'block';
-      if (sentenceBuilder) sentenceBuilder.style.display = 'block';
-
-      // Populate the word bank with words for the current phrase
-      if (currentPhrase) {
-        populateWordBank(currentPhrase);
-      }
     }
 
     function updateChallengeTimer(seconds) {
@@ -8761,6 +8756,7 @@
     window.exitScenario = exitScenario;
     window.closeScenariosModal = closeScenariosModal;
     window.closePronunciationModal = closePronunciationModal;
+    window.closeEntirePronunciationModal = closeEntirePronunciationModal;
 
 
     window.onload = async function () {
