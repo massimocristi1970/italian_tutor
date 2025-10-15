@@ -5540,6 +5540,7 @@
 
     // Start a scenario
     function startScenario(scenario) {
+      closeScenariosModal();
       exitScenario(); // ← Move this to the TOP
 
       activeScenario = scenario; // ← Now set it
