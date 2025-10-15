@@ -2816,6 +2816,7 @@
       limit,
       setLogLevel,
       getDoc,
+      increment
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- GLOBAL VARIABLES & CONFIGURATION ---
@@ -8243,6 +8244,9 @@
       feedback.style.display = "block";
       feedback.style.background = isCorrect ? "var(--success-bg, #d1fae5)" : "var(--error-bg, #fee2e2)";
       feedback.style.color = isCorrect ? "var(--success-text, #065f46)" : "var(--error-text, #991b1b)";
+
+      // ✅ INCREMENT ATTEMPTS EVERY TIME
+      challengeAttempts++;
 
       if (isCorrect) {
         challengeCorrectCount++;
