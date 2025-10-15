@@ -8803,16 +8803,12 @@
 
     function addPhase4Buttons() {
       // Find the pronunciation button location
-      const pronButton = document.getElementById(
-        "pronunciation-practice-btn"
-      );
+      const pronButton = document.getElementById("pronunciation-practice-btn");
 
       if (pronButton && pronButton.parentElement) {
         // Fluency Challenge button
         const fluencyBtn = document.createElement("button");
-        fluencyBtn.className =
-          "py-2 px-4 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition
-        duration - 150";
+        fluencyBtn.className = "py-2 px-4 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition duration-150";
         fluencyBtn.innerHTML = "⚡ Fluency";
         fluencyBtn.onclick = openFluencyModal;
         fluencyBtn.style.marginLeft = "8px";
@@ -8820,9 +8816,7 @@
 
         // Progress Report button
         const reportBtn = document.createElement("button");
-        reportBtn.className =
-          "py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition
-        duration - 150";
+        reportBtn.className = "py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-150";
         reportBtn.innerHTML = "📊 Report";
         reportBtn.onclick = openProgressReport;
         reportBtn.style.marginLeft = "8px";
@@ -8832,9 +8826,7 @@
       // Add conversation mode toggle to chat section
       const chatHistory = document.getElementById("chat-history");
       if (chatHistory) {
-        const modeToggle = document.getElementById(
-          "conversation-mode-toggle"
-        );
+        const modeToggle = document.getElementById("conversation-mode-toggle");
         chatHistory.parentElement.insertBefore(modeToggle, chatHistory);
       }
     }
