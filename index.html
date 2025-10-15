@@ -7976,16 +7976,27 @@
       const modal = document.getElementById("fluency-modal");
       modal.classList.remove("active");
 
+      // Reset UI to challenge selection
+      document.getElementById("fluency-challenges-list").style.display = "grid";
+      document.getElementById("fluency-challenge-active").style.display = "none";
+      document.getElementById("fluency-results").style.display = "none";
+
+      // Clear any active challenge
       if (challengeTimer) {
         clearInterval(challengeTimer);
+        challengeTimer = null;
       }
+      activeFluencyChallenge = null;
+    }
 
-      // Reset UI
-      document.getElementById("fluency-challenges-list").style.display =
-        "grid";
-      document.getElementById("fluency-challenge-active").style.display =
-        "none";
+    function backToFluencyChallenges() {
+      // Hide results, show challenge selection
       document.getElementById("fluency-results").style.display = "none";
+      document.getElementById("fluency-challenge-active").style.display = "none";
+      document.getElementById("fluency-challenges-list").style.display = "grid";
+
+      // Keep modal open
+      activeFluencyChallenge = null;
     }
 
     function renderFluencyChallenges() {
@@ -8955,6 +8966,7 @@
     window.checkFluencySentence = checkFluencySentence;
     window.addWordToFluencySentence = addWordToFluencySentence;
     window.clearFluencySentence = clearFluencySentence;
+    window.backToFluencyChallenges = backToFluencyChallenges;
 
 
     window.onload = async function () {
@@ -9402,7 +9414,7 @@
             <button class="completion-btn completion-btn-primary" onclick="retryChallenge()">
               Try Again
             </button>
-            <button class="completion-btn completion-btn-secondary" onclick="closeFluencyModal()">
+            <button class="completion-btn completion-btn-secondary" onclick="backToFluencyChallenges()">
               Back to Challenges
             </button>
           </div>
