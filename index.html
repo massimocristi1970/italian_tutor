@@ -8137,402 +8137,416 @@
       checkSentence(userSentence, true); // true flag for fluency mode
     }
 
-    
-  // ✅ ADD THIS NEW FUNCTION HERE:
-  function showFluencyFeedback(message, isCorrect) {
-  const feedback = document.getElementById("fluency-feedback");
-  feedback.textContent = message;
-  feedback.style.display = "block";
-  feedback.style.background = isCorrect ? "var(--success-bg, #d1fae5)" : "var(--error-bg, #fee2e2)";
-  feedback.style.color = isCorrect ? "var(--success-text, #065f46)" : "var(--error-text, #991b1b)";
 
-  if (isCorrect) {
-  challengeCorrectCount++;
-  document.getElementById("challenge-completed").textContent = challengeCorrectCount;
+    // ✅ ADD THIS NEW FUNCTION HERE:
+    function showFluencyFeedback(message, isCorrect) {
+      const feedback = document.getElementById("fluency-feedback");
+      feedback.textContent = message;
+      feedback.style.display = "block";
+      feedback.style.background = isCorrect ? "var(--success-bg, #d1fae5)" : "var(--error-bg, #fee2e2)";
+      feedback.style.color = isCorrect ? "var(--success-text, #065f46)" : "var(--error-text, #991b1b)";
 
-  // Clear sentence and load next
-  setTimeout(() => {
-  clearFluencySentence();
-  if (challengeCorrectCount >= activeFluencyChallenge.target_count) {
-  endFluencyChallenge("complete");
-  } else {
-  selectNewPhraseOrGoal(true).then(() => {
-  const mainGoal = document.getElementById("current-goal-display");
-  const fluencyGoal = document.getElementById("fluency-goal-display");
-  if (mainGoal && fluencyGoal) {
-  fluencyGoal.textContent = mainGoal.textContent;
-  }
-  populateFluencyWordBank();
-  });
-  }
-  }, 1500);
-  }
-  }
+      if (isCorrect) {
+        challengeCorrectCount++;
+        document.getElementById("challenge-completed").textContent = challengeCorrectCount;
 
-  // ✅ ADD THIS NEW FUNCTION HERE:
-  function clearFluencySentence() {
-  const sentenceDisplay = document.getElementById("fluency-sentence-display");
-  const feedback = document.getElementById("fluency-feedback");
-
-  sentenceDisplay.innerHTML = '<span style="color: var(--text-secondary); font-style: italic;">Tap words to build your
-    sentence...</span>';
-  feedback.style.display = "none";
-  }
-
-  function endFluencyChallenge(reason) {
-  clearInterval(challengeTimer);
-
-  const timeElapsed = (Date.now() - challengeStartTime) / 1000;
-  const accuracy =
-  challengeAttempts > 0
-  ? (challengeCorrectCount / challengeAttempts) * 100
-  : 0;
-
-  // Calculate score
-  const timeScore = Math.max(
-  0,
-  100 - (timeElapsed / activeFluencyChallenge.time_limit) * 50
-  );
-  const accuracyScore = accuracy;
-  const finalScore = Math.round(timeScore * 0.4 + accuracyScore * 0.6);
-
-  // Show results
-  document.getElementById("fluency-challenge-active").style.display =
-  "none";
-  document.getElementById("fluency-results").style.display = "block";
-
-  document.getElementById("final-score").textContent = finalScore;
-  document.getElementById("result-time").textContent =
-  formatTime(timeElapsed);
-  document.getElementById("result-accuracy").textContent =
-  Math.round(accuracy) + "%";
-  document.getElementById("result-streak").textContent =
-  finalScore >= 80 ? "+20%" : "+0%";
-
-  if (finalScore >= 90) {
-  document.getElementById("result-icon").textContent = "🏆";
-  document.getElementById("result-title").textContent = "Excellent!";
-  } else if (finalScore >= 70) {
-  document.getElementById("result-icon").textContent = "🌟";
-  document.getElementById("result-title").textContent = "Great Job!";
-  } else {
-  document.getElementById("result-icon").textContent = "✓";
-  document.getElementById("result-title").textContent =
-  "Challenge Complete!";
-  }
-
-  // Save to Firebase
-  saveFluencyChallengeResult(finalScore, timeElapsed, accuracy);
-  }
-
-  function formatTime(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-  }
-
-  function retryChallenge() {
-  if (activeFluencyChallenge) {
-  startFluencyChallenge(activeFluencyChallenge);
-  document.getElementById("fluency-results").style.display = "none";
-  }
-  }
-
-  async function saveFluencyChallengeResult(score, time, accuracy) {
-  if (!db || !userId || !auth.currentUser) return;
-
-  try {
-  const challengesRef = doc(
-  db,
-  getPrivateCollectionPath("progress"),
-  "fluency_challenges"
-  );
-
-  await setDoc(
-  challengesRef,
-  {
-  lastChallenge: {
-  id: activeFluencyChallenge.id,
-  score: score,
-  time: time,
-  accuracy: accuracy,
-  completedAt: serverTimestamp(),
-  },
-  totalChallenges: increment(1),
-  totalScore: increment(score),
-  },
-  { merge: true }
-  );
-
-  console.log("✅ Fluency challenge result saved");
-  } catch (error) {
-  console.warn("Could not save fluency challenge result:", error);
-  }
-  }
-
-  // ===== SPACED REPETITION SYSTEM (SRS) =====
-
-  async function initializeSRS() {
-  if (!srsCardsData) return;
-
-  // Load user's SRS data from Firebase
-  await loadSRSData();
-
-  // Initialize queue
-  updateSRSQueue();
-
-  // Show SRS section if there are due cards
-  const srsContainer = document.getElementById("srs-daily-review");
-  if (srsCardQueue.length > 0) {
-  srsContainer.style.display = "block";
-  loadNextSRSCard();
-  }
-  }
-
-  async function loadSRSData() {
-  if (!db || !userId || !auth.currentUser) return;
-
-  try {
-  const srsRef = doc(
-  db,
-  getPrivateCollectionPath("progress"),
-  "srs_data"
-  );
-  const docSnap = await getDoc(srsRef);
-
-  if (docSnap.exists()) {
-  srsUserData = docSnap.data();
-  } else {
-  // Initialize new user data
-  srsUserData = {
-  cards: {},
-  stats: {
-  new: 0,
-  learning: 0,
-  review: 0,
-  mastered: 0,
-  },
-  lastReview: null,
-  };
-
-  // Add initial cards as "new"
-  srsCardsData.initial_deck.forEach((card) => {
-  srsUserData.cards[card.id] = {
-  state: "new",
-  interval: 0,
-  easiness: 2.5,
-  repetitions: 0,
-  lastReview: null,
-  nextReview: Date.now(),
-  };
-  });
-  }
-
-  console.log("✅ SRS data loaded");
-  } catch (error) {
-  console.error("Error loading SRS data:", error);
-  }
-  }
-
-  function updateSRSQueue() {
-  srsCardQueue = [];
-  const now = Date.now();
-
-  // Find all due cards
-  Object.keys(srsUserData.cards).forEach((cardId) => {
-  const cardData = srsUserData.cards[cardId];
-  if (cardData.nextReview <= now && cardData.state !=="suspended" ) { srsCardQueue.push(cardId); } }); // Update counts
-    updateSRSStats(); document.getElementById("srs-due-count").textContent=srsCardQueue.length; } function
-    updateSRSStats() { const stats={ new: 0, learning: 0, review: 0, mastered: 0 };
-    Object.values(srsUserData.cards).forEach((card)=> {
-    if (card.state in stats) {
-    stats[card.state]++;
+        // Clear sentence and load next
+        setTimeout(() => {
+          clearFluencySentence();
+          if (challengeCorrectCount >= activeFluencyChallenge.target_count) {
+            endFluencyChallenge("complete");
+          } else {
+            selectNewPhraseOrGoal(true).then(() => {
+              const mainGoal = document.getElementById("current-goal-display");
+              const fluencyGoal = document.getElementById("fluency-goal-display");
+              if (mainGoal && fluencyGoal) {
+                fluencyGoal.textContent = mainGoal.textContent;
+              }
+              populateFluencyWordBank();
+            });
+          }
+        }, 1500);
+      }
     }
-    });
 
-    document.getElementById("srs-new-count").textContent = stats.new;
-    document.getElementById("srs-learning-count").textContent =
-    stats.learning;
-    document.getElementById("srs-review-count").textContent = stats.review;
-    document.getElementById("srs-mastered-count").textContent =
-    stats.mastered || 0;
+    // ✅ ADD THIS NEW FUNCTION HERE:
+    function clearFluencySentence() {
+      const sentenceDisplay = document.getElementById("fluency-sentence-display");
+      const feedback = document.getElementById("fluency-feedback");
 
-    srsUserData.stats = stats;
+      sentenceDisplay.innerHTML = '<span style="color: var(--text-secondary); font-style: italic;">Tap words to build your sentence...</span>';
+      feedback.style.display = "none";
+    }
+
+    function endFluencyChallenge(reason) {
+      clearInterval(challengeTimer);
+
+      const timeElapsed = (Date.now() - challengeStartTime) / 1000;
+      const accuracy =
+        challengeAttempts > 0
+          ? (challengeCorrectCount / challengeAttempts) * 100
+          : 0;
+
+      // Calculate score
+      const timeScore = Math.max(
+        0,
+        100 - (timeElapsed / activeFluencyChallenge.time_limit) * 50
+      );
+      const accuracyScore = accuracy;
+      const finalScore = Math.round(timeScore * 0.4 + accuracyScore * 0.6);
+
+      // Show results
+      document.getElementById("fluency-challenge-active").style.display =
+        "none";
+      document.getElementById("fluency-results").style.display = "block";
+
+      document.getElementById("final-score").textContent = finalScore;
+      document.getElementById("result-time").textContent =
+        formatTime(timeElapsed);
+      document.getElementById("result-accuracy").textContent =
+        Math.round(accuracy) + "%";
+      document.getElementById("result-streak").textContent =
+        finalScore >= 80 ? "+20%" : "+0%";
+
+      if (finalScore >= 90) {
+        document.getElementById("result-icon").textContent = "🏆";
+        document.getElementById("result-title").textContent = "Excellent!";
+      } else if (finalScore >= 70) {
+        document.getElementById("result-icon").textContent = "🌟";
+        document.getElementById("result-title").textContent = "Great Job!";
+      } else {
+        document.getElementById("result-icon").textContent = "✓";
+        document.getElementById("result-title").textContent =
+          "Challenge Complete!";
+      }
+
+      // Save to Firebase
+      saveFluencyChallengeResult(finalScore, timeElapsed, accuracy);
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs.toString().padStart(2, "0")}`;
+    }
+
+    function retryChallenge() {
+      if (activeFluencyChallenge) {
+        startFluencyChallenge(activeFluencyChallenge);
+        document.getElementById("fluency-results").style.display = "none";
+      }
+    }
+
+    async function saveFluencyChallengeResult(score, time, accuracy) {
+      if (!db || !userId || !auth.currentUser) return;
+
+      try {
+        const challengesRef = doc(
+          db,
+          getPrivateCollectionPath("progress"),
+          "fluency_challenges"
+        );
+
+        await setDoc(
+          challengesRef,
+          {
+            lastChallenge: {
+              id: activeFluencyChallenge.id,
+              score: score,
+              time: time,
+              accuracy: accuracy,
+              completedAt: serverTimestamp(),
+            },
+            totalChallenges: increment(1),
+            totalScore: increment(score),
+          },
+          { merge: true }
+        );
+
+        console.log("✅ Fluency challenge result saved");
+      } catch (error) {
+        console.warn("Could not save fluency challenge result:", error);
+      }
+    }
+
+    // ===== SPACED REPETITION SYSTEM (SRS) =====
+
+    async function initializeSRS() {
+      if (!srsCardsData) return;
+
+      // Load user's SRS data from Firebase
+      await loadSRSData();
+
+      // Initialize queue
+      updateSRSQueue();
+
+      // Show SRS section if there are due cards
+      const srsContainer = document.getElementById("srs-daily-review");
+      if (srsCardQueue.length > 0) {
+        srsContainer.style.display = "block";
+        loadNextSRSCard();
+      }
+    }
+
+    async function loadSRSData() {
+      if (!db || !userId || !auth.currentUser) return;
+
+      try {
+        const srsRef = doc(
+          db,
+          getPrivateCollectionPath("progress"),
+          "srs_data"
+        );
+        const docSnap = await getDoc(srsRef);
+
+        if (docSnap.exists()) {
+          srsUserData = docSnap.data();
+        } else {
+          // Initialize new user data
+          srsUserData = {
+            cards: {},
+            stats: {
+              new: 0,
+              learning: 0,
+              review: 0,
+              mastered: 0,
+            },
+            lastReview: null,
+          };
+
+          // Add initial cards as "new"
+          srsCardsData.initial_deck.forEach((card) => {
+            srsUserData.cards[card.id] = {
+              state: "new",
+              interval: 0,
+              easiness: 2.5,
+              repetitions: 0,
+              lastReview: null,
+              nextReview: Date.now(),
+            };
+          });
+        }
+
+        console.log("✅ SRS data loaded");
+      } catch (error) {
+        console.error("Error loading SRS data:", error);
+      }
+    }
+
+    function updateSRSQueue() {
+      srsCardQueue = [];
+      const now = Date.now();
+
+      // Find all due cards
+      Object.keys(srsUserData.cards).forEach((cardId) => {
+        const cardData = srsUserData.cards[cardId];
+        if (cardData.nextReview <= now && cardData.state !== "suspended") { srsCardQueue.push(cardId); }
+      }); // Update counts
+      updateSRSStats(); document.getElementById("srs-due-count").textContent = srsCardQueue.length;
+    } function
+      updateSRSStats() {
+        const stats = { new: 0, learning: 0, review: 0, mastered: 0 };
+      Object.values(srsUserData.cards).forEach((card) => {
+        if (card.state in stats) {
+          stats[card.state]++;
+        }
+      });
+
+      document.getElementById("srs-new-count").textContent = stats.new;
+      document.getElementById("srs-learning-count").textContent =
+        stats.learning;
+      document.getElementById("srs-review-count").textContent = stats.review;
+      document.getElementById("srs-mastered-count").textContent =
+        stats.mastered || 0;
+
+      srsUserData.stats = stats;
     }
 
     function loadNextSRSCard() {
-    if (srsCardQueue.length === 0) {
-    document.getElementById("srs-daily-review").innerHTML = `
+      if (srsCardQueue.length === 0) {
+        document.getElementById("srs-daily-review").innerHTML = `
     <div style="text-align: center; padding: 40px;">
       <div style="font-size: 4rem; margin-bottom: 16px;">🎉</div>
       <h3 style="font-size: 1.5rem; font-weight: 700;">All Done!</h3>
       <p style="color: var(--text-secondary); margin-top: 8px;">You've reviewed all cards for today. Great job!</p>
     </div>
     `;
-    return;
-    }
+        return;
+      }
 
-    const cardId = srsCardQueue[0];
-    const cardTemplate = srsCardsData.initial_deck.find(
-    (c) => c.id === cardId
-    );
+      const cardId = srsCardQueue[0];
+      const cardTemplate = srsCardsData.initial_deck.find(
+        (c) => c.id === cardId
+      );
 
-    if (!cardTemplate) return;
+      if (!cardTemplate) return;
 
-    currentSRSCard = cardTemplate;
-    cardFlipped = false;
+      currentSRSCard = cardTemplate;
+      cardFlipped = false;
 
-    // Update UI
-    document.getElementById("card-front-text").textContent =
-    cardTemplate.front;
-    document.getElementById("card-pronunciation").textContent =
-    cardTemplate.pronunciation || "";
-    document.getElementById("card-back-text").textContent =
-    cardTemplate.back;
-    document.getElementById("card-example").innerHTML = `
+      // Update UI
+      document.getElementById("card-front-text").textContent =
+        cardTemplate.front;
+      document.getElementById("card-pronunciation").textContent =
+        cardTemplate.pronunciation || "";
+      document.getElementById("card-back-text").textContent =
+        cardTemplate.back;
+      document.getElementById("card-example").innerHTML = `
     ${cardTemplate.example_sentence}<br>
     <span style="font-size: 0.85rem; opacity: 0.8;">${cardTemplate.example_translation}</span>
     `;
 
-    // Reset flip state
-    document.getElementById("srs-flashcard").classList.remove("flipped");
-    document.getElementById("srs-response-buttons").style.display = "none";
+      // Reset flip state
+      document.getElementById("srs-flashcard").classList.remove("flipped");
+      document.getElementById("srs-response-buttons").style.display = "none";
 
-    // Update interval displays
-    const userData = srsUserData.cards[cardId];
-    updateIntervalDisplays(userData);
+      // Update interval displays
+      const userData = srsUserData.cards[cardId];
+      updateIntervalDisplays(userData);
     }
 
     function flipCard() {
-    const flashcard = document.getElementById("srs-flashcard");
-    flashcard.classList.toggle("flipped");
-    cardFlipped = !cardFlipped;
+      const flashcard = document.getElementById("srs-flashcard");
+      flashcard.classList.toggle("flipped");
+      cardFlipped = !cardFlipped;
 
-    if (cardFlipped) {
-    document.getElementById("srs-response-buttons").style.display =
-    "flex";
-    }
+      if (cardFlipped) {
+        document.getElementById("srs-response-buttons").style.display =
+          "flex";
+      }
     }
 
     function updateIntervalDisplays(userData) {
-    const goodInterval = calculateNextInterval(userData, 4);
-    const easyInterval = calculateNextInterval(userData, 5);
+      const goodInterval = calculateNextInterval(userData, 4);
+      const easyInterval = calculateNextInterval(userData, 5);
 
-    document.getElementById("good-interval").textContent =
-    formatInterval(goodInterval);
-    document.getElementById("easy-interval").textContent =
-    formatInterval(easyInterval);
+      document.getElementById("good-interval").textContent =
+        formatInterval(goodInterval);
+      document.getElementById("easy-interval").textContent =
+        formatInterval(easyInterval);
     }
 
     function calculateNextInterval(userData, grade) {
-    const settings = srsCardsData.difficulty_adjustments[`grade_${grade}`];
-    let interval = userData.interval * settings.interval_mult;
+      const settings = srsCardsData.difficulty_adjustments[`grade_${grade}`];
+      let interval = userData.interval * settings.interval_mult;
 
-    if (interval < 1) interval=1; if (interval> srsCardsData.review_schedule.maximum_interval) {
-      interval = srsCardsData.review_schedule.maximum_interval;
+      if (interval < 1) interval = 1; if (interval > srsCardsData.review_schedule.maximum_interval) {
+        interval = srsCardsData.review_schedule.maximum_interval;
       }
 
       return interval;
-      }
+    }
 
-      function formatInterval(days) {
-      if (days < 1) return "<1d" ; if (days < 30) return `${Math.round(days)}d`; if (days < 365) return
-        `${Math.round(days / 30)}mo`; return `${Math.round(days / 365)}y`; } function rateCard(grade) { if
-        (!currentSRSCard || !cardFlipped) return; const cardId=currentSRSCard.id; const
-        userData=srsUserData.cards[cardId]; // Apply SM-2 algorithm const
-        adjustment=srsCardsData.difficulty_adjustments[`grade_${grade}`]; // Update easiness userData.easiness=Math.max(
-        1.3, userData.easiness + adjustment.ease_change ); // Update interval if (grade < 3) { // Failed - reset
-        userData.interval=0; userData.repetitions=0; userData.state="learning" ; } else { // Passed
-        userData.repetitions++; if (userData.repetitions===1) { userData.interval=1; userData.state="learning" ; } else
-        if (userData.repetitions===2) { userData.interval=6; userData.state="review" ; } else {
-        userData.interval=Math.round( userData.interval * userData.easiness ); userData.state="review" ; } } // Set next
-        review date userData.lastReview=Date.now(); userData.nextReview=Date.now() + userData.interval * 24 * 60 * 60 *
-        1000; // Remove from queue srsCardQueue.shift(); // Save to Firebase saveSRSData(); // Load next card
-        loadNextSRSCard(); updateSRSStats(); } async function saveSRSData() { if (!db || !userId || !auth.currentUser)
-        return; try { const srsRef=doc( db, getPrivateCollectionPath("progress"), "srs_data" ); await setDoc( srsRef, {
-        cards: srsUserData.cards, stats: srsUserData.stats, lastReview: serverTimestamp(), }, { merge: true } ); } catch
-        (error) { console.warn("Could not save SRS data:", error); } } //=====FREE-FORM AI CONVERSATIONS=====function
-        initializeConversationMode() { const toggleContainer=document.getElementById( "conversation-mode-toggle" ); if
-        (conversationTopicsData) { toggleContainer.style.display="flex" ; } } function setConversationMode(mode) {
-        conversationMode=mode; // Update active button document.querySelectorAll(".mode-btn").forEach((btn)=> {
-        btn.classList.remove("active");
-        });
+    function formatInterval(days) {
+      if (days < 1) return "<1d"; if (days < 30) return `${Math.round(days)}d`; if (days < 365) return
+      `${Math.round(days / 30)}mo`; return `${Math.round(days / 365)}y`;
+    } function rateCard(grade) {
+      if
+        (!currentSRSCard || !cardFlipped) return; const cardId = currentSRSCard.id; const
+          userData = srsUserData.cards[cardId]; // Apply SM-2 algorithm const
+      adjustment = srsCardsData.difficulty_adjustments[`grade_${grade}`]; // Update easiness userData.easiness=Math.max(
+      1.3, userData.easiness + adjustment.ease_change ); // Update interval if (grade < 3) { // Failed - reset
+      userData.interval = 0; userData.repetitions = 0; userData.state = "learning";
+    } else { // Passed
+      userData.repetitions++; if (userData.repetitions === 1) { userData.interval = 1; userData.state = "learning"; } else
+        if (userData.repetitions === 2) { userData.interval = 6; userData.state = "review"; } else {
+          userData.interval = Math.round(userData.interval * userData.easiness); userData.state = "review";
+        }
+    } // Set next
+        review date userData.lastReview = Date.now(); userData.nextReview = Date.now() + userData.interval * 24 * 60 * 60 *
+      1000; // Remove from queue srsCardQueue.shift(); // Save to Firebase saveSRSData(); // Load next card
+    loadNextSRSCard(); updateSRSStats(); } async function saveSRSData() {
+      if (!db || !userId || !auth.currentUser)
+        return; try {
+          const srsRef = doc(db, getPrivateCollectionPath("progress"), "srs_data"); await setDoc(srsRef, {
+            cards: srsUserData.cards, stats: srsUserData.stats, lastReview: serverTimestamp(),
+          }, { merge: true });
+        } catch
+      (error) { console.warn("Could not save SRS data:", error); }
+    } //=====FREE-FORM AI CONVERSATIONS=====function
+    initializeConversationMode() {
+      const toggleContainer = document.getElementById("conversation-mode-toggle"); if
+        (conversationTopicsData) { toggleContainer.style.display = "flex"; }
+    } function setConversationMode(mode) {
+      conversationMode = mode; // Update active button document.querySelectorAll(".mode-btn").forEach((btn)=> {
+      btn.classList.remove("active");
+    });
 
-        document.querySelector(`[data-mode="${mode}"]`).classList.add("active");
+    document.querySelector(`[data-mode="${mode}"]`).classList.add("active");
 
-        // Clear correction history for new mode
-        conversationCorrections = [];
+    // Clear correction history for new mode
+    conversationCorrections = [];
 
-        // Show mode-specific guidance
-        if (mode === "immersive") {
-        appendChatMessage("Ora parleremo solo in italiano! 🇮🇹", false);
-        } else if (mode === "freeform") {
-        appendChatMessage(
+    // Show mode-specific guidance
+    if (mode === "immersive") {
+      appendChatMessage("Ora parleremo solo in italiano! 🇮🇹", false);
+    } else if (mode === "freeform") {
+      appendChatMessage(
         "Feel free to talk about anything! I'll gently correct mistakes at the end.",
         false
-        );
+      );
+    }
         }
-        }
 
-        async function handleChatSendWithMode() {
-        const message = chatInput.value.trim();
-        if (message === "") return;
+    async function handleChatSendWithMode() {
+      const message = chatInput.value.trim();
+      if (message === "") return;
 
-        appendChatMessage(message, true);
-        saveChatMessage(message, "user");
+      appendChatMessage(message, true);
+      saveChatMessage(message, "user");
 
-        chatInput.value = "";
-        chatSendButton.disabled = true;
-        chatLoadingIndicator.textContent = "Tutor is thinking...";
-        chatLoadingIndicator.classList.remove("hidden");
+      chatInput.value = "";
+      chatSendButton.disabled = true;
+      chatLoadingIndicator.textContent = "Tutor is thinking...";
+      chatLoadingIndicator.classList.remove("hidden");
 
-        // Construct system prompt based on mode
-        let systemPrompt = "";
+      // Construct system prompt based on mode
+      let systemPrompt = "";
 
-        if (conversationMode === "immersive") {
+      if (conversationMode === "immersive") {
         systemPrompt = `You are an Italian language tutor. Respond ONLY in Italian. Keep responses natural and
         conversational. If the user makes a mistake, gently model the correct form in your response without explicitly
         pointing it out.`;
-        } else if (conversationMode === "freeform") {
+      } else if (conversationMode === "freeform") {
         systemPrompt = `You are a friendly Italian language tutor. Have a natural conversation with the learner. Track
         any grammar or vocabulary mistakes, but don't interrupt - save corrections for the end of the conversation. Be
         encouraging and supportive.`;
-        } else {
+      } else {
         systemPrompt = `You are a supportive Italian language tutor. Provide helpful responses with cultural context and
         gentle corrections when needed.`;
-        }
+      }
 
-        await postToGemini(message, systemPrompt, true, true);
+      await postToGemini(message, systemPrompt, true, true);
 
-        // If in freeform mode, analyze for corrections (without interrupting)
-        if (conversationMode === "freeform") {
+      // If in freeform mode, analyze for corrections (without interrupting)
+      if (conversationMode === "freeform") {
         analyzeForCorrections(message);
-        }
+      }
 
-        chatSendButton.disabled = false;
-        chatLoadingIndicator.classList.add("hidden");
-        }
+      chatSendButton.disabled = false;
+      chatLoadingIndicator.classList.add("hidden");
+    }
 
-        function analyzeForCorrections(userMessage) {
-        // This would use AI to detect errors
-        // For now, we'll just track messages
-        conversationHistory.push({
+    function analyzeForCorrections(userMessage) {
+      // This would use AI to detect errors
+      // For now, we'll just track messages
+      conversationHistory.push({
         message: userMessage,
         timestamp: Date.now(),
-        });
+      });
 
-        // After 5 messages in freeform mode, offer corrections
-        if (conversationHistory.length % 5 === 0) {
+      // After 5 messages in freeform mode, offer corrections
+      if (conversationHistory.length % 5 === 0) {
         offerCorrections();
-        }
-        }
+      }
+    }
 
-        function offerCorrections() {
-        if (conversationMode !== "freeform") return;
+    function offerCorrections() {
+      if (conversationMode !== "freeform") return;
 
-        const correctionDiv = document.createElement("div");
-        correctionDiv.className = "correction-indicator";
-        correctionDiv.innerHTML = `
+      const correctionDiv = document.createElement("div");
+      correctionDiv.className = "correction-indicator";
+      correctionDiv.innerHTML = `
         Would you like me to review your recent messages and suggest improvements?
         <button onclick="showDetailedCorrections()"
           style="margin-left: 8px; padding: 4px 12px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer;">
@@ -8540,110 +8554,110 @@
         </button>
         `;
 
-        chatHistoryContainer.appendChild(correctionDiv);
-        chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
-        }
+      chatHistoryContainer.appendChild(correctionDiv);
+      chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
+    }
 
-        async function showDetailedCorrections() {
-        // Generate correction summary using AI
-        const recentMessages = conversationHistory
+    async function showDetailedCorrections() {
+      // Generate correction summary using AI
+      const recentMessages = conversationHistory
         .slice(-5)
         .map((m) => m.message)
         .join(" | ");
 
-        const prompt = `Review these Italian language learner messages and provide gentle, encouraging corrections:
+      const prompt = `Review these Italian language learner messages and provide gentle, encouraging corrections:
         ${recentMessages}. Format as: "Great effort! Here are some tips: 1) ... 2) ..."`;
 
-        await postToGemini(
+      await postToGemini(
         prompt,
         "You are a supportive language tutor providing corrections.",
         false,
         true
-        );
-        }
+      );
+    }
 
-        // ===== WEEKLY PROGRESS REPORTS =====
+    // ===== WEEKLY PROGRESS REPORTS =====
 
-        function openProgressReport() {
-        const modal = document.getElementById("progress-report-modal");
-        modal.classList.add("active");
+    function openProgressReport() {
+      const modal = document.getElementById("progress-report-modal");
+      modal.classList.add("active");
 
-        generateProgressReport();
-        }
+      generateProgressReport();
+    }
 
-        function closeProgressReport() {
-        const modal = document.getElementById("progress-report-modal");
-        modal.classList.remove("active");
-        }
+    function closeProgressReport() {
+      const modal = document.getElementById("progress-report-modal");
+      modal.classList.remove("active");
+    }
 
-        async function generateProgressReport() {
-        if (!userProgress) {
+    async function generateProgressReport() {
+      if (!userProgress) {
         document.getElementById("report-main-stat").textContent = "--";
         return;
-        }
+      }
 
-        // Calculate date range
-        const now = new Date();
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      // Calculate date range
+      const now = new Date();
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-        document.getElementById(
+      document.getElementById(
         "report-date-range"
-        ).textContent = `${weekAgo.toLocaleDateString()} - ${now.toLocaleDateString()}`;
+      ).textContent = `${weekAgo.toLocaleDateString()} - ${now.toLocaleDateString()}`;
 
-        // Practice time (estimated)
-        const practiceMinutes = userProgress.stats.total_sentences_built * 2; // Rough estimate
-        document.getElementById("report-main-stat").textContent =
+      // Practice time (estimated)
+      const practiceMinutes = userProgress.stats.total_sentences_built * 2; // Rough estimate
+      document.getElementById("report-main-stat").textContent =
         practiceMinutes;
 
-        // Sentences
-        document.getElementById("report-sentences").textContent =
+      // Sentences
+      document.getElementById("report-sentences").textContent =
         userProgress.stats.total_sentences_built;
 
-        // Accuracy
-        const accuracy =
+      // Accuracy
+      const accuracy =
         userProgress.stats.total_sentences_built > 0
-        ? Math.round(
-        (userProgress.stats.total_sentences_correct /
-        userProgress.stats.total_sentences_built) *
-        100
-        )
-        : 0;
-        document.getElementById("report-accuracy").textContent = accuracy + "%";
+          ? Math.round(
+            (userProgress.stats.total_sentences_correct /
+              userProgress.stats.total_sentences_built) *
+            100
+          )
+          : 0;
+      document.getElementById("report-accuracy").textContent = accuracy + "%";
 
-        // Streak
-        document.getElementById("report-streak").textContent =
+      // Streak
+      document.getElementById("report-streak").textContent =
         userProgress.practice_days.streak;
 
-        // Vocabulary
-        document.getElementById("report-vocab").textContent =
+      // Vocabulary
+      document.getElementById("report-vocab").textContent =
         userProgress.vocabulary.unique_words.length;
 
-        // Generate insights
-        generateInsights();
-        generateRecommendations();
-        }
+      // Generate insights
+      generateInsights();
+      generateRecommendations();
+    }
 
-        function generateInsights() {
-        const container = document.getElementById("report-insights-container");
-        container.innerHTML = "";
+    function generateInsights() {
+      const container = document.getElementById("report-insights-container");
+      container.innerHTML = "";
 
-        // Find strongest area
-        const verbAccuracy = calculateVerbAccuracy();
+      // Find strongest area
+      const verbAccuracy = calculateVerbAccuracy();
 
-        if (verbAccuracy > 85) {
+      if (verbAccuracy > 85) {
         const insight = document.createElement("div");
         insight.className = "report-insight";
         insight.innerHTML = `
         <div class="report-insight-title">🎯 Strongest Area</div>
         <div class="report-insight-text">You're excelling at verb conjugations! Your accuracy is ${Math.round(
           verbAccuracy
-          )}%.</div>
+        )}%.</div>
         `;
         container.appendChild(insight);
-        }
+      }
 
-        // Most practiced
-        if (userProgress.sentences.total > 20) {
+      // Most practiced
+      if (userProgress.sentences.total > 20) {
         const insight = document.createElement("div");
         insight.className = "report-insight";
         insight.innerHTML = `
@@ -8652,35 +8666,36 @@
           consistency is impressive!</div>
         `;
         container.appendChild(insight);
-        }
-        }
+      }
+    }
 
-        function generateRecommendations() {
-        const container = document.getElementById(
+    function generateRecommendations() {
+      const container = document.getElementById(
         "report-recommendations-container"
-        );
-        container.innerHTML = "";
+      );
+      container.innerHTML = "";
 
-        // Check for areas needing improvement
-        const vocabCount = userProgress.vocabulary.unique_words.length;
+      // Check for areas needing improvement
+      const vocabCount = userProgress.vocabulary.unique_words.length;
 
-        if (vocabCount < 50) { const rec=document.createElement("div"); rec.className="report-recommendation" ;
-          rec.innerHTML=` <div class="report-recommendation-title">
+      if (vocabCount < 50) {
+        const rec = document.createElement("div"); rec.className = "report-recommendation";
+        rec.innerHTML = ` <div class="report-recommendation-title">
           <i class="fas fa-star"></i> Next Milestone
           </div>
           <div class="report-recommendation-text">
             You're ${50 - vocabCount
-            } words away from the Vocabulary Explorer milestone! Try the SRS card review to learn new words efficiently.
+          } words away from the Vocabulary Explorer milestone! Try the SRS card review to learn new words efficiently.
           </div>
           `;
-          container.appendChild(rec);
-          }
+        container.appendChild(rec);
+      }
 
-          // Streak recommendation
-          if (userProgress.practice_days.streak >= 7) {
-          const rec = document.createElement("div");
-          rec.className = "report-recommendation";
-          rec.innerHTML = `
+      // Streak recommendation
+      if (userProgress.practice_days.streak >= 7) {
+        const rec = document.createElement("div");
+        rec.className = "report-recommendation";
+        rec.innerHTML = `
           <div class="report-recommendation-title">
             <i class="fas fa-fire"></i> Streak Master
           </div>
@@ -8689,474 +8704,474 @@
             achievement.
           </div>
           `;
-          container.appendChild(rec);
-          }
-          }
+        container.appendChild(rec);
+      }
+    }
 
-          function calculateVerbAccuracy() {
-          if (!userProgress || !userProgress.verb_mastery) return 0;
+    function calculateVerbAccuracy() {
+      if (!userProgress || !userProgress.verb_mastery) return 0;
 
-          const verbs = Object.values(userProgress.verb_mastery);
-          if (verbs.length === 0) return 0;
+      const verbs = Object.values(userProgress.verb_mastery);
+      if (verbs.length === 0) return 0;
 
-          const totalCorrect = verbs.reduce((sum, v) => sum + v.correct, 0);
-          const totalAttempts = verbs.reduce((sum, v) => sum + v.attempts, 0);
+      const totalCorrect = verbs.reduce((sum, v) => sum + v.correct, 0);
+      const totalAttempts = verbs.reduce((sum, v) => sum + v.attempts, 0);
 
-          return totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0;
-          }
+      return totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0;
+    }
 
-          function generateNewReport() {
-          // Refresh the report
-          generateProgressReport();
-          }
+    function generateNewReport() {
+      // Refresh the report
+      generateProgressReport();
+    }
 
-          // ===== PHASE 4 INITIALIZATION =====
+    // ===== PHASE 4 INITIALIZATION =====
 
-          async function initializePhase4() {
-          console.log("🚀 Initializing Phase 4: Advanced Learning Features...");
+    async function initializePhase4() {
+      console.log("🚀 Initializing Phase 4: Advanced Learning Features...");
 
-          const loaded = await loadPhase4Data();
+      const loaded = await loadPhase4Data();
 
-          if (loaded && auth.currentUser?.uid) {
-          // Add UI buttons
-          // addPhase4Buttons(); // DISABLED - moved to hamburger menu
+      if (loaded && auth.currentUser?.uid) {
+        // Add UI buttons
+        // addPhase4Buttons(); // DISABLED - moved to hamburger menu
 
-          // Initialize SRS
-          await initializeSRS();
+        // Initialize SRS
+        await initializeSRS();
 
-          // Initialize conversation mode
-          initializeConversationMode();
+        // Initialize conversation mode
+        initializeConversationMode();
 
-          console.log("✅ Phase 4 ready!");
-          return true;
-          } else {
-          console.warn("⚠️ Phase 4 data not fully loaded");
-          return false;
-          }
-          }
+        console.log("✅ Phase 4 ready!");
+        return true;
+      } else {
+        console.warn("⚠️ Phase 4 data not fully loaded");
+        return false;
+      }
+    }
 
-          function addPhase4Buttons() {
-          // Find the pronunciation button location
-          const pronButton = document.getElementById(
-          "pronunciation-practice-btn"
-          );
+    function addPhase4Buttons() {
+      // Find the pronunciation button location
+      const pronButton = document.getElementById(
+        "pronunciation-practice-btn"
+      );
 
-          if (pronButton && pronButton.parentElement) {
-          // Fluency Challenge button
-          const fluencyBtn = document.createElement("button");
-          fluencyBtn.className =
+      if (pronButton && pronButton.parentElement) {
+        // Fluency Challenge button
+        const fluencyBtn = document.createElement("button");
+        fluencyBtn.className =
           "py-2 px-4 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition
-          duration-150";
-          fluencyBtn.innerHTML = "⚡ Fluency";
-          fluencyBtn.onclick = openFluencyModal;
-          fluencyBtn.style.marginLeft = "8px";
-          pronButton.parentElement.appendChild(fluencyBtn);
+        duration - 150";
+        fluencyBtn.innerHTML = "⚡ Fluency";
+        fluencyBtn.onclick = openFluencyModal;
+        fluencyBtn.style.marginLeft = "8px";
+        pronButton.parentElement.appendChild(fluencyBtn);
 
-          // Progress Report button
-          const reportBtn = document.createElement("button");
-          reportBtn.className =
+        // Progress Report button
+        const reportBtn = document.createElement("button");
+        reportBtn.className =
           "py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition
-          duration-150";
-          reportBtn.innerHTML = "📊 Report";
-          reportBtn.onclick = openProgressReport;
-          reportBtn.style.marginLeft = "8px";
-          pronButton.parentElement.appendChild(reportBtn);
-          }
+        duration - 150";
+        reportBtn.innerHTML = "📊 Report";
+        reportBtn.onclick = openProgressReport;
+        reportBtn.style.marginLeft = "8px";
+        pronButton.parentElement.appendChild(reportBtn);
+      }
 
-          // Add conversation mode toggle to chat section
-          const chatHistory = document.getElementById("chat-history");
-          if (chatHistory) {
-          const modeToggle = document.getElementById(
+      // Add conversation mode toggle to chat section
+      const chatHistory = document.getElementById("chat-history");
+      if (chatHistory) {
+        const modeToggle = document.getElementById(
           "conversation-mode-toggle"
-          );
-          chatHistory.parentElement.insertBefore(modeToggle, chatHistory);
-          }
-          }
+        );
+        chatHistory.parentElement.insertBefore(modeToggle, chatHistory);
+      }
+    }
 
-          // Expose global functions
-          window.closeFluencyModal = closeFluencyModal;
-          window.pauseChallenge = pauseChallenge;
-          window.exitChallenge = exitChallenge;
-          window.retryChallenge = retryChallenge;
-          window.flipCard = flipCard;
-          window.rateCard = rateCard;
-          window.setConversationMode = setConversationMode;
-          window.showDetailedCorrections = showDetailedCorrections;
-          window.openProgressReport = openProgressReport;
-          window.closeProgressReport = closeProgressReport;
-          window.generateNewReport = generateNewReport;
-          window.openScenariosModal = openScenariosModal;
-          window.openPronunciationModal = openPronunciationModal;
-          window.openFluencyModal = openFluencyModal;
-          window.exitScenario = exitScenario;
-          window.closeScenariosModal = closeScenariosModal;
-          window.closePronunciationModal = closePronunciationModal;
-          window.closeEntirePronunciationModal = closeEntirePronunciationModal;
+    // Expose global functions
+    window.closeFluencyModal = closeFluencyModal;
+    window.pauseChallenge = pauseChallenge;
+    window.exitChallenge = exitChallenge;
+    window.retryChallenge = retryChallenge;
+    window.flipCard = flipCard;
+    window.rateCard = rateCard;
+    window.setConversationMode = setConversationMode;
+    window.showDetailedCorrections = showDetailedCorrections;
+    window.openProgressReport = openProgressReport;
+    window.closeProgressReport = closeProgressReport;
+    window.generateNewReport = generateNewReport;
+    window.openScenariosModal = openScenariosModal;
+    window.openPronunciationModal = openPronunciationModal;
+    window.openFluencyModal = openFluencyModal;
+    window.exitScenario = exitScenario;
+    window.closeScenariosModal = closeScenariosModal;
+    window.closePronunciationModal = closePronunciationModal;
+    window.closeEntirePronunciationModal = closeEntirePronunciationModal;
 
 
-          window.onload = async function () {
-          loadEnhancementData();
-          initializeTheme();
+    window.onload = async function () {
+      loadEnhancementData();
+      initializeTheme();
 
-          // Wait for Firebase to initialize
-          await setupFirebase();
+      // Wait for Firebase to initialize
+      await setupFirebase();
 
-          // Wait for auth to be ready
-          await new Promise((resolve) => {
-          const unsubscribe = auth.onAuthStateChanged((user) => {
+      // Wait for auth to be ready
+      await new Promise((resolve) => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
           if (user) {
-          unsubscribe();
-          resolve();
+            unsubscribe();
+            resolve();
           }
-          });
-          });
+        });
+      });
 
-          populateWordBank(null);
+      populateWordBank(null);
 
-          // Now Phase 3 and Phase 4 will have auth.currentUser available
-          await initializePhase3();
-          await initializePhase4();
+      // Now Phase 3 and Phase 4 will have auth.currentUser available
+      await initializePhase3();
+      await initializePhase4();
 
-          // Logout handler
-          document.getElementById("logout-btn").onclick = async () => {
-          if (confirm("Are you sure you want to logout?")) {
+      // Logout handler
+      document.getElementById("logout-btn").onclick = async () => {
+        if (confirm("Are you sure you want to logout?")) {
           try {
-          await signOut(auth);
-          // User will be redirected to login.html by onAuthStateChanged
+            await signOut(auth);
+            // User will be redirected to login.html by onAuthStateChanged
           } catch (error) {
-          console.error("Logout error:", error);
-          showModal(
-          "Logout Error",
-          "Could not logout. Please try again.",
-          true
-          );
+            console.error("Logout error:", error);
+            showModal(
+              "Logout Error",
+              "Could not logout. Please try again.",
+              true
+            );
           }
-          }
-          };
-          };
+        }
+      };
+    };
 
-          // === Expose functions used by inline onclick handlers ===
-          // These make the inline onclick="..." buttons work even inside a module.
+    // === Expose functions used by inline onclick handlers ===
+    // These make the inline onclick="..." buttons work even inside a module.
 
-          function getScenariosModalEl() {
-          return document.querySelector(".scenarios-modal");
-          }
+    function getScenariosModalEl() {
+      return document.querySelector(".scenarios-modal");
+    }
 
-          window.submitScenarioResponse = function () {
-          const input = document.querySelector(".scenario-input");
-          const value = (input?.value ?? "").trim();
-          if (!value) return;
+    window.submitScenarioResponse = function () {
+      const input = document.querySelector(".scenario-input");
+      const value = (input?.value ?? "").trim();
+      if (!value) return;
 
-          document.dispatchEvent(
-          new CustomEvent("scenario:submit", { detail: { value } })
-          );
+      document.dispatchEvent(
+        new CustomEvent("scenario:submit", { detail: { value } })
+      );
 
-          if (input) input.value = "";
-          };
+      if (input) input.value = "";
+    };
 
-          window.exitScenario = function () {
-          const active = document.querySelector(".scenario-active");
-          if (active) active.classList.add("hidden");
+    window.exitScenario = function () {
+      const active = document.querySelector(".scenario-active");
+      if (active) active.classList.add("hidden");
 
-          const modal = getScenariosModalEl();
-          if (modal) modal.classList.add("hidden");
+      const modal = getScenariosModalEl();
+      if (modal) modal.classList.add("hidden");
 
-          document.dispatchEvent(new Event("scenario:exit"));
-          };
+      document.dispatchEvent(new Event("scenario:exit"));
+    };
 
-          // ===== PHASE 6: MOBILE NAVIGATION FUNCTIONS =====
+    // ===== PHASE 6: MOBILE NAVIGATION FUNCTIONS =====
 
-          // Mobile menu toggle
-          window.toggleMobileMenu = function () {
-          const overlay = document.getElementById("mobile-menu-overlay");
-          const panel = document.getElementById("mobile-menu-panel");
+    // Mobile menu toggle
+    window.toggleMobileMenu = function () {
+      const overlay = document.getElementById("mobile-menu-overlay");
+      const panel = document.getElementById("mobile-menu-panel");
 
-          if (overlay.style.display === "block") {
-          closeMobileMenu();
-          } else {
-          overlay.style.display = "block";
-          panel.classList.add("open");
-          document.body.style.overflow = "hidden";
-          }
-          };
+      if (overlay.style.display === "block") {
+        closeMobileMenu();
+      } else {
+        overlay.style.display = "block";
+        panel.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+    };
 
-          window.closeMobileMenu = function () {
-          const overlay = document.getElementById("mobile-menu-overlay");
-          const panel = document.getElementById("mobile-menu-panel");
+    window.closeMobileMenu = function () {
+      const overlay = document.getElementById("mobile-menu-overlay");
+      const panel = document.getElementById("mobile-menu-panel");
 
-          overlay.style.display = "none";
-          panel.classList.remove("open");
-          document.body.style.overflow = "";
-          };
+      overlay.style.display = "none";
+      panel.classList.remove("open");
+      document.body.style.overflow = "";
+    };
 
-          // Mobile bottom nav handlers
-          window.showMobilePractice = function () {
-          setMobileNavActive("mobile-nav-practice");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          };
+    // Mobile bottom nav handlers
+    window.showMobilePractice = function () {
+      setMobileNavActive("mobile-nav-practice");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
-          window.showMobileProgress = function () {
-          setMobileNavActive("mobile-nav-progress");
-          const progressDashboard = document.querySelector(".progress-dashboard");
-          if (progressDashboard) {
-          progressDashboard.scrollIntoView({
+    window.showMobileProgress = function () {
+      setMobileNavActive("mobile-nav-progress");
+      const progressDashboard = document.querySelector(".progress-dashboard");
+      if (progressDashboard) {
+        progressDashboard.scrollIntoView({
           behavior: "smooth",
           block: "start",
-          });
-          }
-          };
+        });
+      }
+    };
 
-          window.showMobileChat = function () {
-          setMobileNavActive("mobile-nav-chat");
-          const chatInterface = document.getElementById("chat-interface");
-          if (chatInterface) {
-          chatInterface.scrollIntoView({ behavior: "smooth", block: "start" });
-          const chatInput = document.getElementById("chat-input");
-          if (chatInput) {
+    window.showMobileChat = function () {
+      setMobileNavActive("mobile-nav-chat");
+      const chatInterface = document.getElementById("chat-interface");
+      if (chatInterface) {
+        chatInterface.scrollIntoView({ behavior: "smooth", block: "start" });
+        const chatInput = document.getElementById("chat-input");
+        if (chatInput) {
           setTimeout(() => chatInput.focus(), 300);
-          }
-          }
-          };
+        }
+      }
+    };
 
-          function setMobileNavActive(activeId) {
-          document.querySelectorAll(".mobile-nav-item").forEach((item) => {
-          item.classList.remove("active");
-          });
-          const activeItem = document.getElementById(activeId);
-          if (activeItem) {
-          activeItem.classList.add("active");
-          }
-          }
+    function setMobileNavActive(activeId) {
+      document.querySelectorAll(".mobile-nav-item").forEach((item) => {
+        item.classList.remove("active");
+      });
+      const activeItem = document.getElementById(activeId);
+      if (activeItem) {
+        activeItem.classList.add("active");
+      }
+    }
 
-          // Close mobile menu when clicking outside
-          document.addEventListener("click", (e) => {
-          const panel = document.getElementById("mobile-menu-panel");
-          const btn = document.getElementById("mobile-menu-btn");
-          const overlay = document.getElementById("mobile-menu-overlay");
+    // Close mobile menu when clicking outside
+    document.addEventListener("click", (e) => {
+      const panel = document.getElementById("mobile-menu-panel");
+      const btn = document.getElementById("mobile-menu-btn");
+      const overlay = document.getElementById("mobile-menu-overlay");
 
-          if (
-          overlay &&
-          overlay.style.display === "block" &&
-          panel &&
-          !panel.contains(e.target) &&
-          btn &&
-          !btn.contains(e.target)
-          ) {
-          closeMobileMenu();
-          }
-          });
-          </script>
-          <!-- Phase 4: Pronunciation Practice Modal -->
-          <div id="pronunciation-modal" class="pronunciation-modal">
-            <div class="pronunciation-panel">
-              <!-- Header -->
-              <div class="pronunciation-header">
-                <h2 class="pronunciation-title">🗣️ Pronunciation Practice</h2>
-                <button class="scenarios-close-btn" onclick="closeEntirePronunciationModal()">
-                  ×
-                </button>
-              </div>
+      if (
+        overlay &&
+        overlay.style.display === "block" &&
+        panel &&
+        !panel.contains(e.target) &&
+        btn &&
+        !btn.contains(e.target)
+      ) {
+        closeMobileMenu();
+      }
+    });
+  </script>
+  <!-- Phase 4: Pronunciation Practice Modal -->
+  <div id="pronunciation-modal" class="pronunciation-modal">
+    <div class="pronunciation-panel">
+      <!-- Header -->
+      <div class="pronunciation-header">
+        <h2 class="pronunciation-title">🗣️ Pronunciation Practice</h2>
+        <button class="scenarios-close-btn" onclick="closeEntirePronunciationModal()">
+          ×
+        </button>
+      </div>
 
-              <!-- Category Selection -->
-              <div id="pronunciation-categories" class="pronunciation-categories">
-                <!-- Categories will be dynamically inserted -->
-              </div>
+      <!-- Category Selection -->
+      <div id="pronunciation-categories" class="pronunciation-categories">
+        <!-- Categories will be dynamically inserted -->
+      </div>
 
-              <!-- Practice Area -->
-              <div id="pronunciation-practice" class="pronunciation-practice-area" style="display: none">
-                <!-- ADD THIS BACK BUTTON -->
-                <button class="pronunciation-btn" onclick="closePronunciationModal()" style="margin-bottom: 1rem;">
-                  <i class="fas fa-arrow-left"></i> Back to Categories
-                </button>
-                <!-- Current Target -->
-                <div class="pronunciation-target">
-                  <div class="pronunciation-text" id="pron-text">casa</div>
-                  <div class="pronunciation-ipa" id="pron-ipa">/ˈka.sa/</div>
-                  <div class="pronunciation-english" id="pron-english">house</div>
-                  <span class="pronunciation-focus" id="pron-focus">Focus: a sound</span>
-                </div>
+      <!-- Practice Area -->
+      <div id="pronunciation-practice" class="pronunciation-practice-area" style="display: none">
+        <!-- ADD THIS BACK BUTTON -->
+        <button class="pronunciation-btn" onclick="closePronunciationModal()" style="margin-bottom: 1rem;">
+          <i class="fas fa-arrow-left"></i> Back to Categories
+        </button>
+        <!-- Current Target -->
+        <div class="pronunciation-target">
+          <div class="pronunciation-text" id="pron-text">casa</div>
+          <div class="pronunciation-ipa" id="pron-ipa">/ˈka.sa/</div>
+          <div class="pronunciation-english" id="pron-english">house</div>
+          <span class="pronunciation-focus" id="pron-focus">Focus: a sound</span>
+        </div>
 
-                <!-- Controls -->
-                <div class="pronunciation-controls">
-                  <button class="pronunciation-btn pronunciation-btn-listen" onclick="listenToPronunciation()">
-                    <i class="fas fa-volume-up"></i>
-                    Listen to Native
-                  </button>
-                  <button class="pronunciation-btn pronunciation-btn-record" id="pron-record-btn"
-                    onclick="startPronunciationRecording()">
-                    <i class="fas fa-microphone"></i>
-                    <span id="pron-record-text">Record Yourself</span>
-                  </button>
-                </div>
+        <!-- Controls -->
+        <div class="pronunciation-controls">
+          <button class="pronunciation-btn pronunciation-btn-listen" onclick="listenToPronunciation()">
+            <i class="fas fa-volume-up"></i>
+            Listen to Native
+          </button>
+          <button class="pronunciation-btn pronunciation-btn-record" id="pron-record-btn"
+            onclick="startPronunciationRecording()">
+            <i class="fas fa-microphone"></i>
+            <span id="pron-record-text">Record Yourself</span>
+          </button>
+        </div>
 
-                <!-- Waveform (shown during recording) -->
-                <div class="waveform" id="pron-waveform" style="display: none">
-                  <div class="waveform-bar"></div>
-                  <div class="waveform-bar"></div>
-                  <div class="waveform-bar"></div>
-                  <div class="waveform-bar"></div>
-                  <div class="waveform-bar"></div>
-                </div>
+        <!-- Waveform (shown during recording) -->
+        <div class="waveform" id="pron-waveform" style="display: none">
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+        </div>
 
-                <!-- Feedback Area -->
-                <div id="pron-feedback" class="pronunciation-feedback">
-                  <div class="pronunciation-score">
-                    <div class="score-display excellent" id="pron-score-number">
-                      85%
-                    </div>
-                    <div class="score-label" id="pron-score-label">
-                      Good job! Almost there!
-                    </div>
-                  </div>
-
-                  <div class="pronunciation-comparison">
-                    <div class="comparison-box">
-                      <div class="comparison-label">You Said</div>
-                      <div class="comparison-text" id="pron-you-said">casa</div>
-                    </div>
-                    <div class="comparison-box">
-                      <div class="comparison-label">Target</div>
-                      <div class="comparison-text" id="pron-target">casa</div>
-                    </div>
-                  </div>
-
-                  <div class="pronunciation-tips">
-                    <div class="tips-title">
-                      <i class="fas fa-lightbulb"></i>
-                      Pronunciation Tip
-                    </div>
-                    <div class="tips-content" id="pron-tip">
-                      The 'a' sound is always like 'ah' in father.
-                    </div>
-                  </div>
-
-                  <div class="pronunciation-mistakes" id="pron-mistakes-box" style="display: none">
-                    <div class="mistakes-title">
-                      <i class="fas fa-exclamation-triangle"></i>
-                      Common Mistake
-                    </div>
-                    <div class="mistakes-content" id="pron-mistake">
-                      Avoid pronouncing 'a' as 'ay' like in English 'case'.
-                    </div>
-                  </div>
-
-                  <button class="pronunciation-btn pronunciation-btn-next" onclick="nextPronunciationTarget()">
-                    Next Word <i class="fas fa-arrow-right"></i>
-                  </button>
-                </div>
-
-                <!-- Stats -->
-                <div class="pronunciation-stats">
-                  <div class="pronunciation-stat-card">
-                    <div class="stat-number" id="pron-stat-practiced">0</div>
-                    <div class="stat-label">Practiced</div>
-                  </div>
-                  <div class="pronunciation-stat-card">
-                    <div class="stat-number" id="pron-stat-accuracy">0%</div>
-                    <div class="stat-label">Avg Score</div>
-                  </div>
-                  <div class="pronunciation-stat-card">
-                    <div class="stat-number" id="pron-stat-streak">0</div>
-                    <div class="stat-label">Streak</div>
-                  </div>
-                </div>
-
-                <div class="pronunciation-progress-bar">
-                  <div class="pronunciation-progress-fill" id="pron-progress-fill" style="width: 0%"></div>
-                </div>
-              </div>
+        <!-- Feedback Area -->
+        <div id="pron-feedback" class="pronunciation-feedback">
+          <div class="pronunciation-score">
+            <div class="score-display excellent" id="pron-score-number">
+              85%
+            </div>
+            <div class="score-label" id="pron-score-label">
+              Good job! Almost there!
             </div>
           </div>
-          <!-- ========================================
+
+          <div class="pronunciation-comparison">
+            <div class="comparison-box">
+              <div class="comparison-label">You Said</div>
+              <div class="comparison-text" id="pron-you-said">casa</div>
+            </div>
+            <div class="comparison-box">
+              <div class="comparison-label">Target</div>
+              <div class="comparison-text" id="pron-target">casa</div>
+            </div>
+          </div>
+
+          <div class="pronunciation-tips">
+            <div class="tips-title">
+              <i class="fas fa-lightbulb"></i>
+              Pronunciation Tip
+            </div>
+            <div class="tips-content" id="pron-tip">
+              The 'a' sound is always like 'ah' in father.
+            </div>
+          </div>
+
+          <div class="pronunciation-mistakes" id="pron-mistakes-box" style="display: none">
+            <div class="mistakes-title">
+              <i class="fas fa-exclamation-triangle"></i>
+              Common Mistake
+            </div>
+            <div class="mistakes-content" id="pron-mistake">
+              Avoid pronouncing 'a' as 'ay' like in English 'case'.
+            </div>
+          </div>
+
+          <button class="pronunciation-btn pronunciation-btn-next" onclick="nextPronunciationTarget()">
+            Next Word <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="pronunciation-stats">
+          <div class="pronunciation-stat-card">
+            <div class="stat-number" id="pron-stat-practiced">0</div>
+            <div class="stat-label">Practiced</div>
+          </div>
+          <div class="pronunciation-stat-card">
+            <div class="stat-number" id="pron-stat-accuracy">0%</div>
+            <div class="stat-label">Avg Score</div>
+          </div>
+          <div class="pronunciation-stat-card">
+            <div class="stat-number" id="pron-stat-streak">0</div>
+            <div class="stat-label">Streak</div>
+          </div>
+        </div>
+
+        <div class="pronunciation-progress-bar">
+          <div class="pronunciation-progress-fill" id="pron-progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ========================================
      PHASE 4 MODALS - ADD BEFORE </body>
      ======================================== -->
 
-          <!-- Fluency Challenge Modal -->
-          <div id="fluency-modal" class="fluency-modal">
-            <div class="fluency-panel">
-              <div class="scenarios-header">
-                <h2 class="scenarios-title">⚡ Fluency Challenges</h2>
-                <button class="scenarios-close-btn" onclick="closeFluencyModal()">
-                  ×
-                </button>
-              </div>
+  <!-- Fluency Challenge Modal -->
+  <div id="fluency-modal" class="fluency-modal">
+    <div class="fluency-panel">
+      <div class="scenarios-header">
+        <h2 class="scenarios-title">⚡ Fluency Challenges</h2>
+        <button class="scenarios-close-btn" onclick="closeFluencyModal()">
+          ×
+        </button>
+      </div>
 
-              <!-- Challenge Selection -->
-              <div id="fluency-challenges-list" class="challenge-grid">
-                <!-- Challenges will be dynamically inserted -->
-              </div>
+      <!-- Challenge Selection -->
+      <div id="fluency-challenges-list" class="challenge-grid">
+        <!-- Challenges will be dynamically inserted -->
+      </div>
 
-              <!-- Active Challenge -->
-              <div id="fluency-challenge-active" style="display: none">
-                <div class="challenge-active">
-                  <!-- Timer -->
-                  <div class="challenge-timer">
-                    <div class="timer-display" id="challenge-timer">03:00</div>
-                    <div style="
+      <!-- Active Challenge -->
+      <div id="fluency-challenge-active" style="display: none">
+        <div class="challenge-active">
+          <!-- Timer -->
+          <div class="challenge-timer">
+            <div class="timer-display" id="challenge-timer">03:00</div>
+            <div style="
                   font-size: 0.9rem;
                   color: var(--text-secondary);
                   margin-top: 8px;
                 ">
-                      Time Remaining
-                    </div>
-                  </div>
+              Time Remaining
+            </div>
+          </div>
 
-                  <!-- Progress -->
-                  <div class="challenge-progress-text" id="challenge-progress">
-                    Completed: <span id="challenge-completed">0</span> /
-                    <span id="challenge-target">5</span>
-                  </div>
+          <!-- Progress -->
+          <div class="challenge-progress-text" id="challenge-progress">
+            Completed: <span id="challenge-completed">0</span> /
+            <span id="challenge-target">5</span>
+          </div>
 
-                  <!-- Challenge Area -->
-                  <div id="challenge-instruction" style="
+          <!-- Challenge Area -->
+          <div id="challenge-instruction" style="
       text-align: center;
       margin: 20px 0;
       font-size: 1.1rem;
       color: var(--text-primary);
     ">
-                    Build the sentence as fast as you can!
-                  </div>
+            Build the sentence as fast as you can!
+          </div>
 
-                  <!-- Current Goal Display -->
-                  <div style="
+          <!-- Current Goal Display -->
+          <div style="
       background: var(--bg-secondary);
       padding: 16px;
       border-radius: 12px;
       margin: 20px 0;
       text-align: center;
     ">
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">
-                      Current Goal
-                    </div>
-                    <div id="fluency-goal-display" style="
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">
+              Current Goal
+            </div>
+            <div id="fluency-goal-display" style="
         font-size: 1.1rem;
         font-weight: 600;
         color: var(--text-primary);
       ">
-                      Loading...
-                    </div>
-                  </div>
+              Loading...
+            </div>
+          </div>
 
-                  <!-- Word Bank for Fluency Challenge -->
-                  <div style="margin: 20px 0;">
-                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
-                      📝 Word Bank
-                    </div>
-                    <div id="fluency-word-bank" style="
+          <!-- Word Bank for Fluency Challenge -->
+          <div style="margin: 20px 0;">
+            <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
+              📝 Word Bank
+            </div>
+            <div id="fluency-word-bank" style="
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 8px;
       ">
-                      <!-- Words will be inserted here -->
-                    </div>
-                  </div>
+              <!-- Words will be inserted here -->
+            </div>
+          </div>
 
-                  <!-- Sentence Builder for Fluency Challenge -->
-                  <div style="margin: 20px 0;">
-                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
-                      ✍️ Your Sentence
-                    </div>
-                    <div id="fluency-sentence-display" style="
+          <!-- Sentence Builder for Fluency Challenge -->
+          <div style="margin: 20px 0;">
+            <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
+              ✍️ Your Sentence
+            </div>
+            <div id="fluency-sentence-display" style="
         background: var(--bg-secondary);
         border: 2px dashed var(--border-color);
         border-radius: 12px;
@@ -9167,292 +9182,292 @@
         gap: 8px;
         align-items: center;
       ">
-                      <span style="color: var(--text-secondary); font-style: italic;">Tap words to build your
-                        sentence...</span>
-                    </div>
-                  </div>
+              <span style="color: var(--text-secondary); font-style: italic;">Tap words to build your
+                sentence...</span>
+            </div>
+          </div>
 
-                  <!-- Submit Button -->
-                  <div style="text-align: center; margin: 20px 0;">
-                    <button id="fluency-submit-btn" class="pronunciation-btn pronunciation-btn-record"
-                      onclick="checkFluencySentence()" style="padding: 12px 32px;">
-                      <i class="fas fa-check"></i> Check Sentence
-                    </button>
-                  </div>
+          <!-- Submit Button -->
+          <div style="text-align: center; margin: 20px 0;">
+            <button id="fluency-submit-btn" class="pronunciation-btn pronunciation-btn-record"
+              onclick="checkFluencySentence()" style="padding: 12px 32px;">
+              <i class="fas fa-check"></i> Check Sentence
+            </button>
+          </div>
 
-                  <!-- Feedback Message -->
-                  <div id="fluency-feedback" style="
+          <!-- Feedback Message -->
+          <div id="fluency-feedback" style="
       margin: 20px 0;
       padding: 12px;
       border-radius: 8px;
       text-align: center;
       display: none;
     ">
-                  </div>
+          </div>
 
-                  <!-- Controls -->
-                  <div style="
+          <!-- Controls -->
+          <div style="
                 display: flex;
                 gap: 12px;
                 justify-content: center;
                 margin-top: 20px;
               ">
-                    <button class="pronunciation-btn pronunciation-btn-listen" onclick="pauseChallenge()">
-                      <i class="fas fa-pause"></i> Pause
-                    </button>
-                    <button class="scenario-exit-btn" onclick="exitChallenge()">
-                      Exit Challenge
-                    </button>
-                  </div>
-                </div>
-              </div>
+            <button class="pronunciation-btn pronunciation-btn-listen" onclick="pauseChallenge()">
+              <i class="fas fa-pause"></i> Pause
+            </button>
+            <button class="scenario-exit-btn" onclick="exitChallenge()">
+              Exit Challenge
+            </button>
+          </div>
+        </div>
+      </div>
 
-              <!-- Challenge Results -->
-              <div id="fluency-results" style="display: none">
-                <div class="scenario-completion">
-                  <div class="completion-icon" id="result-icon">🏆</div>
-                  <h2 class="completion-title" id="result-title">
-                    Challenge Complete!
-                  </h2>
+      <!-- Challenge Results -->
+      <div id="fluency-results" style="display: none">
+        <div class="scenario-completion">
+          <div class="completion-icon" id="result-icon">🏆</div>
+          <h2 class="completion-title" id="result-title">
+            Challenge Complete!
+          </h2>
 
-                  <div class="challenge-score-display">
-                    <div class="score-number" id="final-score">0</div>
-                    <div class="score-label">Final Score</div>
-                  </div>
+          <div class="challenge-score-display">
+            <div class="score-number" id="final-score">0</div>
+            <div class="score-label">Final Score</div>
+          </div>
 
-                  <div class="completion-stats">
-                    <div class="completion-stat">
-                      <div class="completion-stat-value" id="result-time">--</div>
-                      <div class="completion-stat-label">Time</div>
-                    </div>
-                    <div class="completion-stat">
-                      <div class="completion-stat-value" id="result-accuracy">--</div>
-                      <div class="completion-stat-label">Accuracy</div>
-                    </div>
-                    <div class="completion-stat">
-                      <div class="completion-stat-value" id="result-streak">--</div>
-                      <div class="completion-stat-label">Bonus</div>
-                    </div>
-                  </div>
-
-                  <div class="completion-actions">
-                    <button class="completion-btn completion-btn-primary" onclick="retryChallenge()">
-                      Try Again
-                    </button>
-                    <button class="completion-btn completion-btn-secondary" onclick="closeFluencyModal()">
-                      Back to Challenges
-                    </button>
-                  </div>
-                </div>
-              </div>
+          <div class="completion-stats">
+            <div class="completion-stat">
+              <div class="completion-stat-value" id="result-time">--</div>
+              <div class="completion-stat-label">Time</div>
+            </div>
+            <div class="completion-stat">
+              <div class="completion-stat-value" id="result-accuracy">--</div>
+              <div class="completion-stat-label">Accuracy</div>
+            </div>
+            <div class="completion-stat">
+              <div class="completion-stat-value" id="result-streak">--</div>
+              <div class="completion-stat-label">Bonus</div>
             </div>
           </div>
 
-          <!-- SRS Daily Review Section (add to main page, not modal) -->
-          <div id="srs-daily-review" class="srs-container" style="display: none">
-            <div class="srs-header">
-              <h3 class="srs-title">🧠 Daily Review</h3>
-              <span class="srs-due-count" id="srs-due-count">0</span>
-            </div>
+          <div class="completion-actions">
+            <button class="completion-btn completion-btn-primary" onclick="retryChallenge()">
+              Try Again
+            </button>
+            <button class="completion-btn completion-btn-secondary" onclick="closeFluencyModal()">
+              Back to Challenges
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            <!-- Flashcard -->
-            <div class="flashcard" id="srs-flashcard" onclick="flipCard()">
-              <div class="flashcard-front">
-                <div class="flashcard-text" id="card-front-text">casa</div>
-                <div class="flashcard-pronunciation" id="card-pronunciation">
-                  /ˈka.sa/
-                </div>
-                <div style="
+  <!-- SRS Daily Review Section (add to main page, not modal) -->
+  <div id="srs-daily-review" class="srs-container" style="display: none">
+    <div class="srs-header">
+      <h3 class="srs-title">🧠 Daily Review</h3>
+      <span class="srs-due-count" id="srs-due-count">0</span>
+    </div>
+
+    <!-- Flashcard -->
+    <div class="flashcard" id="srs-flashcard" onclick="flipCard()">
+      <div class="flashcard-front">
+        <div class="flashcard-text" id="card-front-text">casa</div>
+        <div class="flashcard-pronunciation" id="card-pronunciation">
+          /ˈka.sa/
+        </div>
+        <div style="
               font-size: 0.9rem;
               color: var(--text-secondary);
               margin-top: 20px;
             ">
-                  Click to reveal answer
-                </div>
-              </div>
-              <div class="flashcard-back">
-                <div class="flashcard-text" id="card-back-text">house</div>
-                <div class="flashcard-example" id="card-example">
-                  La mia casa è grande.<br />
-                  <span style="font-size: 0.85rem; opacity: 0.8">My house is big.</span>
-                </div>
-              </div>
-            </div>
+          Click to reveal answer
+        </div>
+      </div>
+      <div class="flashcard-back">
+        <div class="flashcard-text" id="card-back-text">house</div>
+        <div class="flashcard-example" id="card-example">
+          La mia casa è grande.<br />
+          <span style="font-size: 0.85rem; opacity: 0.8">My house is big.</span>
+        </div>
+      </div>
+    </div>
 
-            <!-- Response Buttons -->
-            <div class="srs-buttons" id="srs-response-buttons" style="display: none">
-              <button class="srs-btn srs-btn-again" onclick="rateCard(0)">
-                <i class="fas fa-times"></i> Again
-                <span style="font-size: 0.75rem; opacity: 0.8">&lt;1m</span>
-              </button>
-              <button class="srs-btn srs-btn-hard" onclick="rateCard(3)">
-                <i class="fas fa-frown"></i> Hard
-                <span style="font-size: 0.75rem; opacity: 0.8">&lt;10m</span>
-              </button>
-              <button class="srs-btn srs-btn-good" onclick="rateCard(4)">
-                <i class="fas fa-check"></i> Good
-                <span style="font-size: 0.75rem; opacity: 0.8" id="good-interval">4d</span>
-              </button>
-              <button class="srs-btn srs-btn-easy" onclick="rateCard(5)">
-                <i class="fas fa-smile"></i> Easy
-                <span style="font-size: 0.75rem; opacity: 0.8" id="easy-interval">10d</span>
-              </button>
-            </div>
+    <!-- Response Buttons -->
+    <div class="srs-buttons" id="srs-response-buttons" style="display: none">
+      <button class="srs-btn srs-btn-again" onclick="rateCard(0)">
+        <i class="fas fa-times"></i> Again
+        <span style="font-size: 0.75rem; opacity: 0.8">&lt;1m</span>
+      </button>
+      <button class="srs-btn srs-btn-hard" onclick="rateCard(3)">
+        <i class="fas fa-frown"></i> Hard
+        <span style="font-size: 0.75rem; opacity: 0.8">&lt;10m</span>
+      </button>
+      <button class="srs-btn srs-btn-good" onclick="rateCard(4)">
+        <i class="fas fa-check"></i> Good
+        <span style="font-size: 0.75rem; opacity: 0.8" id="good-interval">4d</span>
+      </button>
+      <button class="srs-btn srs-btn-easy" onclick="rateCard(5)">
+        <i class="fas fa-smile"></i> Easy
+        <span style="font-size: 0.75rem; opacity: 0.8" id="easy-interval">10d</span>
+      </button>
+    </div>
 
-            <!-- Stats -->
-            <div class="srs-stats">
-              <div class="srs-stat-card">
-                <div class="srs-stat-number" id="srs-new-count">0</div>
-                <div class="srs-stat-label">New</div>
-              </div>
-              <div class="srs-stat-card">
-                <div class="srs-stat-number" id="srs-learning-count">0</div>
-                <div class="srs-stat-label">Learning</div>
-              </div>
-              <div class="srs-stat-card">
-                <div class="srs-stat-number" id="srs-review-count">0</div>
-                <div class="srs-stat-label">Review</div>
-              </div>
-              <div class="srs-stat-card">
-                <div class="srs-stat-number" id="srs-mastered-count">0</div>
-                <div class="srs-stat-label">Mastered</div>
-              </div>
+    <!-- Stats -->
+    <div class="srs-stats">
+      <div class="srs-stat-card">
+        <div class="srs-stat-number" id="srs-new-count">0</div>
+        <div class="srs-stat-label">New</div>
+      </div>
+      <div class="srs-stat-card">
+        <div class="srs-stat-number" id="srs-learning-count">0</div>
+        <div class="srs-stat-label">Learning</div>
+      </div>
+      <div class="srs-stat-card">
+        <div class="srs-stat-number" id="srs-review-count">0</div>
+        <div class="srs-stat-label">Review</div>
+      </div>
+      <div class="srs-stat-card">
+        <div class="srs-stat-number" id="srs-mastered-count">0</div>
+        <div class="srs-stat-label">Mastered</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Report Modal -->
+  <div id="progress-report-modal" class="progress-report-modal">
+    <div class="progress-report-panel">
+      <div class="scenarios-header">
+        <h2 class="scenarios-title">📊 Your Progress Report</h2>
+        <button class="scenarios-close-btn" onclick="closeProgressReport()">
+          ×
+        </button>
+      </div>
+
+      <div class="report-header">
+        <div class="report-title" id="report-period">Weekly Progress</div>
+        <div class="report-subtitle" id="report-date-range">--</div>
+      </div>
+
+      <!-- Highlight Stats -->
+      <div class="report-highlight">
+        <div class="report-highlight-stat" id="report-main-stat">127</div>
+        <div class="report-highlight-label">
+          Total Practice Minutes This Week
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="report-section">
+        <h3 class="report-section-title">📈 Key Metrics</h3>
+        <div class="report-grid">
+          <div class="report-metric">
+            <div class="report-metric-value" id="report-sentences">42</div>
+            <div class="report-metric-label">Sentences Built</div>
+            <div class="report-metric-change positive" id="report-sentences-change">
+              +15% from last week
             </div>
           </div>
+          <div class="report-metric">
+            <div class="report-metric-value" id="report-accuracy">87%</div>
+            <div class="report-metric-label">Accuracy</div>
+            <div class="report-metric-change positive" id="report-accuracy-change">
+              +5% from last week
+            </div>
+          </div>
+          <div class="report-metric">
+            <div class="report-metric-value" id="report-streak">7</div>
+            <div class="report-metric-label">Day Streak</div>
+            <div class="report-metric-change positive" id="report-streak-change">
+              Keep it up!
+            </div>
+          </div>
+          <div class="report-metric">
+            <div class="report-metric-value" id="report-vocab">23</div>
+            <div class="report-metric-label">New Words</div>
+            <div class="report-metric-change positive" id="report-vocab-change">
+              +8 from last week
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <!-- Progress Report Modal -->
-          <div id="progress-report-modal" class="progress-report-modal">
-            <div class="progress-report-panel">
-              <div class="scenarios-header">
-                <h2 class="scenarios-title">📊 Your Progress Report</h2>
-                <button class="scenarios-close-btn" onclick="closeProgressReport()">
-                  ×
-                </button>
-              </div>
+      <!-- Insights -->
+      <div class="report-section">
+        <h3 class="report-section-title">💡 Insights</h3>
+        <div id="report-insights-container">
+          <div class="report-insight">
+            <div class="report-insight-title">🎯 Strongest Area</div>
+            <div class="report-insight-text">
+              You're excelling at present tense conjugations! Your accuracy is
+              94%.
+            </div>
+          </div>
+          <div class="report-insight">
+            <div class="report-insight-title">📚 Most Practiced</div>
+            <div class="report-insight-text">
+              You practiced vocabulary most this week, spending 45 minutes on
+              new words.
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <div class="report-header">
-                <div class="report-title" id="report-period">Weekly Progress</div>
-                <div class="report-subtitle" id="report-date-range">--</div>
-              </div>
+      <!-- Recommendations -->
+      <div class="report-section">
+        <h3 class="report-section-title">🎯 Recommendations</h3>
+        <div id="report-recommendations-container">
+          <div class="report-recommendation">
+            <div class="report-recommendation-title">
+              <i class="fas fa-arrow-up"></i> Focus Area
+            </div>
+            <div class="report-recommendation-text">
+              Consider practicing past tense more. Your accuracy (68%) could
+              improve with focused practice.
+            </div>
+          </div>
+          <div class="report-recommendation">
+            <div class="report-recommendation-title">
+              <i class="fas fa-star"></i> Next Goal
+            </div>
+            <div class="report-recommendation-text">
+              You're close to reaching 50 unique words! Keep learning to
+              unlock the Vocabulary Explorer milestone.
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <!-- Highlight Stats -->
-              <div class="report-highlight">
-                <div class="report-highlight-stat" id="report-main-stat">127</div>
-                <div class="report-highlight-label">
-                  Total Practice Minutes This Week
-                </div>
-              </div>
-
-              <!-- Key Metrics -->
-              <div class="report-section">
-                <h3 class="report-section-title">📈 Key Metrics</h3>
-                <div class="report-grid">
-                  <div class="report-metric">
-                    <div class="report-metric-value" id="report-sentences">42</div>
-                    <div class="report-metric-label">Sentences Built</div>
-                    <div class="report-metric-change positive" id="report-sentences-change">
-                      +15% from last week
-                    </div>
-                  </div>
-                  <div class="report-metric">
-                    <div class="report-metric-value" id="report-accuracy">87%</div>
-                    <div class="report-metric-label">Accuracy</div>
-                    <div class="report-metric-change positive" id="report-accuracy-change">
-                      +5% from last week
-                    </div>
-                  </div>
-                  <div class="report-metric">
-                    <div class="report-metric-value" id="report-streak">7</div>
-                    <div class="report-metric-label">Day Streak</div>
-                    <div class="report-metric-change positive" id="report-streak-change">
-                      Keep it up!
-                    </div>
-                  </div>
-                  <div class="report-metric">
-                    <div class="report-metric-value" id="report-vocab">23</div>
-                    <div class="report-metric-label">New Words</div>
-                    <div class="report-metric-change positive" id="report-vocab-change">
-                      +8 from last week
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Insights -->
-              <div class="report-section">
-                <h3 class="report-section-title">💡 Insights</h3>
-                <div id="report-insights-container">
-                  <div class="report-insight">
-                    <div class="report-insight-title">🎯 Strongest Area</div>
-                    <div class="report-insight-text">
-                      You're excelling at present tense conjugations! Your accuracy is
-                      94%.
-                    </div>
-                  </div>
-                  <div class="report-insight">
-                    <div class="report-insight-title">📚 Most Practiced</div>
-                    <div class="report-insight-text">
-                      You practiced vocabulary most this week, spending 45 minutes on
-                      new words.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Recommendations -->
-              <div class="report-section">
-                <h3 class="report-section-title">🎯 Recommendations</h3>
-                <div id="report-recommendations-container">
-                  <div class="report-recommendation">
-                    <div class="report-recommendation-title">
-                      <i class="fas fa-arrow-up"></i> Focus Area
-                    </div>
-                    <div class="report-recommendation-text">
-                      Consider practicing past tense more. Your accuracy (68%) could
-                      improve with focused practice.
-                    </div>
-                  </div>
-                  <div class="report-recommendation">
-                    <div class="report-recommendation-title">
-                      <i class="fas fa-star"></i> Next Goal
-                    </div>
-                    <div class="report-recommendation-text">
-                      You're close to reaching 50 unique words! Keep learning to
-                      unlock the Vocabulary Explorer milestone.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div style="
+      <!-- Action Buttons -->
+      <div style="
             display: flex;
             gap: 12px;
             justify-content: center;
             margin-top: 24px;
           ">
-                <button class="pronunciation-btn pronunciation-btn-next" onclick="generateNewReport()">
-                  Generate New Report
-                </button>
-                <button class="completion-btn completion-btn-secondary" onclick="closeProgressReport()">
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
+        <button class="pronunciation-btn pronunciation-btn-next" onclick="generateNewReport()">
+          Generate New Report
+        </button>
+        <button class="completion-btn completion-btn-secondary" onclick="closeProgressReport()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
 
-          <!-- Conversation Mode Toggle (add to chat section) -->
-          <div class="conversation-mode-toggle" id="conversation-mode-toggle" style="display: none">
-            <button class="mode-btn active" data-mode="normal" onclick="setConversationMode('normal')">
-              <i class="fas fa-comments"></i> Normal
-            </button>
-            <button class="mode-btn" data-mode="freeform" onclick="setConversationMode('freeform')">
-              <i class="fas fa-comment-dots"></i> Free Talk
-            </button>
-            <button class="mode-btn" data-mode="immersive" onclick="setConversationMode('immersive')">
-              <i class="fas fa-language"></i> Italian Only
-            </button>
-          </div>
+  <!-- Conversation Mode Toggle (add to chat section) -->
+  <div class="conversation-mode-toggle" id="conversation-mode-toggle" style="display: none">
+    <button class="mode-btn active" data-mode="normal" onclick="setConversationMode('normal')">
+      <i class="fas fa-comments"></i> Normal
+    </button>
+    <button class="mode-btn" data-mode="freeform" onclick="setConversationMode('freeform')">
+      <i class="fas fa-comment-dots"></i> Free Talk
+    </button>
+    <button class="mode-btn" data-mode="immersive" onclick="setConversationMode('immersive')">
+      <i class="fas fa-language"></i> Italian Only
+    </button>
+  </div>
 </body>
 
 </html>
