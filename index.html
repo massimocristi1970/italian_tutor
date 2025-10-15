@@ -7960,16 +7960,24 @@
       document.getElementById("fluency-challenges-list").style.display = "none";
       document.getElementById("fluency-challenge-active").style.display = "block";
 
-      // Show the sentence builder sections FIRST
-      const wordBankSection = document.querySelector('.word-bank-section');
-      const sentenceBuilder = document.querySelector('.sentence-builder-section');
-      if (wordBankSection) wordBankSection.style.display = 'block';
-      if (sentenceBuilder) sentenceBuilder.style.display = 'block';
+      // Update UI
+      document.getElementById("challenge-completed").textContent = "0";
+      document.getElementById("challenge-target").textContent = challenge.target_count;
 
-      // Start first item - AWAIT it and it will populate the word bank itself
+      // Start first item - this will set currentGoalDisplay
       await selectNewPhraseOrGoal(true);
 
-      // Set up timer AFTER the phrase is loaded
+      // Copy the goal to the fluency modal
+      const mainGoal = document.getElementById("current-goal-display");
+      const fluencyGoal = document.getElementById("fluency-goal-display");
+      if (mainGoal && fluencyGoal) {
+        fluencyGoal.textContent = mainGoal.textContent;
+      }
+
+      // Populate fluency word bank
+      populateFluencyWordBank();
+
+      // Set up timer AFTER loading
       let timeRemaining = challenge.time_limit;
       updateChallengeTimer(timeRemaining);
 
@@ -7981,12 +7989,9 @@
           endFluencyChallenge("timeout");
         }
       }, 1000);
-
-      // Update UI
-      document.getElementById("challenge-completed").textContent = "0";
-      document.getElementById("challenge-target").textContent = challenge.target_count;
     }
 
+    // ✅ KEEP THIS - Don't change it!
     function updateChallengeTimer(seconds) {
       const minutes = Math.floor(seconds / 60);
       const secs = seconds % 60;
@@ -8054,6 +8059,121 @@
           selectNewPhraseOrGoal(true);
         }
       }
+    }
+
+    // ✅ ADD THIS NEW FUNCTION HERE:
+    function populateFluencyWordBank() {
+      const fluencyWordBank = document.getElementById("fluency-word-bank");
+      const mainWordBank = document.getElementById("word-bank");
+
+      if (!fluencyWordBank || !mainWordBank) return;
+
+      // Clone the main word bank content into fluency word bank
+      fluencyWordBank.innerHTML = "";
+
+      const words = mainWordBank.querySelectorAll(".word-button");
+      words.forEach(wordBtn => {
+        const clonedWord = wordBtn.cloneNode(true);
+
+        // Update onclick to use fluency sentence builder
+        clonedWord.onclick = function () {
+          addWordToFluencySentence(clonedWord.textContent);
+        };
+
+        fluencyWordBank.appendChild(clonedWord);
+      });
+    }
+
+    // ✅ ADD THIS NEW FUNCTION HERE:
+    function addWordToFluencySentence(word) {
+      const sentenceDisplay = document.getElementById("fluency-sentence-display");
+
+      // Remove placeholder text if present
+      const placeholder = sentenceDisplay.querySelector("span[style*='italic']");
+      if (placeholder) {
+        placeholder.remove();
+      }
+
+      // Create word element
+      const wordElement = document.createElement("span");
+      wordElement.className = "selected-word";
+      wordElement.textContent = word;
+      wordElement.style.cssText = `
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+  `;
+
+      // Click to remove word
+      wordElement.onclick = function () {
+        wordElement.remove();
+
+        // Restore placeholder if empty
+        if (sentenceDisplay.children.length === 0) {
+          sentenceDisplay.innerHTML = '<span style="color: var(--text-secondary); font-style: italic;">Tap words to build your sentence...</span>';
+        }
+      };
+
+      sentenceDisplay.appendChild(wordElement);
+    }
+
+    // ✅ ADD THIS NEW FUNCTION HERE:
+    function checkFluencySentence() {
+      const sentenceDisplay = document.getElementById("fluency-sentence-display");
+      const words = Array.from(sentenceDisplay.querySelectorAll(".selected-word"));
+
+      if (words.length === 0) {
+        showFluencyFeedback("Please build a sentence first!", false);
+        return;
+      }
+
+      const userSentence = words.map(w => w.textContent).join(" ");
+
+      // Use the existing checkSentence function
+      checkSentence(userSentence, true); // true flag for fluency mode
+    }
+
+    // ✅ ADD THIS NEW FUNCTION HERE:
+    function showFluencyFeedback(message, isCorrect) {
+      const feedback = document.getElementById("fluency-feedback");
+      feedback.textContent = message;
+      feedback.style.display = "block";
+      feedback.style.background = isCorrect ? "var(--success-bg, #d1fae5)" : "var(--error-bg, #fee2e2)";
+      feedback.style.color = isCorrect ? "var(--success-text, #065f46)" : "var(--error-text, #991b1b)";
+
+      if (isCorrect) {
+        challengeCorrectCount++;
+        document.getElementById("challenge-completed").textContent = challengeCorrectCount;
+
+        // Clear sentence and load next
+        setTimeout(() => {
+          clearFluencySentence();
+          if (challengeCorrectCount >= activeFluencyChallenge.target_count) {
+            endFluencyChallenge("complete");
+          } else {
+            selectNewPhraseOrGoal(true).then(() => {
+              const mainGoal = document.getElementById("current-goal-display");
+              const fluencyGoal = document.getElementById("fluency-goal-display");
+              if (mainGoal && fluencyGoal) {
+                fluencyGoal.textContent = mainGoal.textContent;
+              }
+              populateFluencyWordBank();
+            });
+          }
+        }, 1500);
+      }
+    }
+
+    // ✅ ADD THIS NEW FUNCTION HERE:
+    function clearFluencySentence() {
+      const sentenceDisplay = document.getElementById("fluency-sentence-display");
+      const feedback = document.getElementById("fluency-feedback");
+
+      sentenceDisplay.innerHTML = '<span style="color: var(--text-secondary); font-style: italic;">Tap words to build your sentence...</span>';
+      feedback.style.display = "none";
     }
 
     function endFluencyChallenge(reason) {
@@ -9072,14 +9192,86 @@
             <span id="challenge-target">5</span>
           </div>
 
-          <!-- Challenge Area (reuses existing sentence builder) -->
+          <!-- Challenge Area -->
           <div id="challenge-instruction" style="
-                text-align: center;
-                margin: 20px 0;
-                font-size: 1.1rem;
-                color: var(--text-primary);
-              ">
+      text-align: center;
+      margin: 20px 0;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    ">
             Build the sentence as fast as you can!
+          </div>
+
+          <!-- Current Goal Display -->
+          <div style="
+      background: var(--bg-secondary);
+      padding: 16px;
+      border-radius: 12px;
+      margin: 20px 0;
+      text-align: center;
+    ">
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">
+              Current Goal
+            </div>
+            <div id="fluency-goal-display" style="
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      ">
+              Loading...
+            </div>
+          </div>
+
+          <!-- Word Bank for Fluency Challenge -->
+          <div style="margin: 20px 0;">
+            <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
+              📝 Word Bank
+            </div>
+            <div id="fluency-word-bank" style="
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+      ">
+              <!-- Words will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Sentence Builder for Fluency Challenge -->
+          <div style="margin: 20px 0;">
+            <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
+              ✍️ Your Sentence
+            </div>
+            <div id="fluency-sentence-display" style="
+        background: var(--bg-secondary);
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        padding: 16px;
+        min-height: 60px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      ">
+              <span style="color: var(--text-secondary); font-style: italic;">Tap words to build your sentence...</span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div style="text-align: center; margin: 20px 0;">
+            <button id="fluency-submit-btn" class="pronunciation-btn pronunciation-btn-record"
+              onclick="checkFluencySentence()" style="padding: 12px 32px;">
+              <i class="fas fa-check"></i> Check Sentence
+            </button>
+          </div>
+
+          <!-- Feedback Message -->
+          <div id="fluency-feedback" style="
+      margin: 20px 0;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    ">
           </div>
 
           <!-- Controls -->
