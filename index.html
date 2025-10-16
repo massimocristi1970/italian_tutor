@@ -9695,7 +9695,10 @@
 
       function openExamPrepModal() {
         document.getElementById("exam-prep-modal").style.display = "block";
-        document.getElementById("hamburger-menu").classList.remove("active");
+        const hamburgerMenu = document.getElementById("hamburger-menu");
+        if (hamburgerMenu) {
+          hamburgerMenu.classList.remove("active");
+        }
         loadExamProgress();
       }
 
@@ -9838,60 +9841,89 @@
           currentExamQuestionIndex + 1
         }/${currentExamQuestions.length}`;
 
+        // Clear container first
+        container.innerHTML = "";
+
+        // Create question div
+        const questionDiv = document.createElement("div");
+        questionDiv.className = "exam-question";
+
         // Render question based on type
         if (question.type === "multiple_choice") {
-          container.innerHTML = `
-      <div class="exam-question">
-        ${
-          currentExamSection === "listening"
-            ? `
-          <button onclick="playExamAudio('${question.audio.replace(
-            /'/g,
-            "\\'"
-          )}'))" class="play-audio-btn">
-            <i class="fas fa-play"></i> Play Audio
-          </button>
-        `
-            : ""
-        }
-        <h3>${question.question}</h3>
-        <div class="exam-options">
-          ${question.options
-            .map(
-              (opt, i) => `
-            <label class="exam-option">
-              <input type="radio" name="exam-answer" value="${i}" 
-                ${examAnswers[currentExamQuestionIndex] === i ? "checked" : ""}
-                onchange="saveExamAnswer(${i})">
-              <span>${opt}</span>
-            </label>
-          `
-            )
-            .join("")}
-        </div>
-      </div>
-    `;
+          // Add audio button for listening section
+          if (currentExamSection === "listening") {
+            const audioBtn = document.createElement("button");
+            audioBtn.className = "play-audio-btn";
+            audioBtn.innerHTML = '<i class="fas fa-play"></i> Play Audio';
+            audioBtn.onclick = () => playExamAudio(question.audio);
+            questionDiv.appendChild(audioBtn);
+          }
+
+          // Add question text
+          const questionText = document.createElement("h3");
+          questionText.textContent = question.question;
+          questionDiv.appendChild(questionText);
+
+          // Add options
+          const optionsDiv = document.createElement("div");
+          optionsDiv.className = "exam-options";
+
+          question.options.forEach((opt, i) => {
+            const label = document.createElement("label");
+            label.className = "exam-option";
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = "exam-answer";
+            radio.value = i;
+            radio.checked = examAnswers[currentExamQuestionIndex] === i;
+            radio.onchange = () => saveExamAnswer(i);
+
+            const span = document.createElement("span");
+            span.textContent = opt;
+
+            label.appendChild(radio);
+            label.appendChild(span);
+            optionsDiv.appendChild(label);
+          });
+
+          questionDiv.appendChild(optionsDiv);
         } else if (question.type === "comprehension") {
-          container.innerHTML = `
-      <div class="exam-question">
-        <div class="reading-passage">${question.passage}</div>
-        <h3>${question.question}</h3>
-        <div class="exam-options">
-          ${question.options
-            .map(
-              (opt, i) => `
-            <label class="exam-option">
-              <input type="radio" name="exam-answer" value="${i}" 
-                ${examAnswers[currentExamQuestionIndex] === i ? "checked" : ""}
-                onchange="saveExamAnswer(${i})">
-              <span>${opt}</span>
-            </label>
-          `
-            )
-            .join("")}
-        </div>
-      </div>
-    `;
+          // Add reading passage
+          const passage = document.createElement("div");
+          passage.className = "reading-passage";
+          passage.textContent = question.passage;
+          questionDiv.appendChild(passage);
+
+          // Add question text
+          const questionText = document.createElement("h3");
+          questionText.textContent = question.question;
+          questionDiv.appendChild(questionText);
+
+          // Add options
+          const optionsDiv = document.createElement("div");
+          optionsDiv.className = "exam-options";
+
+          question.options.forEach((opt, i) => {
+            const label = document.createElement("label");
+            label.className = "exam-option";
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = "exam-answer";
+            radio.value = i;
+            radio.checked = examAnswers[currentExamQuestionIndex] === i;
+            radio.onchange = () => saveExamAnswer(i);
+
+            const span = document.createElement("span");
+            span.textContent = opt;
+
+            label.appendChild(radio);
+            label.appendChild(span);
+            optionsDiv.appendChild(label);
+          });
+
+          questionDiv.appendChild(optionsDiv);
         } else if (question.type === "free_response") {
           const savedAnswer = examAnswers[currentExamQuestionIndex] || "";
           const wordCount = savedAnswer
@@ -9899,42 +9931,55 @@
             : 0;
           const [minWords, maxWords] = question.wordCount || [0, 999];
 
-          container.innerHTML = `
-      <div class="exam-question">
-        <h3>${question.prompt}</h3>
-        ${
-          question.wordCount
-            ? `<p>Required: ${minWords}-${maxWords} words</p>`
-            : ""
+          // Add prompt
+          const promptText = document.createElement("h3");
+          promptText.textContent = question.prompt;
+          questionDiv.appendChild(promptText);
+
+          if (question.wordCount) {
+            const requirement = document.createElement("p");
+            requirement.textContent = `Required: ${minWords}-${maxWords} words`;
+            questionDiv.appendChild(requirement);
+          }
+
+          if (currentExamSection === "writing") {
+            // Writing textarea
+            const textarea = document.createElement("textarea");
+            textarea.className = "writing-textarea";
+            textarea.id = "writing-answer";
+            textarea.placeholder = "Type your answer here...";
+            textarea.value = savedAnswer;
+            textarea.oninput = updateWordCount;
+            questionDiv.appendChild(textarea);
+
+            // Word count display
+            const wordCountDiv = document.createElement("div");
+            wordCountDiv.className = "word-count";
+            wordCountDiv.id = "word-count";
+            wordCountDiv.textContent = `Word count: ${wordCount}`;
+            questionDiv.appendChild(wordCountDiv);
+          } else {
+            // Speaking instructions
+            const instructions = document.createElement("div");
+            instructions.className = "speaking-instructions";
+            instructions.innerHTML = `
+        <p><strong>Instructions:</strong></p>
+        <p>When ready, click the record button and speak for about ${question.duration} seconds.</p>
+        <p><em>Note: Speaking recording feature coming soon. For now, practice speaking aloud.</em></p>
+      `;
+
+            const speakBtn = document.createElement("button");
+            speakBtn.className = "play-audio-btn";
+            speakBtn.innerHTML =
+              '<i class="fas fa-microphone"></i> Practice Speaking';
+            speakBtn.onclick = () => practiceSpeak(question.prompt);
+            instructions.appendChild(speakBtn);
+
+            questionDiv.appendChild(instructions);
+          }
         }
-        ${
-          currentExamSection === "writing"
-            ? `
-          <textarea class="writing-textarea" 
-                    id="writing-answer"
-                    placeholder="Type your answer here..."
-                    oninput="updateWordCount()">${savedAnswer}</textarea>
-          <div class="word-count" id="word-count">Word count: ${wordCount}</div>
-        `
-            : `
-          <div class="speaking-instructions">
-            <p><strong>Instructions:</strong></p>
-            <p>When ready, click the record button and speak for about ${
-              question.duration
-            } seconds.</p>
-            <p><em>Note: Speaking recording feature coming soon. For now, practice speaking aloud.</em></p>
-            <button onclick="practiceSpeak('${question.prompt.replace(
-              /'/g,
-              "\\'"
-            )}'))" class="play-audio-btn">
-              <i class="fas fa-microphone"></i> Practice Speaking
-            </button>
-          </div>
-        `
-        }
-      </div>
-    `;
-        }
+
+        container.appendChild(questionDiv);
 
         // Update navigation buttons
         updateExamNavigation();
@@ -10126,7 +10171,7 @@
         });
 
         // Load actual best scores from Firebase
-        if (currentUser) {
+        if (auth.currentUser) {
           try {
             const scoresRef = ref(
               database,
@@ -10152,10 +10197,12 @@
       }
 
       async function saveExamResults(level, section, score, timeTaken) {
-        if (!currentUser) {
+        if (!auth.currentUser) {
           console.log("User not logged in, cannot save exam results");
           return;
         }
+
+        const currentUser = auth.currentUser;
 
         try {
           const examResultsRef = ref(
