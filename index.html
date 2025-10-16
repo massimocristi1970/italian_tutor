@@ -10162,7 +10162,7 @@
       }
 
       function playExamAudio(text) {
-        speakText(text, 'italian'); // Pass 'italian' to use it-IT voice
+        speakText(text, "italian"); // Pass 'italian' to use it-IT voice
       }
 
       async function loadExamProgress() {
@@ -10184,13 +10184,11 @@
         });
 
         // Load actual best scores from Firestore
-        if (auth.currentUser) {
+        if (auth.currentUser && db && userId) {
           try {
             const examScoresRef = doc(
               db,
-              "users",
-              auth.currentUser.uid,
-              "examScores",
+              getPrivateCollectionPath("examScores"),
               level
             );
             const snapshot = await getDoc(examScoresRef);
@@ -10213,7 +10211,7 @@
       }
 
       async function saveExamResults(level, section, score, timeTaken) {
-        if (!auth.currentUser) {
+        if (!auth.currentUser || !db || !userId) {
           console.log("User not logged in, cannot save exam results");
           return;
         }
@@ -10221,9 +10219,7 @@
         try {
           const examScoresRef = doc(
             db,
-            "users",
-            auth.currentUser.uid,
-            "examScores",
+            getPrivateCollectionPath("examScores"),
             level
           );
           const snapshot = await getDoc(examScoresRef);
