@@ -3445,6 +3445,7 @@
         setLogLevel,
         getDoc,
         increment,
+        updateDoc,
       } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
       // --- GLOBAL VARIABLES & CONFIGURATION ---
@@ -8582,6 +8583,18 @@
       let conversationHistory = [];
       let conversationCorrections = [];
 
+      // ===== HELPER FUNCTIONS FOR EXAM PREP =====
+      function showFeedback(message, isSuccess) {
+        // Simple alert-based feedback (you can improve this later)
+        if (isSuccess) {
+          console.log("✅ " + message);
+        } else {
+          console.log("⚠️ " + message);
+        }
+        // Optional: show a toast notification if you have one
+        alert(message);
+      }
+
       // ===== EXAM PREPARATION SYSTEM =====
       let examData = null;
       let currentExamLevel = null;
@@ -10149,7 +10162,7 @@
       }
 
       function playExamAudio(text) {
-        speakText(text); // Reuse existing TTS function
+        speakText(text, 'italian'); // Pass 'italian' to use it-IT voice
       }
 
       async function loadExamProgress() {
@@ -10170,17 +10183,20 @@
           document.getElementById(`${section}-best`).textContent = "--";
         });
 
-        // Load actual best scores from Firebase
+        // Load actual best scores from Firestore
         if (auth.currentUser) {
           try {
-            const scoresRef = ref(
-              database,
-              `users/${currentUser.uid}/examScores/${level}`
+            const examScoresRef = doc(
+              db,
+              "users",
+              auth.currentUser.uid,
+              "examScores",
+              level
             );
-            const snapshot = await get(scoresRef);
+            const snapshot = await getDoc(examScoresRef);
 
             if (snapshot.exists()) {
-              const scores = snapshot.val();
+              const scores = snapshot.data();
               ["listening", "reading", "writing", "speaking"].forEach(
                 (section) => {
                   if (scores[section]) {
@@ -10202,53 +10218,58 @@
           return;
         }
 
-        const currentUser = auth.currentUser;
-
         try {
-          const examResultsRef = ref(
-            database,
-            `users/${currentUser.uid}/examScores/${level}/${section}`
+          const examScoresRef = doc(
+            db,
+            "users",
+            auth.currentUser.uid,
+            "examScores",
+            level
           );
-          const snapshot = await get(examResultsRef);
+          const snapshot = await getDoc(examScoresRef);
 
-          const newResult = {
+          let currentData = {};
+          if (snapshot.exists()) {
+            currentData = snapshot.data();
+          }
+
+          // Initialize section if needed
+          if (!currentData[section]) {
+            currentData[section] = {
+              bestScore: 0,
+              totalAttempts: 0,
+              history: [],
+            };
+          }
+
+          // Update stats
+          currentData[section].lastScore = score;
+          currentData[section].lastAttempt = serverTimestamp();
+          currentData[section].totalAttempts =
+            (currentData[section].totalAttempts || 0) + 1;
+
+          // Update best score if better
+          if (score > (currentData[section].bestScore || 0)) {
+            currentData[section].bestScore = score;
+            currentData[section].bestScoreDate = serverTimestamp();
+          }
+
+          // Add to history
+          if (!currentData[section].history) {
+            currentData[section].history = [];
+          }
+          currentData[section].history.push({
             score: score,
             date: new Date().toISOString(),
             timeTaken: timeTaken,
-          };
+          });
 
-          // Update best score if this is better
-          let updates = {
-            lastScore: score,
-            lastAttempt: new Date().toISOString(),
-            totalAttempts: increment(1),
-          };
+          // Save to Firestore
+          await setDoc(examScoresRef, currentData, { merge: true });
 
-          if (
-            !snapshot.exists() ||
-            !snapshot.val().bestScore ||
-            score > snapshot.val().bestScore
-          ) {
-            updates.bestScore = score;
-            updates.bestScoreDate = new Date().toISOString();
-          }
-
-          // Save all results in history
-          const historyRef = ref(
-            database,
-            `users/${currentUser.uid}/examScores/${level}/${section}/history`
-          );
-          const newHistoryRef = push(historyRef);
-          await set(newHistoryRef, newResult);
-
-          // Update main stats
-          await update(examResultsRef, updates);
-
-          console.log("Exam results saved successfully");
-          showFeedback("Exam results saved!", true);
+          console.log("✅ Exam results saved successfully");
         } catch (error) {
-          console.error("Error saving exam results:", error);
-          showFeedback("Error saving results", false);
+          console.error("❌ Error saving exam results:", error);
         }
       }
 
