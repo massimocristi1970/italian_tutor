@@ -1,0 +1,191 @@
+{
+  "levels": ["A1", "A2", "B1", "B2", "C1", "C2"],
+  "examInfo": {
+    "A1": {
+      "duration": 95,
+      "sections": {
+        "listening": 20,
+        "reading": 30,
+        "writing": 25,
+        "speaking": 20
+      },
+      "passingScore": 55
+    },
+    "A2": {
+      "duration": 120,
+      "sections": {
+        "listening": 25,
+        "reading": 40,
+        "writing": 30,
+        "speaking": 25
+      },
+      "passingScore": 60
+    },
+    "B1": {
+      "duration": 150,
+      "sections": {
+        "listening": 30,
+        "reading": 50,
+        "writing": 40,
+        "speaking": 30
+      },
+      "passingScore": 65
+    },
+    "B2": {
+      "duration": 180,
+      "sections": {
+        "listening": 35,
+        "reading": 60,
+        "writing": 50,
+        "speaking": 35
+      },
+      "passingScore": 70
+    },
+    "C1": {
+      "duration": 210,
+      "sections": {
+        "listening": 40,
+        "reading": 70,
+        "writing": 60,
+        "speaking": 40
+      },
+      "passingScore": 75
+    },
+    "C2": {
+      "duration": 240,
+      "sections": {
+        "listening": 45,
+        "reading": 80,
+        "writing": 70,
+        "speaking": 45
+      },
+      "passingScore": 80
+    }
+  },
+  "questions": {
+    "A1": {
+      "listening": [
+        {
+          "id": "a1_l_1",
+          "type": "multiple_choice",
+          "audio": "Buongiorno, come stai?",
+          "question": "What is the speaker saying?",
+          "options": ["Good morning, how are you?", "Good night", "Goodbye", "Thank you"],
+          "correct": 0,
+          "points": 5
+        },
+        {
+          "id": "a1_l_2",
+          "type": "multiple_choice",
+          "audio": "Mi chiamo Marco.",
+          "question": "What is the speaker doing?",
+          "options": ["Asking for directions", "Introducing himself", "Ordering food", "Saying goodbye"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_l_3",
+          "type": "multiple_choice",
+          "audio": "Vorrei un caffè, per favore.",
+          "question": "Where is this conversation taking place?",
+          "options": ["At a café", "At the airport", "At a hotel", "At the bank"],
+          "correct": 0,
+          "points": 5
+        },
+        {
+          "id": "a1_l_4",
+          "type": "multiple_choice",
+          "audio": "Dove è la stazione?",
+          "question": "What is the speaker asking for?",
+          "options": ["The time", "Directions to the station", "A ticket", "Help"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_l_5",
+          "type": "multiple_choice",
+          "audio": "Sono di Roma.",
+          "question": "What information is the speaker giving?",
+          "options": ["Their age", "Their name", "Where they are from", "Their job"],
+          "correct": 2,
+          "points": 5
+        }
+      ],
+      "reading": [
+        {
+          "id": "a1_r_1",
+          "type": "comprehension",
+          "passage": "Mi chiamo Maria. Sono di Roma. Ho 25 anni. Sono studentessa. Studio italiano all'università.",
+          "question": "What does Maria do?",
+          "options": ["She is a teacher", "She is a student", "She is a doctor", "She is a tourist"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_r_2",
+          "type": "comprehension",
+          "passage": "Il bar è aperto dalle 7:00 alle 20:00. La domenica è chiuso.",
+          "question": "When is the bar closed?",
+          "options": ["In the morning", "In the afternoon", "On Sunday", "At night"],
+          "correct": 2,
+          "points": 5
+        },
+        {
+          "id": "a1_r_3",
+          "type": "comprehension",
+          "passage": "Ciao! Sono Paolo. Mi piace il calcio. Gioco ogni domenica con i miei amici.",
+          "question": "What does Paolo like?",
+          "options": ["Basketball", "Soccer", "Tennis", "Swimming"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_r_4",
+          "type": "comprehension",
+          "passage": "La mia famiglia è piccola. Ho una sorella e un fratello. I miei genitori abitano a Milano.",
+          "question": "Where do the speaker's parents live?",
+          "options": ["Rome", "Milan", "Naples", "Florence"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_r_5",
+          "type": "comprehension",
+          "passage": "Il supermercato è vicino alla stazione. È a cinque minuti a piedi.",
+          "question": "Where is the supermarket?",
+          "options": ["Far from the station", "Next to the station", "Near the station", "At the station"],
+          "correct": 2,
+          "points": 5
+        }
+      ],
+      "writing": [
+        {
+          "id": "a1_w_1",
+          "type": "free_response",
+          "prompt": "Write a short email introducing yourself to your new Italian class. Include your name, where you are from, and why you are studying Italian. (50-80 words)",
+          "wordCount": [50, 80],
+          "rubric": {
+            "content": 10,
+            "grammar": 10,
+            "vocabulary": 10
+          },
+          "points": 30
+        }
+      ],
+      "speaking": [
+        {
+          "id": "a1_s_1",
+          "type": "free_response",
+          "prompt": "Introduce yourself. Say your name, where you are from, your age, and what you do.",
+          "duration": 60,
+          "rubric": {
+            "pronunciation": 10,
+            "fluency": 10,
+            "content": 10
+          },
+          "points": 30
+        }
+      ]
+    }
+  }
+}
