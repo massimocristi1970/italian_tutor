@@ -16,23 +16,27 @@
   <link rel="stylesheet" href="responsive-styles.css?v=3" />
   <style>
     :root {
-      /* Premium Navy Light Theme */
-      --bg-primary: #ffffff;    /* Clean White background */
-      --bg-secondary: #f5f5f5;  /* Subtle Off-White for cards/containers */
+      /* OPTION 1: Modern Polish - Light Theme */
+      --bg-primary: #eff2f9;    /* Very pale, bluish-grey background for modern depth */
+      --bg-secondary: #ffffff;  /* Pure white for containers/cards to pop */
       --text-primary: #1e40af;  /* Premium Navy for main headings/text */
-      --text-secondary: #374151; /* Dark Grey for body text */
-      --border-color: #cbd5e1;  /* Light Grey Border */
+      --text-secondary: #4b5563; /* Mid-Dark Grey for body text */
+      --border-color: #e5e7eb;  /* Soft Grey Border */
       --input-bg: #f5f5f5;      /* Off-White Input fields */
+      --accent-color: #ffcb49;  /* Vibrant Gold accent */
+      --accent-hover: #f9a826;  /* Deeper Gold on hover */
 }
 
 .dark {
-      /* Premium Navy Dark Theme */
-      --bg-primary: #111827;    /* Deep Charcoal/Near-Black background */
-      --bg-secondary: #1e40af;  /* Premium Navy for Cards/Panels */
+      /* OPTION 1: Modern Polish - Dark Theme */
+      --bg-primary: #0d1117;    /* Super-deep charcoal/near-black */
+      --bg-secondary: #1e40af;  /* Premium Navy for Cards/Panels - creates rich depth */
       --text-primary: #f5f5f5;  /* Soft Cultured White for main text */
       --text-secondary: #9ca3af; /* Mid-Grey for secondary text */
-      --border-color: #4b5563;  /* Dark Grey Border */
-      --input-bg: #374151;      /* Dark Grey Input fields */
+      --border-color: #374151;  /* Darker Grey Border */
+      --input-bg: #2d3748;      /* Slightly lighter dark grey input */
+      --accent-color: #ffcb49;  /* Vibrant Gold accent */
+      --accent-hover: #f9a826;  /* Deeper Gold on hover */
 }
 
 body {
@@ -63,7 +67,8 @@ body {
 }
 
 .level-card h3 {
-      color: #f5f5f5; /* Soft White text for h3 in this specific component */
+      /* This component will now look great against a dark card (in dark mode) */
+      color: var(--text-primary); 
       margin-bottom: 10px;
       font-size: 24px;
 }
@@ -78,17 +83,17 @@ body {
       word-wrap: break-word;
 }
 
-/* Styling for the audio button to be subtle */
+/* Styling for the audio button uses the new Gold accent */
 .audio-btn {
       background-color: transparent;
       border: none;
-      color: #f59e0b; /* Bright Gold accent, complements Navy */
+      color: var(--accent-color); 
       cursor: pointer;
       transition: color 0.15s;
 }
 
 .audio-btn:hover {
-      color: #f97316; /* Slightly deeper Orange/Gold on hover */
+      color: var(--accent-hover); 
 }
 
 /* Custom scrollbar for aesthetics */
