@@ -67,7 +67,7 @@ body {
 }
 
 .level-card h3 {
-      /* This component will now look great against a dark card (in dark mode) */
+      /* Inherits color from text-primary, which is Navy in light mode and soft white in dark mode. */
       color: var(--text-primary); 
       margin-bottom: 10px;
       font-size: 24px;
@@ -250,11 +250,13 @@ body {
       letter-spacing: 0.3px;
     }
 
+    /* Primary color uses Premium Navy */
     .alternative-badge.formal {
-      background: rgba(33, 150, 243, 0.3);
-      border: 1px solid rgba(33, 150, 243, 0.6);
+      background: rgba(30, 64, 175, 0.3); 
+      border: 1px solid rgba(30, 64, 175, 0.6); 
     }
 
+    /* Secondary status color (Green) is retained */
     .alternative-badge.informal {
       background: rgba(76, 175, 80, 0.3);
       border: 1px solid rgba(76, 175, 80, 0.6);
@@ -290,7 +292,7 @@ body {
 
     /* Dark mode */
     .dark .context-badge {
-      background-color: rgba(55, 65, 81, 0.95);
+      background-color: rgba(45, 55, 72, 0.95); /* Adjusted for consistency with dark theme neutrals */
     }
 
     /* ========================================
@@ -522,13 +524,13 @@ body {
       background: rgba(0, 0, 0, 0.3);
     }
 
-    /* Achievement Unlocked Animation */
+    /* Achievement Unlocked Animation - Uses Gold Accent */
     .achievement-popup {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
-      color: #1f2937;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%); 
+      color: #1f2937; /* Dark text on Gold */
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -941,9 +943,10 @@ body {
       color: #16a34a;
     }
 
+    /* Intermediate difficulty uses an Indigo/Navy shade for elegance */
     .scenario-difficulty.intermediate {
-      background: rgba(59, 130, 246, 0.2);
-      color: #2563eb;
+      background: rgba(79, 70, 229, 0.2); 
+      color: #4f46e5; 
     }
 
     .scenario-difficulty.advanced {
@@ -1044,10 +1047,10 @@ body {
       color: white;
     }
 
-    /* Cultural Note */
+    /* Cultural Note - Uses Gold Accent */
     .cultural-note {
-      background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
-      color: #78350f;
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+      color: #78350f; /* Dark text on Gold */
       padding: 12px 16px;
       border-radius: 12px;
       margin-bottom: 20px;
@@ -1108,10 +1111,11 @@ body {
       border-bottom-left-radius: 4px;
     }
 
+    /* Player bubble border changed from green to Premium Navy for theme cohesion */
     .dialogue-bubble.player {
       background: var(--input-bg);
       color: var(--text-primary);
-      border: 2px solid #10b981;
+      border: 2px solid #1e40af; 
       border-bottom-right-radius: 4px;
     }
 
@@ -1301,9 +1305,7 @@ body {
     }
 
     @keyframes bounce {
-
-      0%,
-      100% {
+      0%, 100% {
         transform: translateY(0);
       }
 
@@ -1395,1443 +1397,355 @@ body {
       }
     }
 
-    /* ========================================
-   PHASE 4 - PRONUNCIATION PRACTICE
-   ======================================== */
-
-    /* Pronunciation Modal */
-    .pronunciation-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 20px;
-      backdrop-filter: blur(4px);
-    }
-
-    .pronunciation-modal.active {
-      display: flex;
-    }
-
-    .pronunciation-panel {
-      background: var(--bg-secondary);
-      border-radius: 20px;
-      max-width: 800px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: slideUp 0.3s ease-out;
-    }
-
-    .pronunciation-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid var(--border-color);
-    }
-
-    .pronunciation-title {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 0;
-    }
-
-    /* Category Selection */
-    .pronunciation-categories {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .pronunciation-category-card {
-      background: var(--input-bg);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
-      text-align: center;
-    }
-
-    .pronunciation-category-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-color: #1e40af;
-    }
-
-    .pronunciation-category-card.active {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-      color: white;
-      border-color: transparent;
-    }
-
-    .category-card-icon {
-      font-size: 2rem;
-      margin-bottom: 8px;
-    }
-
-    .category-card-name {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .category-card-description {
-      font-size: 0.8rem;
-      opacity: 0.85;
-    }
-
-    /* Practice Area */
-    .pronunciation-practice-area {
-      background: var(--input-bg);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    .pronunciation-target {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .pronunciation-text {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-    }
-
-    .pronunciation-ipa {
-      font-size: 1.2rem;
-      color: #1e40af;
-      font-family: "Courier New", monospace;
-      margin-bottom: 8px;
-    }
-
-    .pronunciation-english {
-      font-size: 1rem;
-      color: var(--text-secondary);
-      font-style: italic;
-    }
-
-    .pronunciation-focus {
-      display: inline-block;
-      background: rgba(99, 102, 241, 0.1);
-      color: #1e40af;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 8px;
-    }
-
-    /* Recording Controls */
-    .pronunciation-controls {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .pronunciation-btn {
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1rem;
-      border: none;
-    }
-
-    .pronunciation-btn-listen {
-      background: #10b981;
-      color: white;
-    }
-
-    .pronunciation-btn-listen:hover {
-      background: #059669;
-      transform: translateY(-2px);
-    }
-
-    .pronunciation-btn-record {
-      background: #ef4444;
-      color: white;
-      position: relative;
-    }
-
-    .pronunciation-btn-record:hover:not(:disabled) {
-      background: #dc2626;
-    }
-
-    .pronunciation-btn-record.recording {
-      animation: pulse 1.5s infinite;
-    }
-
-    .pronunciation-btn-record:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-      }
-
-      50% {
-        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-      }
-    }
-
-    .pronunciation-btn-next {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-      color: white;
-    }
-
-    .pronunciation-btn-next:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    /* Feedback Area */
-    .pronunciation-feedback {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      border: 2px solid var(--border-color);
-      display: none;
-    }
-
-    .pronunciation-feedback.show {
-      display: block;
-    }
-
-    .dark .pronunciation-feedback {
-      background: var(--bg-secondary);
-    }
-
-    .pronunciation-score {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .score-display {
-      font-size: 4rem;
-      font-weight: 700;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .score-display.excellent {
-      color: #10b981;
-    }
-
-    .score-display.good {
-      color: #3b82f6;
-    }
-
-    .score-display.fair {
-      color: #f59e0b;
-    }
-
-    .score-display.needs-work {
-      color: #ef4444;
-    }
-
-    .score-label {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-
-    .pronunciation-comparison {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .comparison-box {
-      background: var(--input-bg);
-      border-radius: 8px;
+    /* ======================================== PHASE 4 - PRONUNCIATION PRACTICE ======================================== */ 
+    
+    /* Pronunciation Modal */ 
+    .pronunciation-modal { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0, 0, 0, 0.7); 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 1000; 
+      padding: 20px; 
+      backdrop-filter: blur(4px); 
+    } 
+    
+    .pronunciation-modal.active { 
+      display: flex; 
+    } 
+    
+    .pronunciation-panel { 
+      background: var(--bg-secondary); 
+      border-radius: 20px; 
+      max-width: 800px; 
+      width: 100%; 
+      max-height: 90vh; 
+      overflow-y: auto; 
+      padding: 24px; 
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); 
+      animation: slideUp 0.3s ease-out; 
+    } 
+    
+    .pronunciation-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 24px; 
+      padding-bottom: 16px; 
+      border-bottom: 2px solid var(--border-color); 
+    } 
+    
+    .pronunciation-title { 
+      font-size: 1.8rem; 
+      font-weight: 700; 
+      color: var(--text-primary); 
+      margin: 0; 
+    } 
+    
+    /* Category Selection */ 
+    .pronunciation-categories { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+      gap: 12px; 
+      margin-bottom: 24px; 
+    } 
+    
+    .pronunciation-category-card { 
+      background: var(--input-bg); 
+      border-radius: 12px; 
+      padding: 16px; 
+      cursor: pointer; 
+      transition: all 0.3s ease; 
+      border: 2px solid transparent; 
+      text-align: center; 
+    } 
+    
+    .pronunciation-category-card:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+      border-color: #1e40af; 
+    } 
+    
+    .pronunciation-category-card.active { 
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); 
+      color: white; 
+      border-color: transparent; 
+    } 
+    
+    /* Practice Area */ 
+    .pronunciation-practice-area { 
+      background: var(--input-bg); 
+      border-radius: 16px; 
+      padding: 24px; 
+      margin-bottom: 20px; 
+    } 
+    
+    .pronunciation-target { 
+      text-align: center; 
+      margin-bottom: 24px; 
+    } 
+    
+    .pronunciation-text { 
+      font-size: 2.5rem; 
+      font-weight: 700; 
+      color: var(--text-primary); 
+      margin-bottom: 8px; 
+    } 
+    
+    .pronunciation-ipa { 
+      font-size: 1.2rem; 
+      color: #1e40af; 
+      font-family: "Courier New", monospace; 
+      margin-bottom: 8px; 
+    } 
+    
+    .pronunciation-english { 
+      font-size: 1rem; 
+      color: var(--text-secondary); 
+      font-style: italic; 
+    } 
+    
+    .pronunciation-focus { 
+      display: inline-block; 
+      background: rgba(99, 102, 241, 0.1); 
+      color: #1e40af; 
+      padding: 4px 12px; 
+      border-radius: 20px; 
+      font-size: 0.85rem; 
+      font-weight: 600; 
+      margin-top: 8px; 
+    } 
+    
+    /* Recording Controls */ 
+    .pronunciation-controls { 
+      display: flex; 
+      justify-content: center; 
+      gap: 16px; 
+      margin-bottom: 24px; 
+      flex-wrap: wrap; 
+    } 
+    
+    .pronunciation-btn { 
+      padding: 16px 32px; 
+      border-radius: 12px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      transition: all 0.2s; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+      font-size: 1rem; 
+      border: none; 
+    } 
+    
+    .pronunciation-btn-listen { 
+      background: #10b981; 
+      color: white; 
+    } 
+    
+    .pronunciation-btn-listen:hover { 
+      background: #059669; 
+      transform: translateY(-2px); 
+    } 
+    
+    .pronunciation-btn-record { 
+      background: #ef4444; 
+      color: white; 
+      position: relative; 
+    } 
+    
+    .pronunciation-btn-record:hover:not(:disabled) { 
+      background: #dc2626; 
+    } 
+    
+    .pronunciation-btn-record.recording { 
+      animation: pulse 1.5s infinite; 
+    } 
+    
+    .pronunciation-btn-record:disabled { 
+      opacity: 0.5; 
+      cursor: not-allowed; 
+    } 
+    
+    @keyframes pulse { 
+      0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); 
+      } 
+      50% { 
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); 
+      } 
+    } 
+    
+    .pronunciation-btn-next { 
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); 
+      color: white; 
+    } 
+    
+    .pronunciation-btn-next:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); 
+    } 
+    
+    /* Feedback Area */ 
+    .pronunciation-feedback { 
+      background: white; 
+      border-radius: 12px; 
+      padding: 20px; 
+      margin-bottom: 20px; 
+      border: 2px solid var(--border-color); 
+      display: none; 
+    } 
+    
+    .pronunciation-feedback.show { 
+      display: block; 
+    } 
+    
+    .dark .pronunciation-feedback { 
+      background: var(--bg-secondary); 
+    } 
+    
+    .pronunciation-score { 
+      text-align: center; 
+      margin-bottom: 16px; 
+    } 
+    
+    .score-display { 
+      font-size: 4rem; 
+      font-weight: 700; 
+      line-height: 1; 
+      margin-bottom: 8px; 
+    } 
+    
+    .score-display.excellent { 
+      color: #10b981; 
+    } 
+    
+    .score-display.good { 
+      color: #3b82f6; 
+    } 
+    
+    /* Fair score uses the Gold Accent */
+    .score-display.fair { 
+      color: var(--accent-color); 
+    } 
+    
+    .score-display.needs-work { 
+      color: #ef4444; 
+    } 
+    
+    .score-label { 
+      font-size: 1.2rem; 
+      font-weight: 600; 
+      color: var(--text-secondary); 
+    } 
+    
+    .pronunciation-comparison { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 16px; 
+      margin-bottom: 16px; 
+    } 
+    
+    .comparison-box { 
+      background: var(--input-bg); 
+      border-radius: 8px; 
+      padding: 12px; 
+      text-align: center; 
+    } 
+    
+    .comparison-label { 
+      font-size: 0.8rem; 
+      text-transform: uppercase; 
+      font-weight: 600; 
+      color: var(--text-secondary); 
+      margin-bottom: 8px; 
+    } 
+    
+    .comparison-text { 
+      font-size: 1.1rem; 
+      color: var(--text-primary); 
+      font-weight: 600; 
+    } 
+    
+    /* Pronunciation tips uses a Navy tone for guidance */
+    .pronunciation-tips { 
+      background: rgba(30, 64, 175, 0.1); 
+      border-left: 4px solid #4f46e5; 
+      padding: 12px 16px; 
+      border-radius: 8px; 
+      margin-bottom: 12px; 
+    } 
+    
+    .tips-title { 
+      font-size: 0.9rem; 
+      font-weight: 700; 
+      color: #4f46e5; 
+      margin-bottom: 6px; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+    } 
+    
+    .tips-content { 
+      font-size: 0.9rem; 
+      color: var(--text-primary); 
+      line-height: 1.5; 
+    } 
+    
+    .pronunciation-mistakes { 
+      background: rgba(239, 68, 68, 0.1); 
+      border-left: 4px solid #ef4444; 
+      padding: 12px 16px; 
+      border-radius: 8px; 
+    } 
+    
+    .mistakes-title { 
+      font-size: 0.9rem; 
+      font-weight: 700; 
+      color: #ef4444; 
+      margin-bottom: 6px; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+    } 
+    
+    .mistakes-content { 
+      font-size: 0.85rem; 
+      color: var(--text-primary); 
+      line-height: 1.4; 
+    } 
+    
+    /* Progress Tracking */ 
+    .pronunciation-progress-bar { 
+      background: rgba(0, 0, 0, 0.1); 
+      height: 8px; 
+      border-radius: 4px; 
+      overflow: hidden; 
+      margin-top: 20px; 
+    } 
+    
+    .pronunciation-progress-fill { 
+      height: 100%; 
+      background: linear-gradient(90deg, #10b981, #3b82f6); 
+      border-radius: 4px; 
+      transition: width 0.5s ease; 
+    } 
+    
+    .pronunciation-stats { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 12px; 
+      margin-top: 20px; 
+    } 
+    
+    .pronunciation-stat-card { 
+      background: var(--input-bg); 
+      border-radius: 8px; 
       padding: 12px;
-      text-align: center;
     }
-
-    .comparison-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-
-    .comparison-text {
-      font-size: 1.1rem;
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-
-    .pronunciation-tips {
-      background: rgba(59, 130, 246, 0.1);
-      border-left: 4px solid #3b82f6;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-
-    .tips-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #3b82f6;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tips-content {
-      font-size: 0.9rem;
-      color: var(--text-primary);
-      line-height: 1.5;
-    }
-
-    .pronunciation-mistakes {
-      background: rgba(239, 68, 68, 0.1);
-      border-left: 4px solid #ef4444;
-      padding: 12px 16px;
-      border-radius: 8px;
-    }
-
-    .mistakes-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #ef4444;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .mistakes-content {
-      font-size: 0.85rem;
-      color: var(--text-primary);
-      line-height: 1.4;
-    }
-
-    /* Progress Tracking */
-    .pronunciation-progress-bar {
-      background: rgba(0, 0, 0, 0.1);
-      height: 8px;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 20px;
-    }
-
-    .pronunciation-progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #3b82f6);
-      border-radius: 4px;
-      transition: width 0.5s ease;
-    }
-
-    .pronunciation-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .pronunciation-stat-card {
-      background: var(--input-bg);
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-    }
-
-    .stat-number {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #1e40af;
-    }
-
-    .stat-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    /* Waveform Animation */
-    .waveform {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      height: 60px;
-      margin: 20px 0;
-    }
-
-    .waveform-bar {
-      width: 4px;
-      background: #1e40af;
-      border-radius: 2px;
-      animation: wave 1s ease-in-out infinite;
-    }
-
-    .waveform-bar:nth-child(1) {
-      animation-delay: 0s;
-    }
-
-    .waveform-bar:nth-child(2) {
-      animation-delay: 0.1s;
-    }
-
-    .waveform-bar:nth-child(3) {
-      animation-delay: 0.2s;
-    }
-
-    .waveform-bar:nth-child(4) {
-      animation-delay: 0.3s;
-    }
-
-    .waveform-bar:nth-child(5) {
-      animation-delay: 0.4s;
-    }
-
-    @keyframes wave {
-
-      0%,
-      100% {
-        height: 10px;
-      }
-
-      50% {
-        height: 50px;
-      }
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      .pronunciation-panel {
-        padding: 16px;
-      }
-
-      .pronunciation-text {
-        font-size: 2rem;
-      }
-
-      .pronunciation-controls {
-        flex-direction: column;
-      }
-
-      .pronunciation-btn {
-        width: 100%;
-      }
-
-      .pronunciation-comparison {
-        grid-template-columns: 1fr;
-      }
-
-      .pronunciation-categories {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* ========================================
-   PHASE 4 - ADDITIONAL FEATURES (Part 2)
-   Fluency Challenges, SRS, Progress Reports
-   ======================================== */
-
-    /* ===== FLUENCY CHALLENGE MODAL ===== */
-    .fluency-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 20px;
-      backdrop-filter: blur(4px);
-    }
-
-    .fluency-modal.active {
-      display: flex;
-    }
-
-    .fluency-panel {
-      background: var(--bg-secondary);
-      border-radius: 20px;
-      max-width: 900px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: slideUp 0.3s ease-out;
-    }
-
-    .challenge-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-      margin-top: 20px;
-    }
-
-    .challenge-card {
-      background: var(--input-bg);
-      border-radius: 16px;
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
-      position: relative;
-    }
-
-    .challenge-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      border-color: #f59e0b;
-    }
-
-    .challenge-icon {
-      font-size: 2.5rem;
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .challenge-name {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--text-primary);
-    }
-
-    .challenge-description {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-      line-height: 1.4;
-    }
-
-    .challenge-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .challenge-active {
-      background: var(--bg-secondary);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    .challenge-timer {
-      text-align: center;
-      margin: 20px 0;
-    }
-
-    .timer-display {
-      font-size: 3rem;
-      font-weight: 700;
-      color: #f59e0b;
-      font-family: "Courier New", monospace;
-    }
-
-    .timer-display.warning {
-      color: #ef4444;
-      animation: pulse 1s infinite;
-    }
-
-    .challenge-progress-text {
-      text-align: center;
-      font-size: 1.2rem;
-      margin: 16px 0;
-      color: var(--text-primary);
-    }
-
-    .challenge-score-display {
-      background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      margin: 20px 0;
-    }
-
-    .score-number {
-      font-size: 4rem;
-      font-weight: 700;
-      color: #1f2937;
-    }
-
-    .score-label {
-      font-size: 1.2rem;
-      color: #4b5563;
-      margin-top: 8px;
-    }
-
-    /* ===== SRS CARD INTERFACE ===== */
-    .srs-container {
-      background: var(--bg-secondary);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 20px;
-      border: 2px solid var(--border-color);
-    }
-
-    .srs-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .srs-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .srs-due-count {
-      background: #ef4444;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    .flashcard {
-      background: var(--input-bg);
-      border-radius: 16px;
-      min-height: 300px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      margin: 20px 0;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      perspective: 1000px;
-    }
-
-    .flashcard:hover {
-      transform: scale(1.02);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    }
-
-    .flashcard-front,
-    .flashcard-back {
-      text-align: center;
-      width: 100%;
-    }
-
-    .flashcard-text {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 12px;
-    }
-
-    .flashcard-pronunciation {
-      font-size: 1.2rem;
-      color: #f5f5f5;
-      font-family: "Courier New", monospace;
-      margin-bottom: 20px;
-    }
-
-    .flashcard-example {
-      font-size: 1rem;
-      color: var(--text-secondary);
-      font-style: italic;
-      margin-top: 16px;
-      padding: 12px;
-      background: rgba(99, 102, 241, 0.1);
-      border-radius: 8px;
-    }
-
-    .flashcard-back {
-      display: none;
-    }
-
-    .flashcard.flipped .flashcard-front {
-      display: none;
-    }
-
-    .flashcard.flipped .flashcard-back {
-      display: block;
-    }
-
-    .srs-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .srs-btn {
-      padding: 12px 24px;
-      border-radius: 12px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .srs-btn-again {
-      background: #ef4444;
-      color: white;
-    }
-
-    .srs-btn-hard {
-      background: #f59e0b;
-      color: white;
-    }
-
-    .srs-btn-good {
-      background: #3b82f6;
-      color: white;
-    }
-
-    .srs-btn-easy {
-      background: #10b981;
-      color: white;
-    }
-
-    .srs-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .srs-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .srs-stat-card {
-      background: var(--input-bg);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .srs-stat-number {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #f5f5f5;
-    }
-
-    .srs-stat-label {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-
-    /* ===== PROGRESS REPORT MODAL ===== */
-    .progress-report-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 20px;
-      backdrop-filter: blur(4px);
-    }
-
-    .progress-report-modal.active {
-      display: flex;
-    }
-
-    .progress-report-panel {
-      background: var(--bg-secondary);
-      border-radius: 20px;
-      max-width: 800px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 32px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: slideUp 0.3s ease-out;
-    }
-
-    .report-header {
-      text-align: center;
-      margin-bottom: 32px;
-      padding-bottom: 24px;
-      border-bottom: 2px solid var(--border-color);
-    }
-
-    .report-title {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-    }
-
-    .report-subtitle {
-      font-size: 1rem;
-      color: var(--text-secondary);
-    }
-
-    .report-section {
-      margin-bottom: 32px;
-    }
-
-    .report-section-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .report-highlight {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-      color: white;
-      padding: 24px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-    }
-
-    .report-highlight-stat {
-      font-size: 3rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 8px;
-    }
-
-    .report-highlight-label {
-      text-align: center;
-      font-size: 1.1rem;
-      opacity: 0.9;
-    }
-
-    .report-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-    }
-
-    .report-metric {
-      background: var(--input-bg);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .report-metric-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #1e40af;
-      margin-bottom: 8px;
-    }
-
-    .report-metric-label {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-    }
-
-    .report-metric-change {
-      font-size: 0.85rem;
-      margin-top: 4px;
-      font-weight: 600;
-    }
-
-    .report-metric-change.positive {
-      color: #10b981;
-    }
-
-    .report-metric-change.negative {
-      color: #ef4444;
-    }
-
-    .report-insight {
-      background: rgba(59, 130, 246, 0.1);
-      border-left: 4px solid #3b82f6;
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-
-    .report-insight-title {
-      font-weight: 700;
-      color: #3b82f6;
-      margin-bottom: 6px;
-    }
-
-    .report-insight-text {
-      color: var(--text-primary);
-      line-height: 1.5;
-    }
-
-    .report-recommendation {
-      background: rgba(16, 185, 129, 0.1);
-      border-left: 4px solid #10b981;
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-
-    .report-recommendation-title {
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .report-recommendation-text {
-      color: var(--text-primary);
-      line-height: 1.5;
-    }
-
-    /* ===== CONVERSATION MODE TOGGLE ===== */
-    .conversation-mode-toggle {
-      background: var(--input-bg);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 16px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .mode-btn {
-      flex: 1;
-      min-width: 140px;
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: 2px solid transparent;
-      background: transparent;
-      color: var(--text-secondary);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .mode-btn:hover {
-      background: rgba(99, 102, 241, 0.1);
-      color: #1e40af;
-    }
-
-    .mode-btn.active {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-      color: white;
-      border-color: transparent;
-    }
-
-    .correction-indicator {
-      position: relative;
-      padding: 12px;
-      background: rgba(239, 68, 68, 0.1);
-      border-left: 4px solid #ef4444;
-      border-radius: 8px;
-      margin-top: 8px;
-      font-size: 0.9rem;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    .correction-indicator::before {
-      content: "📝";
-      margin-right: 6px;
-    }
-
-    /* ===== MOBILE RESPONSIVE ===== */
-    @media (max-width: 768px) {
-
-      .fluency-panel,
-      .progress-report-panel {
-        padding: 16px;
-        max-height: 95vh;
-      }
-
-      .challenge-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .timer-display {
-        font-size: 2rem;
-      }
-
-      .flashcard {
-        min-height: 250px;
-        padding: 24px;
-      }
-
-      .flashcard-text {
-        font-size: 2rem;
-      }
-
-      .srs-buttons {
-        flex-direction: column;
-      }
-
-      .srs-btn {
-        width: 100%;
-      }
-
-      .report-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .conversation-mode-toggle {
-        flex-direction: column;
-      }
-
-      .mode-btn {
-        width: 100%;
-      }
-    }
-
-    /* ===== ANIMATIONS ===== */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.5;
-      }
-    }
-
-    /* ========================================
-       PHASE 7 - EXAM PREPARATION MODE
-       ======================================== */
-
-    .exam-prep-content {
-      max-width: 900px;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 30px;
-    }
-
-    .exam-screen {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .exam-screen.active {
-      display: block;
-    }
-
-    .level-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      max-width: 900px;
-      margin: 30px auto;
-      gap: 20px;
-    }
-
-    @media (max-width: 768px) {
-      .level-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .level-card {
-      background: var(--bg-secondary);
-      padding: 25px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      border: 2px solid transparent;
-    }
-
-    .level-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      border-color: #1e40af;
-    }
-
-    .level-card h3 {
-      color: #f5f5f5;
-      margin-bottom: 10px;
-      font-size: 24px;
-    }
-
-    .level-card p {
-      color: var(--text-secondary);
-      margin-bottom: 15px;
-    }
-
-    .level-progress {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    /* Section Selection */
-    .section-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin: 30px 0;
-    }
-
-    .section-card {
-      background: var(--bg-secondary);
-      padding: 30px 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      border: 2px solid transparent;
-    }
-
-    .section-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      border-color: #1e40af;
-    }
-
-    .section-card i {
-      font-size: 48px;
-      color: #f5f5f5;
-      margin-bottom: 15px;
-    }
-
-    .section-card h3 {
-      margin: 10px 0;
-      font-size: 20px;
-    }
-
-    .section-card p {
-      color: var(--text-secondary);
-      margin: 10px 0;
-    }
-
-    .best-score {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid var(--border-color);
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    .full-exam-button {
-      width: 100%;
-      padding: 20px;
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 30px;
-    }
-
-    .full-exam-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    .full-exam-button i {
-      margin-right: 10px;
-    }
-
-    .back-button {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      border: 2px solid var(--border-color);
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 20px;
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .back-button:hover {
-      background: var(--input-bg);
-      border-color: #1e40af;
-    }
-
-    /* Exam Taking Screen */
-    .exam-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 25px;
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .exam-header span {
-      font-weight: 600;
-    }
-
-    .timer {
-      font-size: 24px;
-      font-weight: bold;
-      color: #1e40af;
-      padding: 10px 20px;
-      background: var(--input-bg);
-      border-radius: 8px;
-    }
-
-    .timer.warning {
-      color: #ff9800;
-      animation: pulse 1s infinite;
-    }
-
-    .timer.danger {
-      color: #f44336;
-      animation: pulse 0.5s infinite;
-    }
-
-    #exam-question-counter {
-      background: var(--input-bg);
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    .exam-question {
-      background: var(--bg-secondary);
-      padding: 30px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-    }
-
-    .exam-question h3 {
-      margin-bottom: 20px;
-      font-size: 20px;
-      line-height: 1.6;
-    }
-
-    .play-audio-btn {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-bottom: 20px;
-      transition: all 0.3s ease;
-    }
-
-    .play-audio-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    .play-audio-btn i {
-      margin-right: 8px;
-    }
-
-    .reading-passage {
-      background: var(--input-bg);
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      line-height: 1.8;
-      border-left: 4px solid #1e40af;
-    }
-
-    .exam-options {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .exam-option {
-      display: flex;
-      align-items: center;
-      padding: 15px 20px;
-      background: var(--input-bg);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 2px solid transparent;
-    }
-
-    .exam-option:hover {
-      background: var(--bg-secondary);
-      border-color: #1e40af;
-    }
-
-    .exam-option input[type="radio"] {
-      margin-right: 15px;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
-
-    .exam-option span {
-      flex: 1;
-      font-size: 16px;
-    }
-
-    .writing-textarea,
-    .speaking-instructions {
-      width: 100%;
-      min-height: 200px;
-      padding: 15px;
-      background: var(--input-bg);
-      border: 2px solid var(--border-color);
-      border-radius: 8px;
-      color: var(--text-primary);
-      font-size: 16px;
-      font-family: inherit;
-      resize: vertical;
-      margin-top: 15px;
-    }
-
-    .writing-textarea:focus {
-      outline: none;
-      border-color: #1e40af;
-    }
-
-    .word-count {
-      text-align: right;
-      color: var(--text-secondary);
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    .word-count.warning {
-      color: #ff9800;
-    }
-
-    .word-count.good {
-      color: #4caf50;
-    }
-
-    /* Exam Navigation */
-    .exam-navigation {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      margin-top: 30px;
-    }
-
-    .exam-navigation button {
-      flex: 1;
-      padding: 15px 30px;
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .exam-navigation button:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    .exam-navigation button:disabled {
-      background: var(--border-color);
-      color: var(--text-secondary);
-      cursor: not-allowed;
-      opacity: 0.5;
-    }
-
-    #submit-exam-btn {
-      background: #4caf50;
-    }
-
-    #submit-exam-btn:hover {
-      background: #45a049;
-      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-    }
-
-    /* Results Screen */
-    .score-display {
-      text-align: center;
-      padding: 40px;
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      margin: 30px 0;
-    }
-
-    .total-score {
-      font-size: 72px;
-      font-weight: bold;
-      color: #1e40af;
-      margin-bottom: 20px;
-    }
-
-    .pass-status {
-      margin-top: 20px;
-    }
-
-    .passed {
-      color: #4caf50;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .needs-improvement {
-      color: #ff9800;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
+    
     .section-breakdown {
       background: var(--bg-secondary);
       padding: 30px;
