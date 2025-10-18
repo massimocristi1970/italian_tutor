@@ -16,99 +16,125 @@
   <link rel="stylesheet" href="responsive-styles.css?v=3" />
   <style>
     :root {
-      /* OPTION 1: Modern Polish - Light Theme */
-      --bg-primary: #eff2f9;    /* Very pale, bluish-grey background for modern depth */
-      --bg-secondary: #ffffff;  /* Pure white for containers/cards to pop */
-      --text-primary: #1e40af;  /* Premium Navy for main headings/text */
-      --text-secondary: #4b5563; /* Mid-Dark Grey for body text */
-      --border-color: #e5e7eb;  /* Soft Grey Border */
-      --input-bg: #f5f5f5;      /* Off-White Input fields */
-      --accent-color: #ffcb49;  /* Vibrant Gold accent */
-      --accent-hover: #f9a826;  /* Deeper Gold on hover */
-}
+      /* 🇮🇹 Modern Italian Identity – Light Theme */
+      --bg-primary: #FAFAFA;
+      /* Neve Bianca – soft white background */
+      --bg-secondary: #FFFFFF;
+      /* Pure white for cards and panels */
+      --text-primary: #1F1F1F;
+      /* Nero Soft – refined near-black */
+      --text-secondary: #555555;
+      /* Grigio Medio – secondary text */
+      --border-color: #E0E0E0;
+      /* Grigio Leggero – subtle borders */
+      --input-bg: #F5F5F5;
+      /* Off-white form fields */
+      --accent-color: #007C58;
+      /* Verde Italiano – brand green */
+      --accent-hover: #006648;
+      /* Darker hover for Verde Italiano */
+      --highlight-color: #D6A74E;
+      /* Oro Veneto – premium gold highlight */
+      --error-color: #C8102E;
+      /* Rosso Classico – strong but sparing */
+    }
 
-.dark {
-      /* OPTION 1: Modern Polish - Dark Theme */
-      --bg-primary: #0d1117;    /* Super-deep charcoal/near-black */
-      --bg-secondary: #1e40af;  /* Premium Navy for Cards/Panels - creates rich depth */
-      --text-primary: #f5f5f5;  /* Soft Cultured White for main text */
-      --text-secondary: #9ca3af; /* Mid-Grey for secondary text */
-      --border-color: #374151;  /* Darker Grey Border */
-      --input-bg: #2d3748;      /* Slightly lighter dark grey input */
-      --accent-color: #ffcb49;  /* Vibrant Gold accent */
-      --accent-hover: #f9a826;  /* Deeper Gold on hover */
-}
+    .dark {
+      /* 🇮🇹 Modern Italian Identity – Dark Theme */
+      --bg-primary: #121212;
+      /* Nero Profondo – deep OLED black */
+      --bg-secondary: #1E1E1E;
+      /* Grigio Antracite – cards/panels */
+      --text-primary: #F5F5F5;
+      /* Bianco Luna – main text */
+      --text-secondary: #BDBDBD;
+      /* Grigio Chiaro – muted text */
+      --border-color: #2C2C2C;
+      /* Grigio Ombra – dividers */
+      --input-bg: #2A2A2A;
+      /* Slight contrast for input fields */
+      --accent-color: #00A875;
+      /* Brightened Verde Italiano */
+      --accent-hover: #009868;
+      /* Hover tone for dark mode */
+      --highlight-color: #E0B95C;
+      /* Softer Oro Veneto glow */
+      --error-color: #E64A45;
+      /* Softened Rosso Classico */
+    }
 
-body {
+
+
+    body {
       font-family: "Inter", sans-serif;
       background-color: var(--bg-primary);
       color: var(--text-primary);
       transition: background-color 0.3s, color 0.3s;
-}
+    }
 
-.bg-white {
+    .bg-white {
       background-color: var(--bg-secondary);
-}
+    }
 
-.border-gray-100 {
+    .border-gray-100 {
       border-color: var(--border-color);
-}
+    }
 
-.bg-gray-50 {
+    .bg-gray-50 {
       background-color: var(--input-bg);
-}
+    }
 
-.text-gray-800 {
+    .text-gray-800 {
       color: var(--text-primary);
-}
+    }
 
-.text-gray-500 {
+    .text-gray-500 {
       color: var(--text-secondary);
-}
+    }
 
-.level-card h3 {
+    .level-card h3 {
       /* This component will now look great against a dark card (in dark mode) */
-      color: var(--text-primary); 
+      color: var(--text-primary);
       margin-bottom: 10px;
       font-size: 24px;
-}
+    }
 
-.chat-area {
+    .chat-area {
       height: calc(100vh - 20rem);
       transition: height 0.3s;
-}
+    }
 
-.bubble {
+    .bubble {
       max-width: 85%;
       word-wrap: break-word;
-}
+    }
 
-/* Styling for the audio button uses the new Gold accent */
-.audio-btn {
+    /* Styling for the audio button uses the new Gold accent */
+    .audio-btn {
       background-color: transparent;
       border: none;
-      color: var(--accent-color); 
+      color: var(--accent-color);
       cursor: pointer;
       transition: color 0.15s;
-}
+    }
 
-.audio-btn:hover {
-      color: var(--accent-hover); 
-}
+    .audio-btn:hover {
+      color: var(--accent-hover);
+    }
 
-/* Custom scrollbar for aesthetics */
-.chat-area::-webkit-scrollbar {
+    /* Custom scrollbar for aesthetics */
+    .chat-area::-webkit-scrollbar {
       width: 6px;
-}
+    }
 
-.chat-area::-webkit-scrollbar-thumb {
+    .chat-area::-webkit-scrollbar-thumb {
       background-color: #cbd5e1;
       border-radius: 3px;
-}
+    }
 
-.dark .chat-area::-webkit-scrollbar-thumb {
+    .dark .chat-area::-webkit-scrollbar-thumb {
       background-color: #6b7280;
-}
+    }
 
     /* ========================================
    PHASE 1 ENHANCEMENTS
@@ -142,7 +168,7 @@ body {
 
     /* Alternative Expressions Panel */
     .alternatives-panel {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       border-radius: 12px;
       padding: 16px;
       margin-top: 12px;
@@ -299,7 +325,7 @@ body {
 
     /* Progress Dashboard Container */
     .progress-dashboard {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       border-radius: 16px;
       padding: 20px;
       color: white;
@@ -527,7 +553,7 @@ body {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+      background: linear-gradient(var(--accent-color), var(--highlight-color) 0%, var(--highlight-color) 100%);
       color: #1f2937;
       padding: 20px;
       border-radius: 12px;
@@ -698,11 +724,415 @@ body {
       flex-shrink: 0;
     }
 
+    /* =========================================
+   ITALIAN IDENTITY DESIGN SYSTEM
+   ========================================= */
+
+    /* Typography & Layout */
+    body {
+      font-family: "Inter", "SF Pro Text", "Roboto", sans-serif;
+      color: var(--text-primary);
+      background-color: var(--bg-primary);
+      line-height: 1.6;
+      letter-spacing: 0.01rem;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      color: var(--text-primary);
+      font-weight: 700;
+      letter-spacing: -0.02rem;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    /* Card Components */
+    .card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      transition: all 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      border-radius: 12px;
+      padding: 0.8rem 1.4rem;
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+      transition: all 0.25s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+      box-shadow: 0 4px 12px rgba(0, 124, 88, 0.25);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 2px solid var(--accent-color);
+      color: var(--accent-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+
+    /* Inputs */
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--input-bg);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.25s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(0, 124, 88, 0.15);
+    }
+
+    /* ✅ Add this block right here */
+    * {
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    /* =========================================
+   🇮🇹 Italian Tutor – Typography Hierarchy
+   ========================================= */
+
+    body {
+      font-family: "Inter", "SF Pro Text", "Roboto", sans-serif;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      letter-spacing: 0.01rem;
+      color: var(--text-primary);
+      background-color: var(--bg-primary);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-weight: 700;
+      letter-spacing: -0.02rem;
+      color: var(--text-primary);
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    small,
+    .caption {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.02rem;
+    }
+
+    strong {
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+
+    .label {
+      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.05rem;
+      color: var(--highlight-color);
+    }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    .dark h1,
+    .dark h2,
+    .dark h3,
+    .dark h4,
+    .dark p,
+    .dark small {
+      color: var(--text-primary);
+    }
+
+    /* =========================================
+   🇮🇹 Italian Tutor – Typography Accent Layer
+   ========================================= */
+
+    /* --- Animated Gold Underline for Headings --- */
+    h2::after,
+    h3::after {
+      content: "";
+      display: block;
+      width: 0;
+      height: 3px;
+      background-color: var(--highlight-color);
+      transition: width 0.4s ease;
+      margin-top: 4px;
+      border-radius: 2px;
+    }
+
+    h2:hover::after,
+    h3:hover::after {
+      width: 60%;
+    }
+
+    /* --- Lesson Title Animation --- */
+    .lesson-title {
+      position: relative;
+      display: inline-block;
+      color: var(--accent-color);
+      font-weight: 700;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .lesson-title:hover {
+      transform: translateY(-2px);
+      color: var(--highlight-color);
+    }
+
+    /* --- Link Accent Underline --- */
+    a {
+      position: relative;
+      text-decoration: none;
+      color: var(--accent-color);
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 0;
+      height: 2px;
+      background-color: var(--accent-color);
+      transition: width 0.3s ease;
+    }
+
+    a:hover::after {
+      width: 100%;
+    }
+
+    a:hover {
+      color: var(--accent-hover);
+    }
+
+    /* --- Lesson Badge / Category Tag --- */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background-color: var(--highlight-color);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 8px;
+      letter-spacing: 0.05rem;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease;
+    }
+
+    .badge:hover {
+      background-color: var(--accent-color);
+    }
+
+    /* --- Subtle Heading Fade-in --- */
+    h1,
+    h2,
+    h3 {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeInSlide 0.8s ease forwards;
+    }
+
+    @keyframes fadeInSlide {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    /* =========================================
+   🇮🇹 Italian Identity – Premium Refinement Pack
+   ========================================= */
+
+    /* ===== Scrollbar Styling ===== */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--accent-color);
+      border-radius: 10px;
+      border: 2px solid var(--bg-primary);
+      transition: background-color 0.3s;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--accent-hover);
+    }
+
+    /* Firefox */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-color) var(--bg-primary);
+    }
+
+    /* ===== Modal / Overlay Blur ===== */
+    .modal,
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .dark .modal,
+    .dark .overlay {
+      background-color: rgba(30, 30, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    /* ===== Buttons & Card Depth Refinement ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(0, 124, 88, 0.25);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(0, 124, 88, 0.35);
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .card {
+      background: rgba(30, 30, 30, 0.85);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    /* ===== Glow & Accent Effects ===== */
+    a:hover,
+    .btn-primary:hover {
+      text-shadow: 0 0 6px rgba(0, 124, 88, 0.5);
+    }
+
+    .highlight {
+      color: var(--highlight-color);
+      font-weight: 600;
+    }
+
+    .dark .highlight {
+      color: var(--highlight-color);
+      text-shadow: 0 0 8px rgba(224, 185, 92, 0.6);
+    }
+
+    /* ===== Optional Section Panels ===== */
+    .panel {
+      background-color: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .dark .panel {
+      background-color: rgba(30, 30, 30, 0.7);
+      backdrop-filter: blur(14px);
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
       .progress-dashboard {
         padding: 16px;
       }
+
 
       .dashboard-title {
         font-size: 1.2rem;
@@ -806,7 +1236,7 @@ body {
 
     .scenarios-close-btn:hover {
       background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
+      color: var(--error-color);
       transform: rotate(90deg);
     }
 
@@ -837,11 +1267,11 @@ body {
 
     .category-tab:hover {
       background: rgba(99, 102, 241, 0.1);
-      color: #1e40af;
+      color: var(--accent-color);
     }
 
     .category-tab.active {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border-color: transparent;
     }
@@ -871,7 +1301,7 @@ body {
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       opacity: 0;
       transition: opacity 0.3s;
     }
@@ -883,7 +1313,7 @@ body {
     .scenario-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      border-color: #1e40af;
+      border-color: var(--accent-color);
     }
 
     .scenario-card.locked {
@@ -899,7 +1329,7 @@ body {
 
     .scenario-card.completed {
       border-color: #10b981;
-      background: linear-gradient(135deg,
+      background: linear-gradient(var(--accent-color),
           rgba(16, 185, 129, 0.1),
           rgba(5, 150, 105, 0.05));
     }
@@ -943,7 +1373,7 @@ body {
 
     .scenario-difficulty.intermediate {
       background: rgba(59, 130, 246, 0.2);
-      color: #2563eb;
+      color: var(--accent-color);
     }
 
     .scenario-difficulty.advanced {
@@ -1030,8 +1460,8 @@ body {
 
     .scenario-exit-btn {
       background: rgba(239, 68, 68, 0.1);
-      border: 2px solid #ef4444;
-      color: #ef4444;
+      border: 2px solid var(--error-color);
+      color: var(--error-color);
       padding: 8px 16px;
       border-radius: 10px;
       font-weight: 600;
@@ -1040,13 +1470,13 @@ body {
     }
 
     .scenario-exit-btn:hover {
-      background: #ef4444;
+      background: var(--error-color);
       color: white;
     }
 
     /* Cultural Note */
     .cultural-note {
-      background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+      background: linear-gradient(var(--accent-color), #fcd34d 0%, #f59e0b 100%);
       color: #78350f;
       padding: 12px 16px;
       border-radius: 12px;
@@ -1103,7 +1533,7 @@ body {
     }
 
     .dialogue-bubble.npc {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border-bottom-left-radius: 4px;
     }
@@ -1186,7 +1616,7 @@ body {
 
     .hint-item {
       background: rgba(99, 102, 241, 0.1);
-      color: #1e40af;
+      color: var(--accent-color);
       padding: 8px 12px;
       border-radius: 8px;
       font-size: 0.85rem;
@@ -1204,7 +1634,7 @@ body {
     }
 
     .vocab-chip {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       padding: 6px 14px;
       border-radius: 20px;
@@ -1236,11 +1666,11 @@ body {
 
     .scenario-input:focus {
       outline: none;
-      border-color: #1e40af;
+      border-color: var(--accent-color);
     }
 
     .scenario-submit-btn {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       padding: 12px 24px;
       border: none;
@@ -1283,7 +1713,7 @@ body {
     }
 
     .progress-dot.current {
-      background: #1e40af;
+      background: var(--accent-color);
       transform: scale(1.4);
       box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
     }
@@ -1339,7 +1769,7 @@ body {
     .completion-stat-value {
       font-size: 2rem;
       font-weight: 700;
-      color: #f5f5f5;
+      color: var(--text-primary);
     }
 
     .completion-stat-label {
@@ -1363,7 +1793,7 @@ body {
     }
 
     .completion-btn-primary {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border: none;
     }
@@ -1465,11 +1895,11 @@ body {
     .pronunciation-category-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-color: #1e40af;
+      border-color: var(--accent-color);
     }
 
     .pronunciation-category-card.active {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border-color: transparent;
     }
@@ -1511,7 +1941,7 @@ body {
 
     .pronunciation-ipa {
       font-size: 1.2rem;
-      color: #1e40af;
+      color: var(--accent-color);
       font-family: "Courier New", monospace;
       margin-bottom: 8px;
     }
@@ -1525,7 +1955,7 @@ body {
     .pronunciation-focus {
       display: inline-block;
       background: rgba(99, 102, 241, 0.1);
-      color: #1e40af;
+      color: var(--accent-color);
       padding: 4px 12px;
       border-radius: 20px;
       font-size: 0.85rem;
@@ -1566,7 +1996,7 @@ body {
     }
 
     .pronunciation-btn-record {
-      background: #ef4444;
+      background: var(--error-color);
       color: white;
       position: relative;
     }
@@ -1597,7 +2027,7 @@ body {
     }
 
     .pronunciation-btn-next {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
     }
 
@@ -1641,7 +2071,7 @@ body {
     }
 
     .score-display.good {
-      color: #3b82f6;
+      color: var(--accent-color);
     }
 
     .score-display.fair {
@@ -1649,7 +2079,7 @@ body {
     }
 
     .score-display.needs-work {
-      color: #ef4444;
+      color: var(--error-color);
     }
 
     .score-label {
@@ -1688,7 +2118,7 @@ body {
 
     .pronunciation-tips {
       background: rgba(59, 130, 246, 0.1);
-      border-left: 4px solid #3b82f6;
+      border-left: 4px solid var(--accent-color);
       padding: 12px 16px;
       border-radius: 8px;
       margin-bottom: 12px;
@@ -1697,7 +2127,7 @@ body {
     .tips-title {
       font-size: 0.9rem;
       font-weight: 700;
-      color: #3b82f6;
+      color: var(--accent-color);
       margin-bottom: 6px;
       display: flex;
       align-items: center;
@@ -1712,7 +2142,7 @@ body {
 
     .pronunciation-mistakes {
       background: rgba(239, 68, 68, 0.1);
-      border-left: 4px solid #ef4444;
+      border-left: 4px solid var(--error-color);
       padding: 12px 16px;
       border-radius: 8px;
     }
@@ -1720,7 +2150,7 @@ body {
     .mistakes-title {
       font-size: 0.9rem;
       font-weight: 700;
-      color: #ef4444;
+      color: var(--error-color);
       margin-bottom: 6px;
       display: flex;
       align-items: center;
@@ -1744,7 +2174,7 @@ body {
 
     .pronunciation-progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #10b981, #3b82f6);
+      background: linear-gradient(90deg, #10b981, var(--accent-color));
       border-radius: 4px;
       transition: width 0.5s ease;
     }
@@ -1766,7 +2196,7 @@ body {
     .stat-number {
       font-size: 1.8rem;
       font-weight: 700;
-      color: #1e40af;
+      color: var(--accent-color);
     }
 
     .stat-label {
@@ -1788,7 +2218,7 @@ body {
 
     .waveform-bar {
       width: 4px;
-      background: #1e40af;
+      background: var(--accent-color);
       border-radius: 2px;
       animation: wave 1s ease-in-out infinite;
     }
@@ -1956,7 +2386,7 @@ body {
     }
 
     .timer-display.warning {
-      color: #ef4444;
+      color: var(--error-color);
       animation: pulse 1s infinite;
     }
 
@@ -1968,7 +2398,7 @@ body {
     }
 
     .challenge-score-display {
-      background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+      background: linear-gradient(var(--accent-color), var(--highlight-color) 0%, var(--highlight-color) 100%);
       border-radius: 16px;
       padding: 24px;
       text-align: center;
@@ -2010,7 +2440,7 @@ body {
     }
 
     .srs-due-count {
-      background: #ef4444;
+      background: var(--error-color);
       color: white;
       padding: 4px 12px;
       border-radius: 20px;
@@ -2054,7 +2484,7 @@ body {
 
     .flashcard-pronunciation {
       font-size: 1.2rem;
-      color: #f5f5f5;
+      color: var(--text-primary);
       font-family: "Courier New", monospace;
       margin-bottom: 20px;
     }
@@ -2102,7 +2532,7 @@ body {
     }
 
     .srs-btn-again {
-      background: #ef4444;
+      background: var(--error-color);
       color: white;
     }
 
@@ -2112,7 +2542,7 @@ body {
     }
 
     .srs-btn-good {
-      background: #3b82f6;
+      background: var(--accent-color);
       color: white;
     }
 
@@ -2143,7 +2573,7 @@ body {
     .srs-stat-number {
       font-size: 2rem;
       font-weight: 700;
-      color: #f5f5f5;
+      color: var(--text-primary);
     }
 
     .srs-stat-label {
@@ -2216,7 +2646,7 @@ body {
     }
 
     .report-highlight {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       padding: 24px;
       border-radius: 16px;
@@ -2252,7 +2682,7 @@ body {
     .report-metric-value {
       font-size: 2.5rem;
       font-weight: 700;
-      color: #1e40af;
+      color: var(--accent-color);
       margin-bottom: 8px;
     }
 
@@ -2273,12 +2703,12 @@ body {
     }
 
     .report-metric-change.negative {
-      color: #ef4444;
+      color: var(--error-color);
     }
 
     .report-insight {
       background: rgba(59, 130, 246, 0.1);
-      border-left: 4px solid #3b82f6;
+      border-left: 4px solid var(--accent-color);
       padding: 16px;
       border-radius: 8px;
       margin-bottom: 12px;
@@ -2286,7 +2716,7 @@ body {
 
     .report-insight-title {
       font-weight: 700;
-      color: #3b82f6;
+      color: var(--accent-color);
       margin-bottom: 6px;
     }
 
@@ -2347,11 +2777,11 @@ body {
 
     .mode-btn:hover {
       background: rgba(99, 102, 241, 0.1);
-      color: #1e40af;
+      color: var(--accent-color);
     }
 
     .mode-btn.active {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border-color: transparent;
     }
@@ -2360,7 +2790,7 @@ body {
       position: relative;
       padding: 12px;
       background: rgba(239, 68, 68, 0.1);
-      border-left: 4px solid #ef4444;
+      border-left: 4px solid var(--error-color);
       border-radius: 8px;
       margin-top: 8px;
       font-size: 0.9rem;
@@ -2491,11 +2921,11 @@ body {
     .level-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      border-color: #1e40af;
+      border-color: var(--accent-color);
     }
 
     .level-card h3 {
-      color: #f5f5f5;
+      color: var(--text-primary);
       margin-bottom: 10px;
       font-size: 24px;
     }
@@ -2534,12 +2964,12 @@ body {
     .section-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      border-color: #1e40af;
+      border-color: var(--accent-color);
     }
 
     .section-card i {
       font-size: 48px;
-      color: #f5f5f5;
+      color: var(--text-primary);
       margin-bottom: 15px;
     }
 
@@ -2564,7 +2994,7 @@ body {
     .full-exam-button {
       width: 100%;
       padding: 20px;
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border: none;
       border-radius: 12px;
@@ -2599,7 +3029,7 @@ body {
 
     .back-button:hover {
       background: var(--input-bg);
-      border-color: #1e40af;
+      border-color: var(--accent-color);
     }
 
     /* Exam Taking Screen */
@@ -2622,7 +3052,7 @@ body {
     .timer {
       font-size: 24px;
       font-weight: bold;
-      color: #1e40af;
+      color: var(--accent-color);
       padding: 10px 20px;
       background: var(--input-bg);
       border-radius: 8px;
@@ -2634,7 +3064,7 @@ body {
     }
 
     .timer.danger {
-      color: #f44336;
+      color: var(--error-color);
       animation: pulse 0.5s infinite;
     }
 
@@ -2659,7 +3089,7 @@ body {
     }
 
     .play-audio-btn {
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border: none;
       padding: 12px 24px;
@@ -2685,7 +3115,7 @@ body {
       border-radius: 8px;
       margin-bottom: 20px;
       line-height: 1.8;
-      border-left: 4px solid #1e40af;
+      border-left: 4px solid var(--accent-color);
     }
 
     .exam-options {
@@ -2708,7 +3138,7 @@ body {
 
     .exam-option:hover {
       background: var(--bg-secondary);
-      border-color: #1e40af;
+      border-color: var(--accent-color);
     }
 
     .exam-option input[type="radio"] {
@@ -2740,7 +3170,7 @@ body {
 
     .writing-textarea:focus {
       outline: none;
-      border-color: #1e40af;
+      border-color: var(--accent-color);
     }
 
     .word-count {
@@ -2769,7 +3199,7 @@ body {
     .exam-navigation button {
       flex: 1;
       padding: 15px 30px;
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border: none;
       border-radius: 8px;
@@ -2812,7 +3242,7 @@ body {
     .total-score {
       font-size: 72px;
       font-weight: bold;
-      color: #1e40af;
+      color: var(--accent-color);
       margin-bottom: 20px;
     }
 
@@ -2841,7 +3271,7 @@ body {
 
     .section-breakdown h3 {
       margin-bottom: 20px;
-      color: #1e40af;
+      color: var(--accent-color);
     }
 
     .section-score {
@@ -2856,14 +3286,14 @@ body {
 
     .section-score span:last-child {
       font-weight: bold;
-      color: #1e40af;
+      color: var(--accent-color);
     }
 
     #exam-results-screen button {
       width: 100%;
       padding: 15px;
       margin: 10px 0;
-      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      background: linear-gradient(var(--accent-color), var(--accent-color) 0%, var(--accent-color) 100%);
       color: white;
       border: none;
       border-radius: 8px;
@@ -3075,174 +3505,174 @@ body {
           <div id="feedback-message" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
         </section>
 
-          <!-- Tabbed Section: Phrases and Verb Trainer - MOVED TO MODAL -->
-          <div id="phrases-verb-section" style="display: none;">
+        <!-- Tabbed Section: Phrases and Verb Trainer - MOVED TO MODAL -->
+        <div id="phrases-verb-section" style="display: none;">
           <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex-grow flex flex-col">
-          <!-- Tab Navigation -->
-          <div class="flex gap-2 mb-4 border-b border-gray-200">
-            <button id="phrases-tab-btn"
-              class="tab-btn px-4 py-2 font-semibold text-pink-600 border-b-2 border-pink-600 transition duration-150">
-              Common Phrases
-            </button>
-            <button id="verbs-tab-btn"
-              class="tab-btn px-4 py-2 font-semibold text-gray-500 hover:text-purple-600 transition duration-150">
-              Verb Trainer
-            </button>
-          </div>
-
-          <!-- Phrases Tab Content -->
-          <div id="phrases-tab-content" class="flex-grow overflow-y-auto">
-            <div id="phrase-list" class="space-y-3">
-              <!-- Phrases will be injected here -->
-            </div>
-          </div>
-
-          <!-- Verb Trainer Tab Content -->
-          <div id="verbs-tab-content" class="hidden flex-grow flex flex-col">
-            <!-- Verb Selection -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Select a verb to
-                practice:</label>
-              <select id="verb-select"
-                class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
-                <option value="">Choose a verb...</option>
-              </select>
+            <!-- Tab Navigation -->
+            <div class="flex gap-2 mb-4 border-b border-gray-200">
+              <button id="phrases-tab-btn"
+                class="tab-btn px-4 py-2 font-semibold text-pink-600 border-b-2 border-pink-600 transition duration-150">
+                Common Phrases
+              </button>
+              <button id="verbs-tab-btn"
+                class="tab-btn px-4 py-2 font-semibold text-gray-500 hover:text-purple-600 transition duration-150">
+                Verb Trainer
+              </button>
             </div>
 
-            <!-- Verb Info -->
-            <div id="verb-info" class="mb-4 p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hidden">
-              <h3 class="text-lg font-bold text-purple-800 dark:text-purple-200" id="verb-infinitive"></h3>
-              <p class="text-sm text-purple-600 dark:text-purple-300" id="verb-english"></p>
-              <p class="text-xs text-purple-500 dark:text-purple-400 mt-1" id="verb-type"></p>
-            </div>
-
-            <!-- Conjugation Exercise -->
-            <div id="conjugation-exercise" class="hidden flex-grow flex flex-col">
-              <h4 class="text-md font-semibold mb-3 text-purple-700 dark:text-purple-300">
-                Present Tense (Presente)
-              </h4>
-
-              <div class="space-y-3 mb-4 flex-grow overflow-y-auto">
-                <div class="flex items-center gap-2">
-                  <span class="w-16 text-sm font-medium">io</span>
-                  <input type="text" id="conj-io"
-                    class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                    placeholder="Type conjugation..." />
-                  <span id="feedback-io" class="w-6"></span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="w-16 text-sm font-medium">tu</span>
-                  <input type="text" id="conj-tu"
-                    class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                    placeholder="Type conjugation..." />
-                  <span id="feedback-tu" class="w-6"></span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="w-16 text-sm font-medium">lui/lei</span>
-                  <input type="text" id="conj-lui-lei"
-                    class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                    placeholder="Type conjugation..." />
-                  <span id="feedback-lui-lei" class="w-6"></span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="w-16 text-sm font-medium">noi</span>
-                  <input type="text" id="conj-noi"
-                    class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                    placeholder="Type conjugation..." />
-                  <span id="feedback-noi" class="w-6"></span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="w-16 text-sm font-medium">voi</span>
-                  <input type="text" id="conj-voi"
-                    class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                    placeholder="Type conjugation..." />
-                  <span id="feedback-voi" class="w-6"></span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="w-16 text-sm font-medium">loro</span>
-                  <input type="text" id="conj-loro"
-                    class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                    placeholder="Type conjugation..." />
-                  <span id="feedback-loro" class="w-6"></span>
-                </div>
-              </div>
-
-              <div class="flex gap-2">
-                <button id="check-conjugations-btn"
-                  class="flex-grow py-2 px-4 bg-purple-500 text-white font-semibold rounded-lg shadow-md hover:bg-purple-600 transition duration-150">
-                  Check Answers
-                </button>
-                <button id="show-answers-btn"
-                  class="py-2 px-4 bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:bg-gray-500 transition duration-150">
-                  Show Answers
-                </button>
-                <button id="reset-verb-btn"
-                  class="py-2 px-4 bg-red-400 text-white font-semibold rounded-lg shadow-md hover:bg-red-500 transition duration-150">
-                  Reset
-                </button>
-              </div>
-
-              <!-- Score Display -->
-              <div id="verb-score" class="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
-                Score: <span id="score-display">0/0</span>
+            <!-- Phrases Tab Content -->
+            <div id="phrases-tab-content" class="flex-grow overflow-y-auto">
+              <div id="phrase-list" class="space-y-3">
+                <!-- Phrases will be injected here -->
               </div>
             </div>
 
-            <!-- Empty State -->
-            <div id="verb-empty-state" class="flex-grow flex items-center justify-center text-gray-400">
-              <p class="text-center">
-                Select a verb above to start practicing!
-              </p>
+            <!-- Verb Trainer Tab Content -->
+            <div id="verbs-tab-content" class="hidden flex-grow flex flex-col">
+              <!-- Verb Selection -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Select a verb to
+                  practice:</label>
+                <select id="verb-select"
+                  class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                  <option value="">Choose a verb...</option>
+                </select>
+              </div>
+
+              <!-- Verb Info -->
+              <div id="verb-info" class="mb-4 p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hidden">
+                <h3 class="text-lg font-bold text-purple-800 dark:text-purple-200" id="verb-infinitive"></h3>
+                <p class="text-sm text-purple-600 dark:text-purple-300" id="verb-english"></p>
+                <p class="text-xs text-purple-500 dark:text-purple-400 mt-1" id="verb-type"></p>
+              </div>
+
+              <!-- Conjugation Exercise -->
+              <div id="conjugation-exercise" class="hidden flex-grow flex flex-col">
+                <h4 class="text-md font-semibold mb-3 text-purple-700 dark:text-purple-300">
+                  Present Tense (Presente)
+                </h4>
+
+                <div class="space-y-3 mb-4 flex-grow overflow-y-auto">
+                  <div class="flex items-center gap-2">
+                    <span class="w-16 text-sm font-medium">io</span>
+                    <input type="text" id="conj-io"
+                      class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                      placeholder="Type conjugation..." />
+                    <span id="feedback-io" class="w-6"></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-16 text-sm font-medium">tu</span>
+                    <input type="text" id="conj-tu"
+                      class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                      placeholder="Type conjugation..." />
+                    <span id="feedback-tu" class="w-6"></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-16 text-sm font-medium">lui/lei</span>
+                    <input type="text" id="conj-lui-lei"
+                      class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                      placeholder="Type conjugation..." />
+                    <span id="feedback-lui-lei" class="w-6"></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-16 text-sm font-medium">noi</span>
+                    <input type="text" id="conj-noi"
+                      class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                      placeholder="Type conjugation..." />
+                    <span id="feedback-noi" class="w-6"></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-16 text-sm font-medium">voi</span>
+                    <input type="text" id="conj-voi"
+                      class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                      placeholder="Type conjugation..." />
+                    <span id="feedback-voi" class="w-6"></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-16 text-sm font-medium">loro</span>
+                    <input type="text" id="conj-loro"
+                      class="flex-grow p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+                      placeholder="Type conjugation..." />
+                    <span id="feedback-loro" class="w-6"></span>
+                  </div>
+                </div>
+
+                <div class="flex gap-2">
+                  <button id="check-conjugations-btn"
+                    class="flex-grow py-2 px-4 bg-purple-500 text-white font-semibold rounded-lg shadow-md hover:bg-purple-600 transition duration-150">
+                    Check Answers
+                  </button>
+                  <button id="show-answers-btn"
+                    class="py-2 px-4 bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:bg-gray-500 transition duration-150">
+                    Show Answers
+                  </button>
+                  <button id="reset-verb-btn"
+                    class="py-2 px-4 bg-red-400 text-white font-semibold rounded-lg shadow-md hover:bg-red-500 transition duration-150">
+                    Reset
+                  </button>
+                </div>
+
+                <!-- Score Display -->
+                <div id="verb-score" class="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
+                  Score: <span id="score-display">0/0</span>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div id="verb-empty-state" class="flex-grow flex items-center justify-center text-gray-400">
+                <p class="text-center">
+                  Select a verb above to start practicing!
+                </p>
+              </div>
             </div>
-          </div>
-        </section>
-</div><!-- End phrases-verb-section -->
+          </section>
+        </div><!-- End phrases-verb-section -->
       </div>
 
-        <!-- Chat & History Area (Right) - MOVED TO MODAL -->
-        <div id="tutor-chat-section" style="display: none;">
+      <!-- Chat & History Area (Right) - MOVED TO MODAL -->
+      <div id="tutor-chat-section" style="display: none;">
         <section class="md:w-1/2 bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex flex-col">
-        <h2 class="text-xl font-semibold mb-4 text-indigo-600 flex justify-between items-center">
-          Tutor Chat
-          <span id="user-id-display"
-            class="text-xs font-mono text-gray-500 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 rounded">User
-            ID: Loading...</span>
-        </h2>
+          <h2 class="text-xl font-semibold mb-4 text-indigo-600 flex justify-between items-center">
+            Tutor Chat
+            <span id="user-id-display"
+              class="text-xs font-mono text-gray-500 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 rounded">User
+              ID: Loading...</span>
+          </h2>
 
-        <!-- Chat History -->
-        <div id="chat-history" class="chat-area overflow-y-auto mb-4 p-3 space-y-4 rounded-lg flex-grow"
-          style="background-color: var(--input-bg)">
-          <!-- Messages will be appended here -->
-          <div class="flex justify-start">
-            <div
-              class="bubble bg-blue-100 text-blue-800 p-3 rounded-tr-xl rounded-b-xl shadow-sm dark:bg-blue-800 dark:text-blue-100">
-              Ciao! Welcome to your language lesson. Use the Sentence Builder
-              on the left, or chat with me here!
+          <!-- Chat History -->
+          <div id="chat-history" class="chat-area overflow-y-auto mb-4 p-3 space-y-4 rounded-lg flex-grow"
+            style="background-color: var(--input-bg)">
+            <!-- Messages will be appended here -->
+            <div class="flex justify-start">
+              <div
+                class="bubble bg-blue-100 text-blue-800 p-3 rounded-tr-xl rounded-b-xl shadow-sm dark:bg-blue-800 dark:text-blue-100">
+                Ciao! Welcome to your language lesson. Use the Sentence Builder
+                on the left, or chat with me here!
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Chat Input -->
-        <div class="flex gap-2">
-          <input type="text" id="chat-input" placeholder="Ask the tutor a question or type your sentence..."
-            class="flex-grow p-3 border border-gray-300 dark:border-gray-500 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500" />
-          <button id="mic-chat-btn"
-            class="p-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-150 disabled:bg-gray-400"
-            title="Start voice dictation">
-            <i class="fas fa-microphone"></i>
-          </button>
-          <button id="chat-send-btn"
-            class="w-20 py-3 bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-600 transition duration-150 disabled:bg-gray-400">
-            Send
-          </button>
-        </div>
+          <!-- Chat Input -->
+          <div class="flex gap-2">
+            <input type="text" id="chat-input" placeholder="Ask the tutor a question or type your sentence..."
+              class="flex-grow p-3 border border-gray-300 dark:border-gray-500 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500" />
+            <button id="mic-chat-btn"
+              class="p-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-150 disabled:bg-gray-400"
+              title="Start voice dictation">
+              <i class="fas fa-microphone"></i>
+            </button>
+            <button id="chat-send-btn"
+              class="w-20 py-3 bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-600 transition duration-150 disabled:bg-gray-400">
+              Send
+            </button>
+          </div>
 
-        <!-- Loading Indicator for LLM -->
-        <div id="chat-loading-indicator" class="mt-2 text-center text-sm text-indigo-500 hidden dark:text-indigo-400">
-          Tutor is thinking...
-        </div>
-      </section>
-</div><!-- End tutor-chat-section -->
+          <!-- Loading Indicator for LLM -->
+          <div id="chat-loading-indicator" class="mt-2 text-center text-sm text-indigo-500 hidden dark:text-indigo-400">
+            Tutor is thinking...
+          </div>
+        </section>
+      </div><!-- End tutor-chat-section -->
     </main>
 
     <!-- Modal Placeholder -->
@@ -7675,8 +8105,8 @@ body {
 
       const bubble = document.createElement("div");
       bubble.className = `bubble p-3 shadow-md rounded-xl ${isUser
-          ? "bg-indigo-500 text-white rounded-tr-none"
-          : "bg-white border border-gray-200 text-gray-800 rounded-tl-none dark:bg-gray-700 dark:border-gray-500 dark:text-gray-200"
+        ? "bg-indigo-500 text-white rounded-tr-none"
+        : "bg-white border border-gray-200 text-gray-800 rounded-tl-none dark:bg-gray-700 dark:border-gray-500 dark:text-gray-200"
         }`;
 
       let formattedText = text
@@ -9300,7 +9730,7 @@ body {
       correctionDiv.innerHTML = `
         Would you like me to review your recent messages and suggest improvements?
         <button onclick="showDetailedCorrections()"
-          style="margin-left: 8px; padding: 4px 12px; background: #1e40af; color: white; border: none; border-radius: 6px; cursor: pointer;">
+          style="margin-left: 8px; padding: 4px 12px; background: var(--accent-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
           Yes, please!
         </button>
         `;
@@ -10124,7 +10554,7 @@ body {
       const modal = document.getElementById('tutor-chat-modal');
       const content = document.getElementById('tutor-chat-modal-content');
       const section = document.getElementById('tutor-chat-section');
-      
+
       if (section && content) {
         content.innerHTML = section.innerHTML;
         modal.style.display = 'block';
@@ -10139,11 +10569,11 @@ body {
       const modal = document.getElementById('phrases-verb-modal');
       const content = document.getElementById('phrases-verb-modal-content');
       const section = document.getElementById('phrases-verb-section');
-      
+
       if (section && content) {
         content.innerHTML = section.innerHTML;
         modal.style.display = 'block';
-        
+
         // Re-initialize tab functionality in modal
         setTimeout(() => {
           const phrasesTabBtn = document.getElementById('phrases-tab-btn');
