@@ -7819,15 +7819,16 @@
 
           updateUILanguage();
 
-          // ✅ MODIFY THIS SECTION:
-          if (goalIdFromDB && !isSelectingWords) {  // ← ADD !isSelectingWords check
+          // ✅ COMMENT OUT OR REMOVE THIS ENTIRE SECTION:
+          /*
+          if (goalIdFromDB) {
             const savedPhrase = allPhrases.find(p => p.id === goalIdFromDB);
-
+            
             if (savedPhrase) {
               const targetSentence = currentLanguage === "Italian"
                 ? savedPhrase.italian
                 : savedPhrase.sicilian || savedPhrase.italian;
-
+              
               console.log("🔄 Restoring word bank for:", savedPhrase.english, "->", targetSentence);
               populateWordBank(targetSentence);
             } else if (goalIdFromDB === "FALLBACK") {
@@ -7835,6 +7836,7 @@
               populateWordBank("Grazie");
             }
           }
+          */
 
           // 4. FIX: Use the flag to prevent the initial loop AND stop re-rendering the selected words on every DB change.
           if (!progressLoadedOnce) {
