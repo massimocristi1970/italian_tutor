@@ -8127,9 +8127,10 @@
       console.log("=== END POPULATE DEBUG ==="); // ✅ ADD THIS
     }
 
-    function populatePhrases() {
+    function populatePhrases(container = null) {
       const phrases = commonPhrases[currentLanguage] || [];
-      phraseListContainer.innerHTML = "";
+      const targetContainer = container || phraseListContainer;
+      targetContainer.innerHTML = '';
 
       phrases.forEach((phrase) => {
         const phraseDiv = document.createElement("div");
@@ -11242,8 +11243,10 @@
           const verbsTabBtn = document.getElementById('verbs-tab-btn');
           if (phrasesTabBtn) phrasesTabBtn.click();
 
-          // IMPORTANT: Repopulate phrases after modal opens to ensure Phase 1 data is available
-          populatePhrases();
+          // Get the phrase list container INSIDE the modal
+          const modalPhraseList = modal.querySelector('#phrase-list');
+          populatePhrases(modalPhraseList);
+
           console.log('✅ Common Phrases modal opened with Phase 1 enhancements');
         }, 100);
       }
