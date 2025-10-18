@@ -3428,9 +3428,9 @@
           <span>Tutor Chat</span>
         </button>
 
-        <button class="mobile-menu-item" onclick="closeMobileMenu(); openPhrasesModal();">
+        <button class="mobile-menu-item" onclick="closeMobileMenu(); openPhrasesFullscreenModal()();">
           <i class="fas fa-book"></i>
-          <span>Common Phrases</span>
+          <span>Common Phrases & Verbs</span>
         </button>
 
         <button class="mobile-menu-item" onclick="closeMobileMenu(); openVerbTrainerModal();">
@@ -8248,6 +8248,211 @@
       console.log('✅ Event listeners attached to modal phrases');
     }
 
+    // ========================================
+// FULL-SCREEN COMMON PHRASES MODAL
+// ========================================
+
+// Open full-screen Common Phrases modal
+function openPhrasesFullscreenModal() {
+  const modal = document.getElementById('phrases-fullscreen-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    
+    // Populate phrases on first open
+    populatePhrasesFullscreen();
+    
+    // Make sure phrases tab is active
+    switchPhrasesTab('phrases');
+    
+    console.log('✅ Full-screen Common Phrases modal opened');
+  }
+}
+
+// Close full-screen modal
+function closePhrasesFullscreenModal() {
+  const modal = document.getElementById('phrases-fullscreen-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+// Switch between Phrases and Verbs tabs
+function switchPhrasesTab(tab) {
+  const phrasesTab = document.getElementById('phrases-fullscreen-tab');
+  const verbsTab = document.getElementById('verbs-fullscreen-tab');
+  const phrasesContent = document.getElementById('phrases-fullscreen-content');
+  const verbsContent = document.getElementById('verbs-fullscreen-content');
+  
+  if (tab === 'phrases') {
+    phrasesTab.classList.add('active');
+    verbsTab.classList.remove('active');
+    phrasesContent.style.display = 'block';
+    verbsContent.style.display = 'none';
+  } else {
+    verbsTab.classList.add('active');
+    phrasesTab.classList.remove('active');
+    verbsContent.style.display = 'block';
+    phrasesContent.style.display = 'none';
+    populateVerbSelectorFullscreen();
+  }
+}
+
+// Populate phrases in full-screen modal
+function populatePhrasesFullscreen() {
+  const container = document.getElementById('phrase-list-fullscreen');
+  if (!container) return;
+  
+  const phrases = commonPhrases[window.currentLanguage] || [];
+  container.innerHTML = '';
+  
+  console.log(`📋 Populating ${phrases.length} phrases in fullscreen modal`);
+  
+  phrases.forEach((phrase) => {
+    const phraseDiv = document.createElement('div');
+    phraseDiv.className = 'p-3 rounded-lg border border-gray-200 hover:bg-indigo-50 transition duration-150 cursor-pointer flex flex-col gap-2 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-500';
+    
+    // Top row with text and listen button
+    const topRow = document.createElement('div');
+    topRow.className = 'flex items-center justify-between';
+    
+    const textContainer = document.createElement('div');
+    textContainer.innerHTML = `
+      <p class="font-semibold">${phrase.text}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 italic">${phrase.english}</p>
+    `;
+    
+    const listenBtn = document.createElement('button');
+    listenBtn.className = 'audio-btn text-pink-600 dark:text-pink-400';
+    listenBtn.title = `Listen to ${window.currentLanguage}`;
+    listenBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    listenBtn.onclick = (e) => {
+      e.stopPropagation();
+      const lang = window.currentLanguage || 'Italian';
+      console.log('🔊 Speaking:', phrase.text, 'in', lang);
+      speakText(phrase.text, lang);
+    };
+    
+    topRow.appendChild(textContainer);
+    topRow.appendChild(listenBtn);
+    phraseDiv.appendChild(topRow);
+    
+    // Add context badge if available
+    if (phrase.context && window.contextsData) {
+      const badge = createContextBadge(phrase.context);
+      if (badge) {
+        phraseDiv.appendChild(badge);
+      }
+    }
+    
+    // Click handler for alternative expressions
+    phraseDiv.onclick = () => {
+      console.log('📝 Phrase clicked:', phrase.text);
+      
+      const chatInput = document.getElementById('chat-input');
+      if (chatInput) {
+        chatInput.value = phrase.text;
+        chatInput.focus();
+      }
+      
+      const existingPanel = container.querySelector('.alternatives-panel');
+      if (existingPanel) {
+        existingPanel.remove();
+      }
+      
+      const altPanel = showAlternativeExpressions(phrase.text);
+      if (altPanel) {
+        phraseDiv.parentElement.insertBefore(altPanel, phraseDiv.nextSibling);
+        console.log('✨ Alternative expressions shown');
+      }
+    };
+    
+    container.appendChild(phraseDiv);
+  });
+  
+  console.log('✅ Phrases populated in fullscreen modal');
+}
+
+// Populate verb selector in full-screen modal
+function populateVerbSelectorFullscreen() {
+  const verbSelect = document.getElementById('verb-select-fullscreen');
+  if (!verbSelect || verbSelect.options.length > 1) return; // Already populated
+  
+  const verbs = [
+    { italian: "essere", english: "to be" },
+    { italian: "avere", english: "to have" },
+    { italian: "fare", english: "to do/make" },
+    { italian: "andare", english: "to go" },
+    { italian: "venire", english: "to come" },
+    { italian: "dire", english: "to say" },
+    { italian: "potere", english: "can/to be able" },
+    { italian: "dovere", english: "must/to have to" },
+    { italian: "volere", english: "to want" },
+    { italian: "sapere", english: "to know" },
+    { italian: "dare", english: "to give" },
+    { italian: "vedere", english: "to see" },
+    { italian: "parlare", english: "to speak" },
+    { italian: "mangiare", english: "to eat" },
+    { italian: "bere", english: "to drink" }
+  ];
+  
+  verbs.forEach(verb => {
+    const option = document.createElement('option');
+    option.value = verb.italian;
+    option.textContent = `${verb.italian} (${verb.english})`;
+    verbSelect.appendChild(option);
+  });
+  
+  verbSelect.onchange = (e) => {
+    if (e.target.value) {
+      displayVerbConjugationFullscreen(e.target.value);
+    }
+  };
+}
+
+// Display verb conjugation in full-screen modal
+function displayVerbConjugationFullscreen(verb) {
+  const container = document.getElementById('verb-conjugation-fullscreen');
+  if (!container) return;
+  
+  container.innerHTML = `
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+      <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">
+        Conjugation: ${verb}
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4 class="font-semibold text-purple-600 mb-2">Present Tense</h4>
+          <div class="space-y-1 text-sm">
+            <p><strong>io:</strong> <input type="text" class="verb-input px-2 py-1 border rounded" placeholder="Enter conjugation"></p>
+            <p><strong>tu:</strong> <input type="text" class="verb-input px-2 py-1 border rounded" placeholder="Enter conjugation"></p>
+            <p><strong>lui/lei:</strong> <input type="text" class="verb-input px-2 py-1 border rounded" placeholder="Enter conjugation"></p>
+            <p><strong>noi:</strong> <input type="text" class="verb-input px-2 py-1 border rounded" placeholder="Enter conjugation"></p>
+            <p><strong>voi:</strong> <input type="text" class="verb-input px-2 py-1 border rounded" placeholder="Enter conjugation"></p>
+            <p><strong>loro:</strong> <input type="text" class="verb-input px-2 py-1 border rounded" placeholder="Enter conjugation"></p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button 
+          onclick="checkVerbConjugationFullscreen('${verb}')" 
+          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+          Check Answers
+        </button>
+        <button 
+          onclick="displayVerbConjugationFullscreen('${verb}')" 
+          class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-600 dark:text-white">
+          Reset
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// Check verb conjugation answers (placeholder)
+function checkVerbConjugationFullscreen(verb) {
+  showModal('Verb Practice', `Great job practicing ${verb}! Full checking system coming soon.`, false);
+}
+
     // Tab switching for Phrases/Verb Trainer
     const phrasesTabBtn = document.getElementById("phrases-tab-btn");
     const verbsTabBtn = document.getElementById("verbs-tab-btn");
@@ -11357,6 +11562,10 @@
     window.addWordToFluencySentence = addWordToFluencySentence;
     window.clearFluencySentence = clearFluencySentence;
     window.backToFluencyChallenges = backToFluencyChallenges;
+    window.openPhrasesFullscreenModal = openPhrasesFullscreenModal;
+    window.closePhrasesFullscreenModal = closePhrasesFullscreenModal;
+    window.switchPhrasesTab = switchPhrasesTab;
+    window.checkVerbConjugationFullscreen = checkVerbConjugationFullscreen;
 
     window.onload = async function () {
       loadEnhancementData();
@@ -11631,6 +11840,59 @@
       </div>
     </div>
   </div>
+
+  <!-- Common Phrases & Verb Trainer Full-Screen Modal -->
+    <div id="phrases-fullscreen-modal" class="scenarios-modal" style="display: none;">
+      <div class="scenarios-panel">
+        <!-- Header -->
+        <div class="scenarios-header">
+          <h2 class="scenarios-title">📚 Common Phrases & Verb Trainer</h2>
+          <button class="scenarios-close-btn" onclick="closePhrasesFullscreenModal()">×</button>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="category-tabs" style="margin-bottom: 20px;">
+          <button 
+            id="phrases-fullscreen-tab" 
+            class="category-tab active" 
+            onclick="switchPhrasesTab('phrases')">
+            💬 Common Phrases
+          </button>
+          <button 
+            id="verbs-fullscreen-tab" 
+            class="category-tab" 
+            onclick="switchPhrasesTab('verbs')">
+            🔤 Verb Trainer
+          </button>
+        </div>
+
+        <!-- Phrases Tab Content -->
+        <div id="phrases-fullscreen-content" class="tab-content">
+          <div id="phrase-list-fullscreen" class="space-y-3">
+            <!-- Phrases will be populated here by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Verbs Tab Content -->
+        <div id="verbs-fullscreen-content" class="tab-content" style="display: none;">
+          <div class="space-y-4">
+            <div class="flex gap-4 items-center">
+              <label class="font-semibold text-gray-700 dark:text-gray-300">Select Verb:</label>
+              <select 
+                id="verb-select-fullscreen" 
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option value="">Choose a verb...</option>
+              </select>
+            </div>
+
+            <div id="verb-conjugation-fullscreen" class="mt-6">
+              <!-- Verb conjugation table will appear here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   <!-- ========================================
      PHASE 4 MODALS - ADD BEFORE </body>
      ======================================== -->
