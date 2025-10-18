@@ -6204,6 +6204,11 @@
     let contextsData = null;
     let alternativeExpressionsData = null;
 
+    // Expose to window for debugging
+    window.contextsData = null;
+    window.alternativeExpressionsData = null;
+    window.currentLanguage = currentLanguage;
+
     // Global state for Phase 2
     let grammarMilestonesData = null;
     let userProgress = null;
@@ -7454,9 +7459,11 @@
       try {
         const contextsResponse = await fetch("contexts.json");
         contextsData = await contextsResponse.json();
+        window.contextsData = contextsData; // ADD THIS LINE
 
         const altExpResponse = await fetch("alternativeExpressions.json");
         alternativeExpressionsData = await altExpResponse.json();
+        window.alternativeExpressionsData = alternativeExpressionsData; // ADD THIS LINE
 
         console.log("✅ Phase 1 enhancement data loaded");
         return true;
@@ -8185,10 +8192,10 @@
             console.log('ℹ️ No alternative expressions found for:', phrase.text);
           }
         };
-      
 
-      phraseListContainer.appendChild(phraseDiv);
-    });
+
+        phraseListContainer.appendChild(phraseDiv);
+      });
     }
 
     // Tab switching for Phrases/Verb Trainer
