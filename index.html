@@ -3800,6 +3800,7 @@
     let userId = "loading";
     let currentLanguage = "Italian"; // Default language
     let currentLevel = "level1"; // Default difficulty level: level1, level2, level3
+    let isSelectingWords = false;  // Flag to prevent word bank regeneration
 
     // --- UI Element References ---
     const modalContainer = document.getElementById("modal-container");
@@ -7818,9 +7819,8 @@
 
           updateUILanguage();
 
-          // ✅ ADD THIS: Repopulate word bank when restoring state
-          if (goalIdFromDB) {
-            // Find the phrase to get the target sentence
+          // ✅ MODIFY THIS SECTION:
+          if (goalIdFromDB && !isSelectingWords) {  // ← ADD !isSelectingWords check
             const savedPhrase = allPhrases.find(p => p.id === goalIdFromDB);
 
             if (savedPhrase) {
@@ -7831,7 +7831,6 @@
               console.log("🔄 Restoring word bank for:", savedPhrase.english, "->", targetSentence);
               populateWordBank(targetSentence);
             } else if (goalIdFromDB === "FALLBACK") {
-              // Handle the FALLBACK case specifically
               console.log("🔄 Restoring FALLBACK word bank: Grazie");
               populateWordBank("Grazie");
             }
@@ -8410,16 +8409,20 @@
     }
 
     function addWord(word) {
+      isSelectingWords = true;  // ✅ ADD THIS
       currentSelectedWords.push(word);
       updateSelectedSentenceUI();
+      setTimeout(() => { isSelectingWords = false; }, 100);  // ✅ ADD THIS
     }
 
     function removeWord(wordToRemove) {
+      isSelectingWords = true;  // ✅ ADD THIS
       const index = currentSelectedWords.indexOf(wordToRemove);
       if (index > -1) {
         currentSelectedWords.splice(index, 1);
       }
       updateSelectedSentenceUI();
+      setTimeout(() => { isSelectingWords = false; }, 100);  // ✅ ADD THIS
     }
 
     function clearSentence() {
