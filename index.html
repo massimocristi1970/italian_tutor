@@ -7246,6 +7246,25 @@
 
           updateUILanguage();
 
+          // ✅ ADD THIS: Repopulate word bank when restoring state
+          if (goalIdFromDB) {
+            // Find the phrase to get the target sentence
+            const savedPhrase = allPhrases.find(p => p.id === goalIdFromDB);
+
+            if (savedPhrase) {
+              const targetSentence = currentLanguage === "Italian"
+                ? savedPhrase.italian
+                : savedPhrase.sicilian || savedPhrase.italian;
+
+              console.log("🔄 Restoring word bank for:", savedPhrase.english, "->", targetSentence);
+              populateWordBank(targetSentence);
+            } else if (goalIdFromDB === "FALLBACK") {
+              // Handle the FALLBACK case specifically
+              console.log("🔄 Restoring FALLBACK word bank: Grazie");
+              populateWordBank("Grazie");
+            }
+          }
+
           // 4. FIX: Use the flag to prevent the initial loop AND stop re-rendering the selected words on every DB change.
           if (!progressLoadedOnce) {
             progressLoadedOnce = true;
