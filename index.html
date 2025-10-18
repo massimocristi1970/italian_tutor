@@ -8018,6 +8018,7 @@
     // --- Language & UI Management ---
 
     function updateUILanguage() {
+      window.currentLanguage = currentLanguage;
       const langCode =
         currentLanguage === "Italian" ? "🇮🇹 Italian" : "🟡 Sicilian";
       document.getElementById("app-language-display").textContent = langCode;
