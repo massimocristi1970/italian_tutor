@@ -8144,7 +8144,9 @@
         listenBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
         listenBtn.onclick = (e) => {
           e.stopPropagation();
-          speakText(phrase.text, currentLanguage);
+          const lang = currentLanguage || 'Italian'; // Fallback to Italian
+          console.log('🔊 Speaking:', phrase.text, 'in', lang);
+          speakText(phrase.text, lang);
         };
 
         topRow.appendChild(textContainer);
@@ -8159,30 +8161,34 @@
           }
         }
 
-        // Click handler for phrase
         phraseDiv.onclick = () => {
-          chatInput.value = phrase.text;
-          chatInput.focus();
+          console.log('📝 Phrase clicked:', phrase.text);
 
-          // Show alternative expressions
-          const existingPanel = phraseListContainer.querySelector(
-            ".alternatives-panel"
-          );
+          // Copy to chat input
+          if (chatInput) {
+            chatInput.value = phrase.text;
+            chatInput.focus();
+          }
+
+          // Remove any existing alternative panel
+          const existingPanel = phraseListContainer.querySelector('.alternatives-panel');
           if (existingPanel) {
             existingPanel.remove();
           }
 
+          // Show new alternative expressions panel
           const altPanel = showAlternativeExpressions(phrase.text);
           if (altPanel) {
-            phraseDiv.parentElement.insertBefore(
-              altPanel,
-              phraseDiv.nextSibling
-            );
+            phraseDiv.parentElement.insertBefore(altPanel, phraseDiv.nextSibling);
+            console.log('✨ Alternative expressions shown for:', phrase.text);
+          } else {
+            console.log('ℹ️ No alternative expressions found for:', phrase.text);
           }
         };
+      
 
-        phraseListContainer.appendChild(phraseDiv);
-      });
+      phraseListContainer.appendChild(phraseDiv);
+    });
     }
 
     // Tab switching for Phrases/Verb Trainer
@@ -11207,7 +11213,13 @@
       document.getElementById('tutor-chat-modal').style.display = 'none';
     }
 
-    function openPhrasesModal() {
+    async function openPhrasesModal() {
+      // Ensure Phase 1 data is loaded before opening
+      if (!contextsData || !alternativeExpressionsData) {
+        console.log('⏳ Loading Phase 1 data for Common Phrases...');
+        await loadEnhancementData();
+      }
+
       const modal = document.getElementById('phrases-verb-modal');
       const content = document.getElementById('phrases-verb-modal-content');
       const section = document.getElementById('phrases-verb-section');
@@ -11221,6 +11233,10 @@
           const phrasesTabBtn = document.getElementById('phrases-tab-btn');
           const verbsTabBtn = document.getElementById('verbs-tab-btn');
           if (phrasesTabBtn) phrasesTabBtn.click();
+
+          // IMPORTANT: Repopulate phrases after modal opens to ensure Phase 1 data is available
+          populatePhrases();
+          console.log('✅ Common Phrases modal opened with Phase 1 enhancements');
         }, 100);
       }
     }
