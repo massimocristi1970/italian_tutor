@@ -3381,9 +3381,6 @@
             <option value="level2">🌿 Intermediate (B1-B2)</option>
             <option value="level3">🌳 Advanced (C1-C2)</option>
           </select>
-          <button onclick="testWordBank()" style="background: red; color: white; padding: 10px; margin-left: 10px;">
-            TEST
-          </button>
           <i
             class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
         </div>
@@ -8152,10 +8149,12 @@
         trackVocabularyUsage(currentSelectedWords);
       }
 
-      if (isCorrect && currentGoalId && currentGoalId !== "FALLBACK") {
-        masteredPhraseIds.add(currentGoalId);
+      if (isCorrect && currentGoalId) {
+        if (currentGoalId !== "FALLBACK") {
+          masteredPhraseIds.add(currentGoalId);  // Don't mark FALLBACK as mastered
+        }
         clearSentence();
-        selectNewPhraseOrGoal(true);
+        selectNewPhraseOrGoal(true);  // But DO progress to next phrase
       }
     }
 
@@ -10704,14 +10703,6 @@
     window.addWordToFluencySentence = addWordToFluencySentence;
     window.clearFluencySentence = clearFluencySentence;
     window.backToFluencyChallenges = backToFluencyChallenges;
-
-    // ✅ ADD THIS TEST FUNCTION
-    window.testWordBank = function () {
-      console.log("=== MANUAL TEST ===");
-      console.log("Calling populateWordBank with 'Grazie'");
-      populateWordBank("Grazie");
-      console.log("Done. Check if 'Grazie' appears in word bank.");
-    };
 
     window.onload = async function () {
       loadEnhancementData();
