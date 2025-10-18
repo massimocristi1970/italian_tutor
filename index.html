@@ -7453,7 +7453,13 @@
 
       // Get words for current level
       const levelData = wordBankData[currentLevel];
-      if (!levelData) return;
+      console.log("Level Data exists?", !!levelData); // ✅ ADD THIS
+      console.log("Level Data keys:", levelData ? Object.keys(levelData) : "NONE"); // ✅ ADD THIS
+
+      if (!levelData) {
+        console.log("⚠️ NO LEVEL DATA - RETURNING EARLY"); // ✅ ADD THIS
+        return;
+      }
 
       // Flatten all categories into a single array for distractor words
       let allWords = [];
@@ -7462,6 +7468,8 @@
           allWords = allWords.concat(levelData[category]);
         }
       });
+
+      console.log("Total distractor words:", allWords.length); // ✅ ADD THIS
 
       // Extract words from target sentence if provided
       let targetWords = [];
@@ -7472,18 +7480,26 @@
           .map((word) => word.replace(/[.,!?;:"""'']/g, "").trim())
           .filter((word) => word.length > 0);
 
+        console.log("Target Words after split:", targetWords); // ✅ ADD THIS
 
+
+        // ✅ ADD THIS: Safety check for single-word sentences
         if (targetWords.length === 0 && targetSentence.trim().length > 0) {
-          // If splitting failed but we have content, use the whole string
           targetWords = [targetSentence.replace(/[.,!?;:"""'']/g, "").trim()];
+          console.log("⚠️ Single word fallback activated:", targetWords);
         }
       }
+
+      console.log("Final targetWords array:", targetWords); // ✅ ADD THIS
 
       // Remove target words from distractor pool to avoid duplicates
       const targetWordsLower = targetWords.map((w) => w.toLowerCase());
       const distractorWords = allWords.filter(
         (word) => !targetWordsLower.includes(word.toLowerCase())
       );
+
+      console.log("Distractor words after filtering:", distractorWords.length); // ✅ ADD THIS
+
 
       // Shuffle distractor words
       distractorWords.sort(() => Math.random() - 0.5);
@@ -7498,6 +7514,9 @@
         ...distractorWords.slice(0, distractorCount),
       ];
 
+      console.log("Final word list length:", finalWordList.length); // ✅ ADD THIS
+      console.log("Final word list:", finalWordList); // ✅ ADD THIS
+
       // Shuffle the final list so target words aren't all at the start
       finalWordList.sort(() => Math.random() - 0.5);
 
@@ -7505,6 +7524,7 @@
       finalWordList.forEach((word) => {
         wordBankContainer.appendChild(createWordElement(word, false));
       });
+      console.log("=== END POPULATE DEBUG ==="); // ✅ ADD THIS
     }
 
     function populatePhrases() {
