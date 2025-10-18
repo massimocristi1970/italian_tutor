@@ -8152,7 +8152,7 @@
         listenBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
         listenBtn.onclick = (e) => {
           e.stopPropagation();
-          const lang = currentLanguage || 'Italian'; // Fallback to Italian
+          const lang = window.currentLanguage || currentLanguage || 'Italian';
           console.log('🔊 Speaking:', phrase.text, 'in', lang);
           speakText(phrase.text, lang);
         };
