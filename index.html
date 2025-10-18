@@ -3644,12 +3644,12 @@
           <span>Exam Prep</span>
         </button>
 
-        <button class="mobile-menu-item" onclick="closeMobileMenu(); openTutorChatModal();">
+        <button class="mobile-menu-item" onclick="closeMobileMenu(); openTutorFullscreenModal();">
           <i class="fas fa-comments"></i>
           <span>Tutor Chat</span>
         </button>
 
-        <button class="mobile-menu-item" onclick="closeMobileMenu(); openPhrasesFullscreenModal()();">
+        <button class="mobile-menu-item" onclick="closeMobileMenu(); openPhrasesFullscreenModal();">
           <i class="fas fa-book"></i>
           <span>Phrases & Verbs</span>
         </button>
@@ -11409,7 +11409,7 @@
     }
     // Reset to level selection screen
     showExamScreen("exam-level-selection");
-  
+
     async function selectExamLevel(level) {
       await loadExamData();
       currentExamLevel = level;
@@ -12775,13 +12775,14 @@
     </div>
   </div>
 
-  <!-- Tutor Chat Modal -->
-  <div id="tutor-chat-modal" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
-      <span class="close-modal" onclick="closeTutorChatModal()">&times;</span>
-      <div id="tutor-chat-modal-content"></div>
-    </div>
+  <!-- OLD TUTOR CHAT MODAL - REMOVED
+<div id="tutor-chat-modal" class="modal" style="display: none;">
+  <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+    <span class="close-modal" onclick="closeTutorChatModal()">&times;</span>
+    <div id="tutor-chat-modal-content"></div>
   </div>
+</div>
+-->
 
   <!-- Phrases & Verb Trainer Modal -->
   <div id="phrases-verb-modal" class="modal" style="display: none;">
