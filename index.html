@@ -8199,6 +8199,55 @@
       });
     }
 
+    // ADD THE NEW FUNCTION HERE - RIGHT BETWEEN populatePhrases() and the Tab switching comment:
+    function attachModalEventListeners() {
+      const modal = document.getElementById('phrases-verb-modal-content');
+      if (!modal) {
+        console.log('❌ Modal content not found');
+        return;
+      }
+
+      const phraseItems = modal.querySelectorAll('#phrase-list > div');
+      const phrases = commonPhrases[window.currentLanguage] || [];
+
+      console.log(`🔧 Attaching listeners to ${phraseItems.length} phrases`);
+
+      phraseItems.forEach((phraseDiv, index) => {
+        const phrase = phrases[index];
+        if (!phrase) return;
+
+        const listenBtn = phraseDiv.querySelector('.audio-btn');
+        if (listenBtn) {
+          listenBtn.onclick = (e) => {
+            e.stopPropagation();
+            const lang = window.currentLanguage || 'Italian';
+            console.log('🔊 Speaking:', phrase.text, 'in', lang);
+            speakText(phrase.text, lang);
+          };
+        }
+
+        phraseDiv.onclick = () => {
+          console.log('📝 Phrase clicked:', phrase.text);
+
+          const chatInput = document.getElementById('chat-input');
+          if (chatInput) {
+            chatInput.value = phrase.text;
+            chatInput.focus();
+          }
+
+          const existingPanel = modal.querySelector('.alternatives-panel');
+          if (existingPanel) existingPanel.remove();
+
+          const altPanel = showAlternativeExpressions(phrase.text);
+          if (altPanel) {
+            phraseDiv.parentElement.insertBefore(altPanel, phraseDiv.nextSibling);
+          }
+        };
+      });
+
+      console.log('✅ Event listeners attached to modal phrases');
+    }
+
     // Tab switching for Phrases/Verb Trainer
     const phrasesTabBtn = document.getElementById("phrases-tab-btn");
     const verbsTabBtn = document.getElementById("verbs-tab-btn");
@@ -11242,8 +11291,9 @@
           const verbsTabBtn = document.getElementById('verbs-tab-btn');
           if (phrasesTabBtn) phrasesTabBtn.click();
 
-          // IMPORTANT: Repopulate phrases after modal opens to ensure Phase 1 data is available
-          populatePhrases();
+          // Attach event listeners to the modal's copied content
+          attachModalEventListeners();
+
           console.log('✅ Common Phrases modal opened with Phase 1 enhancements');
         }, 100);
       }
