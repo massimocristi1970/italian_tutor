@@ -7462,34 +7462,40 @@
           .split(/\s+/)
           .map((word) => word.replace(/[.,!?;:"""'']/g, "").trim())
           .filter((word) => word.length > 0);
+      
+
+      if (targetWords.length === 0 && targetSentence.trim().length > 0) {
+        // If splitting failed but we have content, use the whole string
+        targetWords = [targetSentence.replace(/[.,!?;:"""'']/g, "").trim()];
       }
+    }
 
-      // Remove target words from distractor pool to avoid duplicates
-      const targetWordsLower = targetWords.map((w) => w.toLowerCase());
-      const distractorWords = allWords.filter(
-        (word) => !targetWordsLower.includes(word.toLowerCase())
-      );
+    // Remove target words from distractor pool to avoid duplicates
+    const targetWordsLower = targetWords.map((w) => w.toLowerCase());
+    const distractorWords = allWords.filter(
+      (word) => !targetWordsLower.includes(word.toLowerCase())
+    );
 
-      // Shuffle distractor words
-      distractorWords.sort(() => Math.random() - 0.5);
+    // Shuffle distractor words
+    distractorWords.sort(() => Math.random() - 0.5);
 
-      // Calculate how many distractors we need to reach ~50 total words
-      const totalWords = 50;
-      const distractorCount = Math.max(0, totalWords - targetWords.length);
+    // Calculate how many distractors we need to reach ~50 total words
+    const totalWords = 50;
+    const distractorCount = Math.max(0, totalWords - targetWords.length);
 
-      // Combine target words + distractors
-      const finalWordList = [
-        ...targetWords,
-        ...distractorWords.slice(0, distractorCount),
-      ];
+    // Combine target words + distractors
+    const finalWordList = [
+      ...targetWords,
+      ...distractorWords.slice(0, distractorCount),
+    ];
 
-      // Shuffle the final list so target words aren't all at the start
-      finalWordList.sort(() => Math.random() - 0.5);
+    // Shuffle the final list so target words aren't all at the start
+    finalWordList.sort(() => Math.random() - 0.5);
 
-      // Display all words
-      finalWordList.forEach((word) => {
-        wordBankContainer.appendChild(createWordElement(word, false));
-      });
+    // Display all words
+    finalWordList.forEach((word) => {
+      wordBankContainer.appendChild(createWordElement(word, false));
+    });
     }
 
     function populatePhrases() {
@@ -8045,6 +8051,7 @@
           id: "FALLBACK",
           english: 'Try saying "Thank you" in your chosen language.',
           italian: "Grazie",
+          sicilian: "Grazzi"  // Add Sicilian version too
         };
       }
 
