@@ -3691,26 +3691,35 @@
   </div>
 
   <!-- PHASE 6: MOBILE BOTTOM NAVIGATION -->
-  <nav class="mobile-bottom-nav">
-    <div class="mobile-nav-items">
-      <button class="mobile-nav-item active" id="mobile-nav-practice" onclick="showMobilePractice()">
-        <i class="fas fa-book"></i>
-        <span>Practice</span>
-      </button>
-      <button class="mobile-nav-item" id="mobile-nav-progress" onclick="showMobileProgress()">
-        <i class="fas fa-chart-line"></i>
-        <span>Progress</span>
-      </button>
-      <button class="mobile-nav-item" id="mobile-nav-scenarios" onclick="showScenariosModal()">
-        <i class="fas fa-comments"></i>
-        <span>Scenarios</span>
-      </button>
-      <button class="mobile-nav-item" id="mobile-nav-chat" onclick="showMobileChat()">
-        <i class="fas fa-robot"></i>
-        <span>Tutor</span>
-      </button>
-    </div>
-  </nav>
+  <div id="mobile-bottom-nav" class="mobile-bottom-nav">
+    <!-- Conversations Button -->
+    <button id="mobile-nav-conversations" class="mobile-nav-btn active"
+      onclick="openScenariosModal(); setMobileNavActive('mobile-nav-conversations')">
+      <i class="fas fa-comment-dots"></i>
+      <span>Conversations</span>
+    </button>
+
+    <!-- Weekly Report Button -->
+    <button id="mobile-nav-report" class="mobile-nav-btn"
+      onclick="openProgressReport(); setMobileNavActive('mobile-nav-report')">
+      <i class="fas fa-chart-bar"></i>
+      <span>Weekly Report</span>
+    </button>
+
+    <!-- Phrases Button -->
+    <button id="mobile-nav-phrases" class="mobile-nav-btn"
+      onclick="openPhrasesFullscreenModal(); setMobileNavActive('mobile-nav-phrases')">
+      <i class="fas fa-book-open"></i>
+      <span>Phrases</span>
+    </button>
+
+    <!-- Tutor Button -->
+    <button id="mobile-nav-tutor" class="mobile-nav-btn"
+      onclick="openTutorFullscreenModal(); setMobileNavActive('mobile-nav-tutor')">
+      <i class="fas fa-robot"></i>
+      <span>Tutor</span>
+    </button>
+  </div>
 
   <!-- Firebase and Application Logic -->
   <script type="module">
@@ -8535,6 +8544,175 @@
       showModal('Verb Practice', `Great job practicing ${verb}! Full checking system coming soon.`, false);
     }
 
+    // ========================================
+    // AI TUTOR CHAT FULL-SCREEN MODAL
+    // ========================================
+
+    let currentConversationMode = 'normal'; // normal, freeform, immersive
+
+    // Open AI Tutor full-screen modal
+    function openTutorFullscreenModal() {
+      const modal = document.getElementById('tutor-fullscreen-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+
+        // Load chat history from dashboard if it exists
+        const dashboardChat = document.getElementById('chat-messages');
+        const fullscreenChat = document.getElementById('chat-fullscreen-container');
+
+        if (dashboardChat && fullscreenChat && dashboardChat.children.length > 0) {
+          // Copy messages from dashboard to modal
+          fullscreenChat.innerHTML = dashboardChat.innerHTML;
+
+          // Scroll to bottom
+          fullscreenChat.scrollTop = fullscreenChat.scrollHeight;
+        }
+
+        console.log('✅ AI Tutor full-screen modal opened');
+      }
+    }
+
+    // Close AI Tutor full-screen modal
+    function closeTutorFullscreenModal() {
+      const modal = document.getElementById('tutor-fullscreen-modal');
+      if (modal) {
+        modal.style.display = 'none';
+
+        // Sync messages back to dashboard (optional)
+        const fullscreenChat = document.getElementById('chat-fullscreen-container');
+        const dashboardChat = document.getElementById('chat-messages');
+
+        if (fullscreenChat && dashboardChat) {
+          dashboardChat.innerHTML = fullscreenChat.innerHTML;
+        }
+      }
+    }
+
+    // Set conversation mode in fullscreen
+    function setConversationModeFullscreen(mode) {
+      currentConversationMode = mode;
+
+      // Update active tab
+      const tabs = document.querySelectorAll('#tutor-fullscreen-modal .category-tab');
+      tabs.forEach((tab, index) => {
+        if (
+          (mode === 'normal' && index === 0) ||
+          (mode === 'freeform' && index === 1) ||
+          (mode === 'immersive' && index === 2)
+        ) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+
+      console.log('🎭 Conversation mode set to:', mode);
+    }
+
+    // Send message from fullscreen modal
+    async function sendTutorMessageFullscreen() {
+      const input = document.getElementById('chat-input-fullscreen');
+      const chatContainer = document.getElementById('chat-fullscreen-container');
+
+      if (!input || !chatContainer) return;
+
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Clear input
+      input.value = '';
+
+      // Remove welcome message if it exists
+      const welcomeMsg = chatContainer.querySelector('.text-center');
+      if (welcomeMsg) welcomeMsg.remove();
+
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'flex justify-end mb-3';
+      userMsg.innerHTML = `
+    <div class="max-w-[70%] bg-purple-600 text-white rounded-lg px-4 py-2">
+      ${message}
+    </div>
+  `;
+      chatContainer.appendChild(userMsg);
+
+      // Scroll to bottom
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      // Show typing indicator
+      const typingIndicator = document.createElement('div');
+      typingIndicator.className = 'flex justify-start mb-3';
+      typingIndicator.id = 'typing-indicator';
+      typingIndicator.innerHTML = `
+    <div class="max-w-[70%] bg-gray-200 dark:bg-gray-700 rounded-lg px-4 py-2">
+      <i class="fas fa-circle-notch fa-spin"></i> Tutor is typing...
+    </div>
+  `;
+      chatContainer.appendChild(typingIndicator);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      // Call your existing sendMessage function
+      // This connects to your actual AI chat - adjust based on your function name
+      try {
+        // Find your existing chat send function and call it
+        // For now using placeholder - you'll need to connect this to your actual AI
+        if (typeof sendMessage === 'function') {
+          await sendMessage(); // Call your existing function
+        } else {
+          // Placeholder response
+          setTimeout(() => {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+
+            const aiMsg = document.createElement('div');
+            aiMsg.className = 'flex justify-start mb-3';
+            aiMsg.innerHTML = `
+          <div class="max-w-[70%] bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-4 py-2">
+            <div class="flex items-center gap-2 mb-1">
+              <i class="fas fa-robot text-purple-600"></i>
+              <span class="font-semibold">AI Tutor</span>
+            </div>
+            <p>Connected! This will use your existing AI chat function.</p>
+          </div>
+        `;
+            chatContainer.appendChild(aiMsg);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          }, 1000);
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) indicator.remove();
+
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'flex justify-start mb-3';
+        errorMsg.innerHTML = `
+      <div class="max-w-[70%] bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-lg px-4 py-2">
+        ⚠️ Error sending message. Please try again.
+      </div>
+    `;
+        chatContainer.appendChild(errorMsg);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
+
+    // Insert quick phrase into input
+    function insertQuickPhrase(phrase) {
+      const input = document.getElementById('chat-input-fullscreen');
+      if (input) {
+        input.value = phrase;
+        input.focus();
+      }
+    }
+
+    // Expose functions to window
+    window.openTutorFullscreenModal = openTutorFullscreenModal;
+    window.closeTutorFullscreenModal = closeTutorFullscreenModal;
+    window.setConversationModeFullscreen = setConversationModeFullscreen;
+    window.sendTutorMessageFullscreen = sendTutorMessageFullscreen;
+    window.insertQuickPhrase = insertQuickPhrase;
+
     // Tab switching for Phrases/Verb Trainer
     const phrasesTabBtn = document.getElementById("phrases-tab-btn");
     const verbsTabBtn = document.getElementById("verbs-tab-btn");
@@ -11649,6 +11827,7 @@
     window.switchPhrasesTab = switchPhrasesTab;
     window.checkVerbConjugationFullscreen = checkVerbConjugationFullscreen;
 
+
     window.onload = async function () {
       loadEnhancementData();
       initializeTheme();
@@ -11744,44 +11923,25 @@
       document.body.style.overflow = "";
     };
 
-    // Mobile bottom nav handlers
-    window.showMobilePractice = function () {
-      setMobileNavActive("mobile-nav-practice");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
+    // ========================================
+    // MOBILE BOTTOM NAVIGATION
+    // ========================================
 
-    window.showMobileProgress = function () {
-      setMobileNavActive("mobile-nav-progress");
-      const progressDashboard = document.querySelector(".progress-dashboard");
-      if (progressDashboard) {
-        progressDashboard.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    };
+    // Set active state for mobile nav buttons
+    function setMobileNavActive(buttonId) {
+      // Remove active class from all buttons
+      const allButtons = document.querySelectorAll('.mobile-nav-btn');
+      allButtons.forEach(btn => btn.classList.remove('active'));
 
-    window.showMobileChat = function () {
-      setMobileNavActive("mobile-nav-chat");
-      const chatInterface = document.getElementById("chat-interface");
-      if (chatInterface) {
-        chatInterface.scrollIntoView({ behavior: "smooth", block: "start" });
-        const chatInput = document.getElementById("chat-input");
-        if (chatInput) {
-          setTimeout(() => chatInput.focus(), 300);
-        }
-      }
-    };
-
-    function setMobileNavActive(activeId) {
-      document.querySelectorAll(".mobile-nav-item").forEach((item) => {
-        item.classList.remove("active");
-      });
-      const activeItem = document.getElementById(activeId);
-      if (activeItem) {
-        activeItem.classList.add("active");
+      // Add active class to clicked button
+      const activeButton = document.getElementById(buttonId);
+      if (activeButton) {
+        activeButton.classList.add('active');
       }
     }
+
+    // Expose to window
+    window.setMobileNavActive = setMobileNavActive;
 
     // Close mobile menu when clicking outside
     document.addEventListener("click", (e) => {
@@ -11964,6 +12124,66 @@
             <!-- Verb conjugation table will appear here -->
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Tutor Chat Full-Screen Modal -->
+  <div id="tutor-fullscreen-modal" class="scenarios-modal" style="display: none;">
+    <div class="scenarios-panel">
+      <!-- Header -->
+      <div class="scenarios-header">
+        <h2 class="scenarios-title">💬 AI Language Tutor</h2>
+        <button class="scenarios-close-btn" onclick="closeTutorFullscreenModal()">×</button>
+      </div>
+
+      <!-- Conversation Mode Toggle -->
+      <div class="category-tabs" style="margin-bottom: 20px;">
+        <button class="category-tab active" onclick="setConversationModeFullscreen('normal')">
+          💬 Normal
+        </button>
+        <button class="category-tab" onclick="setConversationModeFullscreen('freeform')">
+          🗨️ Free Talk
+        </button>
+        <button class="category-tab" onclick="setConversationModeFullscreen('immersive')">
+          🇮🇹 Italian Only
+        </button>
+      </div>
+
+      <!-- Chat Container -->
+      <div id="chat-fullscreen-container"
+        style="background: var(--bg-primary); border-radius: 12px; padding: 20px; margin-bottom: 20px; height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
+        <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+          <i class="fas fa-comments text-4xl mb-3"></i>
+          <p>Start a conversation with your AI tutor!</p>
+        </div>
+      </div>
+
+      <!-- Chat Input -->
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <input type="text" id="chat-input-fullscreen" placeholder="Type your message in Italian or English..."
+          class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          onkeypress="if(event.key === 'Enter') sendTutorMessageFullscreen()" />
+        <button onclick="sendTutorMessageFullscreen()"
+          class="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition duration-150">
+          <i class="fas fa-paper-plane"></i> Send
+        </button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+        <button onclick="insertQuickPhrase('Come si dice... in italiano?')"
+          class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+          💡 How do you say...?
+        </button>
+        <button onclick="insertQuickPhrase('Puoi spiegare?')"
+          class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+          ❓ Can you explain?
+        </button>
+        <button onclick="insertQuickPhrase('Correggimi per favore')"
+          class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+          ✏️ Correct me please
+        </button>
       </div>
     </div>
   </div>
