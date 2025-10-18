@@ -8072,6 +8072,14 @@
           ? selectedPhrase.italian
           : selectedPhrase.sicilian || selectedPhrase.italian;
 
+      // ✅ ADD THESE DEBUG LOGS HERE:
+      console.log("=== SELECT NEW PHRASE DEBUG ===");
+      console.log("Selected Phrase ID:", selectedPhrase.id);
+      console.log("English Goal:", selectedPhrase.english);
+      console.log("Italian:", selectedPhrase.italian);
+      console.log("Target Sentence to send to word bank:", targetSentence);
+      console.log("=== END SELECT PHRASE DEBUG ===");
+
       clearSentence(); // Clear the builder for the new goal
 
       // Populate word bank with the target sentence words
