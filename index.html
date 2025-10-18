@@ -11375,24 +11375,41 @@
     }
 
     function openExamPrepModal() {
-      document.getElementById("exam-prep-modal").style.display = "block";
-      const hamburgerMenu = document.getElementById("hamburger-menu");
-      if (hamburgerMenu) {
-        hamburgerMenu.classList.remove("active");
+      const modal = document.getElementById("exam-prep-modal");
+      if (modal) {
+        modal.style.display = "flex"; // Changed from "block" to "flex"
+
+        // Close hamburger menu
+        const hamburgerMenu = document.getElementById("hamburger-menu");
+        if (hamburgerMenu) {
+          hamburgerMenu.classList.remove("active");
+        }
+
+        // Show level selection screen by default
+        showExamScreen('exam-level-selection');
+
+        // Load progress
+        loadExamProgress();
+
+        console.log('✅ CILS Exam Prep modal opened');
       }
-      loadExamProgress();
     }
 
     function closeExamPrepModal() {
-      document.getElementById("exam-prep-modal").style.display = "none";
-      if (examTimerInterval) {
-        clearInterval(examTimerInterval);
-        examTimerInterval = null;
-      }
-      // Reset to level selection screen
-      showExamScreen("exam-level-selection");
-    }
+      const modal = document.getElementById("exam-prep-modal");
+      if (modal) {
+        modal.style.display = "none";
 
+        // Clear timer if running
+        if (examTimerInterval) {
+          clearInterval(examTimerInterval);
+          examTimerInterval = null;
+        }
+      }
+    }
+    // Reset to level selection screen
+    showExamScreen("exam-level-selection");
+  
     async function selectExamLevel(level) {
       await loadExamData();
       currentExamLevel = level;
@@ -12599,13 +12616,15 @@
   </div>
 
   <!-- Exam Preparation Modal -->
-  <div id="exam-prep-modal" class="modal" style="display: none;">
-    <div class="modal-content exam-prep-content">
-      <span class="close-modal" onclick="closeExamPrepModal()">&times;</span>
+  <div id="exam-prep-modal" class="scenarios-modal" style="display: none;">
+    <div class="scenarios-panel">
+      <div class="scenarios-header">
+        <h2 class="scenarios-title">📚 CILS Exam Preparation</h2>
+        <button class="scenarios-close-btn" onclick="closeExamPrepModal()">×</button>
+      </div>
 
       <!-- Level Selection Screen -->
       <div id="exam-level-selection" class="exam-screen active">
-        <h2>📚 CILS Exam Preparation</h2>
         <p>Select your target CILS level to begin practice</p>
 
         <div class="level-grid">
