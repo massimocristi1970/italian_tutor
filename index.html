@@ -9192,7 +9192,27 @@
           // Call the actual AI chat function
           const systemPrompt = `You are a highly knowledgeable and friendly ${currentLanguage} language tutor. Respond to the user's question with encouraging and detailed grammatical explanations, vocabulary help, or cultural context for the ${currentLanguage} language.`;
 
-          await postToGemini(message, systemPrompt, true, true);
+          const response = await postToGemini(
+            message,
+            systemPrompt,
+            true,
+            false
+          );
+
+          // Display AI response in modal
+          const aiMsg = document.createElement("div");
+          aiMsg.className = "flex justify-start mb-3";
+          aiMsg.innerHTML = `
+  <div class="max-w-[70%] bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-4 py-2">
+    <div class="flex items-center gap-2 mb-1">
+      <i class="fas fa-robot text-purple-600"></i>
+      <span class="font-semibold">AI Tutor</span>
+    </div>
+    <p>${response}</p>
+  </div>
+`;
+          chatContainer.appendChild(aiMsg);
+          chatContainer.scrollTop = chatContainer.scrollHeight;
 
           // Remove typing indicator
           const indicator = document.getElementById("typing-indicator");
@@ -9569,7 +9589,7 @@
               processSentenceCheckResponse(text);
             }
 
-            return; // Success, break retry loop
+            return text; // Return the response text
           } catch (error) {
             console.error("Gemini API call failed:", error);
             if (i === maxRetries - 1 || error.message.includes("HTTP error")) {
