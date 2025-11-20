@@ -9806,6 +9806,12 @@
       // --- UI Event Handlers ---
 
       function appendChatMessage(text, isUser) {
+        // Handle undefined or null text
+        if (!text) {
+          console.warn("appendChatMessage called with undefined text");
+          return;
+        }
+
         const messageDiv = document.createElement("div");
         messageDiv.className = `flex ${
           isUser ? "justify-end" : "justify-start"
