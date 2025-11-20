@@ -9190,7 +9190,9 @@
           // Find your existing chat send function and call it
           // For now using placeholder - you'll need to connect this to your actual AI
           // Call the actual AI chat function
-          await postToGemini(userMessage, systemPrompt, true, true);
+          const systemPrompt = `You are a highly knowledgeable and friendly ${currentLanguage} language tutor. Respond to the user's question with encouraging and detailed grammatical explanations, vocabulary help, or cultural context for the ${currentLanguage} language.`;
+
+          await postToGemini(message, systemPrompt, true, true);
 
           // Remove typing indicator
           const indicator = document.getElementById("typing-indicator");
