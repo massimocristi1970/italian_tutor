@@ -65,6 +65,16 @@ node_modules/
 # dotenv environment variables file
 .env
 
+# Deploy logs (may contain personal info)
+deploy-log.txt
+*-debug.log
+
+# Build output
+dist/
+
+# Test coverage
+coverage/
+
 # dataconnect generated files
 .dataconnect
 

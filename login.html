@@ -201,15 +201,44 @@
         onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-      // Direct Firebase config (no Cloud Function needed)
+      // Load Firebase config from server endpoint
       async function loadConfig() {
+        const isLocal = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1';
+
+        if (isLocal) {
+          console.warn('⚠️ Running locally — using mock Firebase config');
+          return {
+            apiKey: 'test-key',
+            authDomain: 'test.firebaseapp.com',
+            projectId: 'test-project',
+            storageBucket: 'test.appspot.com',
+            messagingSenderId: '12345',
+            appId: '1:12345:web:test',
+          };
+        }
+
+        try {
+          const response = await fetch('/api/get-config');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.firebaseConfig) {
+              console.log('✅ Firebase config loaded from server');
+              return data.firebaseConfig;
+            }
+          }
+        } catch (error) {
+          console.warn('⚠️ Could not fetch config, using fallback');
+        }
+
+        // Fallback config
         return {
-          apiKey: "AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0",
-          authDomain: "italiantutorapp.firebaseapp.com",
-          projectId: "italiantutorapp",
-          storageBucket: "italiantutorapp.firebasestorage.app",
-          messagingSenderId: "915130971011",
-          appId: "1:915130971011:web:171cfb69941fdf7997fcb6",
+          apiKey: 'AIzaSyAMlShSEWBzHhKTL6lcFYVec1U6i_kNco0',
+          authDomain: 'italiantutorapp.firebaseapp.com',
+          projectId: 'italiantutorapp',
+          storageBucket: 'italiantutorapp.firebasestorage.app',
+          messagingSenderId: '915130971011',
+          appId: '1:915130971011:web:171cfb69941fdf7997fcb6',
         };
       }
 
