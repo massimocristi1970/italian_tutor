@@ -63,7 +63,7 @@ const commonPhrases = {
     { language: "Italian", text: "Salute!", english: "Cheers! / Bless you!", context: "cafe" },
     { language: "Italian", text: "In bocca al lupo!", english: "Good luck!", context: "small_talk" },
   ],
-  
+
   Sicilian: [
     // Greetings & Basic
     { language: "Sicilian", text: "Ciau!", english: "Hello / Bye!", context: "greeting" },
