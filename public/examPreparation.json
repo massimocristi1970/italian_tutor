@@ -1,0 +1,811 @@
+{
+  "levels": ["A1", "A2", "B1", "B2", "C1", "C2"],
+  "examInfo": {
+    "A1": {
+      "duration": 95,
+      "sections": {
+        "listening": 20,
+        "reading": 30,
+        "writing": 25,
+        "speaking": 20
+      },
+      "passingScore": 55
+    },
+    "A2": {
+      "duration": 120,
+      "sections": {
+        "listening": 25,
+        "reading": 40,
+        "writing": 30,
+        "speaking": 25
+      },
+      "passingScore": 60
+    },
+    "B1": {
+      "duration": 150,
+      "sections": {
+        "listening": 30,
+        "reading": 50,
+        "writing": 40,
+        "speaking": 30
+      },
+      "passingScore": 65
+    },
+    "B2": {
+      "duration": 180,
+      "sections": {
+        "listening": 35,
+        "reading": 60,
+        "writing": 50,
+        "speaking": 35
+      },
+      "passingScore": 70
+    },
+    "C1": {
+      "duration": 210,
+      "sections": {
+        "listening": 40,
+        "reading": 70,
+        "writing": 60,
+        "speaking": 40
+      },
+      "passingScore": 75
+    },
+    "C2": {
+      "duration": 240,
+      "sections": {
+        "listening": 45,
+        "reading": 80,
+        "writing": 70,
+        "speaking": 45
+      },
+      "passingScore": 80
+    }
+  },
+  "questions": {
+    "A1": {
+      "listening": [
+        {
+          "id": "a1_l_1",
+          "type": "multiple_choice",
+          "audio": "Buongiorno, come stai?",
+          "question": "What is the speaker saying?",
+          "options": ["Good morning, how are you?", "Good night", "Goodbye", "Thank you"],
+          "correct": 0,
+          "points": 5
+        },
+        {
+          "id": "a1_l_2",
+          "type": "multiple_choice",
+          "audio": "Mi chiamo Marco.",
+          "question": "What is the speaker doing?",
+          "options": ["Asking for directions", "Introducing himself", "Ordering food", "Saying goodbye"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_l_3",
+          "type": "multiple_choice",
+          "audio": "Vorrei un caffè, per favore.",
+          "question": "Where is this conversation taking place?",
+          "options": ["At a café", "At the airport", "At a hotel", "At the bank"],
+          "correct": 0,
+          "points": 5
+        },
+        {
+          "id": "a1_l_4",
+          "type": "multiple_choice",
+          "audio": "Dove è la stazione?",
+          "question": "What is the speaker asking for?",
+          "options": ["The time", "Directions to the station", "A ticket", "Help"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_l_5",
+          "type": "multiple_choice",
+          "audio": "Sono di Roma.",
+          "question": "What information is the speaker giving?",
+          "options": ["Their age", "Their name", "Where they are from", "Their job"],
+          "correct": 2,
+          "points": 5
+        }
+      ],
+      "reading": [
+        {
+          "id": "a1_r_1",
+          "type": "comprehension",
+          "passage": "Mi chiamo Maria. Sono di Roma. Ho 25 anni. Sono studentessa. Studio italiano all'università.",
+          "question": "What does Maria do?",
+          "options": ["She is a teacher", "She is a student", "She is a doctor", "She is a tourist"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_r_2",
+          "type": "comprehension",
+          "passage": "Il bar è aperto dalle 7:00 alle 20:00. La domenica è chiuso.",
+          "question": "When is the bar closed?",
+          "options": ["In the morning", "In the afternoon", "On Sunday", "At night"],
+          "correct": 2,
+          "points": 5
+        },
+        {
+          "id": "a1_r_3",
+          "type": "comprehension",
+          "passage": "Ciao! Sono Paolo. Mi piace il calcio. Gioco ogni domenica con i miei amici.",
+          "question": "What does Paolo like?",
+          "options": ["Basketball", "Soccer", "Tennis", "Swimming"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_r_4",
+          "type": "comprehension",
+          "passage": "La mia famiglia è piccola. Ho una sorella e un fratello. I miei genitori abitano a Milano.",
+          "question": "Where do the speaker's parents live?",
+          "options": ["Rome", "Milan", "Naples", "Florence"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a1_r_5",
+          "type": "comprehension",
+          "passage": "Il supermercato è vicino alla stazione. È a cinque minuti a piedi.",
+          "question": "Where is the supermarket?",
+          "options": ["Far from the station", "Next to the station", "Near the station", "At the station"],
+          "correct": 2,
+          "points": 5
+        }
+      ],
+      "writing": [
+        {
+          "id": "a1_w_1",
+          "type": "free_response",
+          "prompt": "Write a short email introducing yourself to your new Italian class. Include your name, where you are from, and why you are studying Italian. (50-80 words)",
+          "wordCount": [50, 80],
+          "rubric": {
+            "content": 10,
+            "grammar": 10,
+            "vocabulary": 10
+          },
+          "points": 30
+        }
+      ],
+      "speaking": [
+        {
+          "id": "a1_s_1",
+          "type": "free_response",
+          "prompt": "Introduce yourself. Say your name, where you are from, your age, and what you do.",
+          "duration": 60,
+          "rubric": {
+            "pronunciation": 10,
+            "fluency": 10,
+            "content": 10
+          },
+          "points": 30
+        }
+      ]
+    },
+    "A2": {
+      "listening": [
+        {
+          "id": "a2_l_1",
+          "type": "multiple_choice",
+          "audio": "Il treno per Firenze parte alle tre e mezza dal binario sette.",
+          "question": "When does the train to Florence leave?",
+          "options": ["3:00", "3:30", "7:30", "7:00"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a2_l_2",
+          "type": "multiple_choice",
+          "audio": "Scusi, per andare in centro, quale autobus devo prendere?",
+          "question": "What is the speaker asking about?",
+          "options": ["A train schedule", "Which bus to take", "Where to buy tickets", "The city center location"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a2_l_3",
+          "type": "multiple_choice",
+          "audio": "Ho prenotato una camera doppia per due notti, dal quindici al diciassette luglio.",
+          "question": "What type of room was booked?",
+          "options": ["Single room", "Double room", "Suite", "Triple room"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a2_l_4",
+          "type": "multiple_choice",
+          "audio": "Mi dispiace, il ristorante è completo stasera. Posso offrirle un tavolo domani sera alle otto.",
+          "question": "What is the problem?",
+          "options": ["The restaurant is closed", "The restaurant is full tonight", "The food is not ready", "They don't accept reservations"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a2_l_5",
+          "type": "multiple_choice",
+          "audio": "Devo comprare il pane, il latte e anche della frutta fresca per domani.",
+          "question": "What does the speaker need to buy?",
+          "options": ["Only bread", "Bread, milk, and fresh fruit", "Just fruit", "Milk and vegetables"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "reading": [
+        {
+          "id": "a2_r_1",
+          "type": "comprehension",
+          "passage": "Ieri sono andato al cinema con i miei amici. Abbiamo visto un film italiano molto interessante. Dopo il cinema, abbiamo cenato in una pizzeria vicino alla stazione.",
+          "question": "What did they do after the cinema?",
+          "options": ["Went home", "Had dinner at a pizzeria", "Went to the station", "Watched another movie"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a2_r_2",
+          "type": "comprehension",
+          "passage": "Offerta speciale! Questo weekend tutti i vestiti sono scontati del 30%. Il negozio è aperto sabato e domenica dalle 9:00 alle 19:00.",
+          "question": "What is the discount on clothes this weekend?",
+          "options": ["20%", "25%", "30%", "35%"],
+          "correct": 2,
+          "points": 5
+        },
+        {
+          "id": "a2_r_3",
+          "type": "comprehension",
+          "passage": "Carla studia medicina all'università di Bologna da tre anni. Vuole diventare pediatra perché ama lavorare con i bambini. Ogni giorno studia molto e fa anche pratica in ospedale.",
+          "question": "What does Carla want to become?",
+          "options": ["A teacher", "A pediatrician", "A nurse", "A pharmacist"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a2_r_4",
+          "type": "comprehension",
+          "passage": "Per arrivare alla biblioteca, prendi la prima strada a destra dopo il semaforo. Cammina dritto per circa duecento metri e la biblioteca è sulla sinistra, accanto alla farmacia.",
+          "question": "Where is the library located?",
+          "options": ["At the traffic light", "Next to the pharmacy", "Two kilometers away", "Behind the pharmacy"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "a2_r_5",
+          "type": "comprehension",
+          "passage": "Quest'estate andrò in vacanza in Sicilia con la mia famiglia. Resteremo due settimane in un piccolo paese vicino al mare. Non vedo l'ora di nuotare e mangiare il gelato siciliano!",
+          "question": "How long will the vacation be?",
+          "options": ["One week", "Two weeks", "Three weeks", "One month"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "writing": [
+        {
+          "id": "a2_w_1",
+          "type": "free_response",
+          "prompt": "Write an email to a friend describing your last vacation. Include where you went, what you did, and what you liked most. (80-100 words)",
+          "wordCount": [80, 100],
+          "rubric": {
+            "content": 10,
+            "grammar": 10,
+            "vocabulary": 10
+          },
+          "points": 30
+        }
+      ],
+      "speaking": [
+        {
+          "id": "a2_s_1",
+          "type": "free_response",
+          "prompt": "Describe your daily routine. Talk about what time you wake up, what you do during the day, and when you go to bed.",
+          "duration": 90,
+          "rubric": {
+            "pronunciation": 10,
+            "fluency": 10,
+            "content": 10
+          },
+          "points": 30
+        }
+      ]
+    },
+    "B1": {
+      "listening": [
+        {
+          "id": "b1_l_1",
+          "type": "multiple_choice",
+          "audio": "Buonasera, vorrei prenotare un tavolo per quattro persone per sabato sera. Preferiremmo un tavolo vicino alla finestra se possibile.",
+          "question": "What specific request does the speaker make?",
+          "options": ["A table outside", "A table near the window", "A private room", "A table near the kitchen"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b1_l_2",
+          "type": "multiple_choice",
+          "audio": "Il museo è chiuso per restauro fino alla fine del mese. Riaprirà il primo di settembre con una nuova mostra sull'arte rinascimentale.",
+          "question": "When will the museum reopen?",
+          "options": ["End of the month", "September 1st", "Next week", "In two months"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b1_l_3",
+          "type": "multiple_choice",
+          "audio": "Se vuoi migliorare il tuo italiano, ti consiglio di guardare film in lingua originale con i sottotitoli. È un metodo molto efficace.",
+          "question": "What advice is given for improving Italian?",
+          "options": ["Study grammar books", "Watch original language films with subtitles", "Take more courses", "Travel to Italy"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b1_l_4",
+          "type": "multiple_choice",
+          "audio": "Attenzione passeggeri: il volo AZ 204 per Roma ha un ritardo di quarantacinque minuti a causa del maltempo. L'imbarco inizierà alle ore sedici.",
+          "question": "Why is the flight delayed?",
+          "options": ["Technical problems", "Bad weather", "Late passengers", "Airport congestion"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b1_l_5",
+          "type": "multiple_choice",
+          "audio": "Secondo le previsioni, domani ci sarà sole al nord, mentre al sud sono previsti temporali nel pomeriggio. Le temperature massime saranno tra i ventidue e i ventisei gradi.",
+          "question": "What weather is expected in the south tomorrow?",
+          "options": ["Sunny all day", "Storms in the afternoon", "Rain in the morning", "Cloudy"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "reading": [
+        {
+          "id": "b1_r_1",
+          "type": "comprehension",
+          "passage": "L'uso dello smartphone prima di dormire può influire negativamente sulla qualità del sonno. La luce blu emessa dallo schermo riduce la produzione di melatonina, l'ormone che regola il ciclo sonno-veglia. Gli esperti consigliano di evitare schermi almeno un'ora prima di andare a letto.",
+          "question": "According to the text, what do experts recommend?",
+          "options": ["Use dimmer screens", "Avoid screens one hour before bed", "Take melatonin supplements", "Sleep with the phone off"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b1_r_2",
+          "type": "comprehension",
+          "passage": "Il Rinascimento italiano, iniziato nel XIV secolo a Firenze, fu un periodo di grande sviluppo artistico e culturale. Artisti come Leonardo da Vinci e Michelangelo crearono opere che ancora oggi sono considerate capolavori assoluti dell'arte mondiale.",
+          "question": "Where did the Italian Renaissance begin?",
+          "options": ["Rome", "Venice", "Florence", "Milan"],
+          "correct": 2,
+          "points": 5
+        },
+        {
+          "id": "b1_r_3",
+          "type": "comprehension",
+          "passage": "Negli ultimi anni, sempre più italiani scelgono di fare la spesa online. Questo servizio è particolarmente apprezzato dalle famiglie con bambini piccoli e dagli anziani, che trovano comodo ricevere i prodotti direttamente a casa.",
+          "question": "Who particularly appreciates online grocery shopping?",
+          "options": ["Young professionals", "Families with small children and elderly people", "Students", "Tourists"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b1_r_4",
+          "type": "comprehension",
+          "passage": "Per ottenere la cittadinanza italiana, è necessario dimostrare una conoscenza adeguata della lingua italiana, superando un esame di livello B1. Inoltre, bisogna risiedere legalmente in Italia per almeno dieci anni.",
+          "question": "What Italian language level is required for citizenship?",
+          "options": ["A2", "B1", "B2", "C1"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b1_r_5",
+          "type": "comprehension",
+          "passage": "La dieta mediterranea, riconosciuta dall'UNESCO come patrimonio culturale immateriale, si basa sul consumo di frutta, verdura, cereali integrali, pesce e olio d'oliva. Numerosi studi scientifici hanno dimostrato i suoi benefici per la salute cardiovascolare.",
+          "question": "What is the Mediterranean diet based on?",
+          "options": ["Meat and dairy", "Fruits, vegetables, whole grains, fish and olive oil", "Processed foods", "Only vegetables"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "writing": [
+        {
+          "id": "b1_w_1",
+          "type": "free_response",
+          "prompt": "Write a letter to the manager of a hotel to complain about problems you experienced during your stay. Describe the issues and explain what solution you would like. (120-150 words)",
+          "wordCount": [120, 150],
+          "rubric": {
+            "content": 10,
+            "grammar": 10,
+            "vocabulary": 10
+          },
+          "points": 30
+        }
+      ],
+      "speaking": [
+        {
+          "id": "b1_s_1",
+          "type": "free_response",
+          "prompt": "Describe the advantages and disadvantages of living in a big city versus a small town. Give specific examples from your experience.",
+          "duration": 120,
+          "rubric": {
+            "pronunciation": 10,
+            "fluency": 10,
+            "content": 10
+          },
+          "points": 30
+        }
+      ]
+    },
+    "B2": {
+      "listening": [
+        {
+          "id": "b2_l_1",
+          "type": "multiple_choice",
+          "audio": "L'inquinamento atmosferico nelle grandi città italiane continua ad essere un problema serio. Secondo i dati recenti, Milano e Torino superano regolarmente i limiti stabiliti dall'Unione Europea per le polveri sottili.",
+          "question": "What is the main problem discussed?",
+          "options": ["Traffic congestion", "Air pollution exceeding EU limits", "Noise pollution", "Water contamination"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b2_l_2",
+          "type": "multiple_choice",
+          "audio": "Il telelavoro, che durante la pandemia è diventato la norma per molti lavoratori, sta ora evolvendo verso un modello ibrido. Le aziende riconoscono i benefici della flessibilità, ma sottolineano anche l'importanza dell'interazione diretta tra colleghi.",
+          "question": "What model of work is emerging according to the speaker?",
+          "options": ["Full-time office work", "Complete remote work", "A hybrid model", "Part-time work"],
+          "correct": 2,
+          "points": 5
+        },
+        {
+          "id": "b2_l_3",
+          "type": "multiple_choice",
+          "audio": "La transizione verso l'energia rinnovabile rappresenta una sfida cruciale per l'Italia. Il paese si è impegnato a raggiungere la neutralità carbonica entro il 2050, investendo massicciamente in energia solare ed eolica.",
+          "question": "When does Italy aim to achieve carbon neutrality?",
+          "options": ["2030", "2040", "2050", "2060"],
+          "correct": 2,
+          "points": 5
+        },
+        {
+          "id": "b2_l_4",
+          "type": "multiple_choice",
+          "audio": "Nonostante i progressi tecnologici, la lettura tradizionale su carta mantiene il suo fascino. Molti lettori affermano che l'esperienza tattile e visiva di un libro fisico non può essere replicata dai dispositivi digitali.",
+          "question": "What advantage of traditional reading is mentioned?",
+          "options": ["It's cheaper", "The tactile and visual experience cannot be replicated digitally", "It's faster", "It's more convenient"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b2_l_5",
+          "type": "multiple_choice",
+          "audio": "Il settore turistico italiano, uno dei pilastri dell'economia nazionale, ha mostrato segni di forte ripresa dopo la crisi. Tuttavia, gli operatori sottolineano la necessità di promuovere un turismo più sostenibile e meno concentrato sui periodi di alta stagione.",
+          "question": "What do tourism operators emphasize the need for?",
+          "options": ["More tourists", "Higher prices", "More sustainable tourism less concentrated in high season", "New hotels"],
+          "correct": 2,
+          "points": 5
+        }
+      ],
+      "reading": [
+        {
+          "id": "b2_r_1",
+          "type": "comprehension",
+          "passage": "L'intelligenza artificiale sta trasformando rapidamente vari settori dell'economia italiana, dall'industria manifatturiera ai servizi finanziari. Sebbene questa tecnologia offra opportunità straordinarie di crescita e innovazione, solleva anche questioni etiche importanti riguardo alla privacy dei dati e all'impatto sull'occupazione. È fondamentale che il paese sviluppi un quadro normativo adeguato che bilanci innovazione e tutela dei diritti.",
+          "question": "What balance needs to be achieved according to the text?",
+          "options": ["Technology and tradition", "Innovation and rights protection", "Economy and environment", "Public and private sectors"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b2_r_2",
+          "type": "comprehension",
+          "passage": "Il fenomeno dello spopolamento dei borghi italiani rappresenta una sfida demografica significativa. Molti piccoli centri storici, ricchi di patrimonio culturale, rischiano l'abbandono. Alcune amministrazioni locali hanno lanciato iniziative innovative, offrendo case a prezzi simbolici a chi si impegna a ristrutturarle e stabilirsi permanentemente, cercando così di rivitalizzare queste comunità.",
+          "question": "What initiative have some local administrations launched?",
+          "options": ["Building new houses", "Offering houses at symbolic prices to those who renovate and settle permanently", "Demolishing old buildings", "Creating museums"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b2_r_3",
+          "type": "comprehension",
+          "passage": "La cucina italiana è universalmente riconosciuta come patrimonio culturale di inestimabile valore. Tuttavia, la vera essenza della tradizione gastronomica italiana risiede non tanto nelle ricette complesse quanto nella qualità degli ingredienti e nella semplicità della preparazione. Questo approccio riflette una filosofia di vita che valorizza il tempo dedicato ai pasti come momento di condivisione sociale.",
+          "question": "Where does the true essence of Italian culinary tradition lie?",
+          "options": ["In complex recipes", "In the quality of ingredients and simplicity of preparation", "In expensive restaurants", "In modern cooking techniques"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b2_r_4",
+          "type": "comprehension",
+          "passage": "Il sistema educativo italiano sta affrontando una fase di trasformazione digitale accelerata. L'integrazione delle tecnologie nelle aule presenta opportunità ma anche sfide significative. Gli insegnanti necessitano di formazione continua per utilizzare efficacemente questi strumenti, mentre è essenziale garantire che tutti gli studenti abbiano accesso equo alle risorse digitali, indipendentemente dal loro contesto socioeconomico.",
+          "question": "What is essential to ensure according to the text?",
+          "options": ["More computers in schools", "Equitable access to digital resources for all students", "Longer school days", "More examinations"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "b2_r_5",
+          "type": "comprehension",
+          "passage": "La moda italiana continua a dominare le passerelle internazionali, ma il settore sta attraversando una profonda riflessione sulla sostenibilità. I grandi marchi stanno progressivamente adottando pratiche più etiche e rispettose dell'ambiente, rispondendo alla crescente consapevolezza dei consumatori. Il 'made in Italy' si sta quindi evolvendo per includere non solo qualità e design, ma anche responsabilità sociale e ambientale.",
+          "question": "How is 'made in Italy' evolving?",
+          "options": ["Becoming cheaper", "Including not only quality and design but also social and environmental responsibility", "Focusing only on luxury", "Producing more items"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "writing": [
+        {
+          "id": "b2_w_1",
+          "type": "free_response",
+          "prompt": "Write an essay discussing whether social media has had a positive or negative impact on society. Support your opinion with specific examples and consider different perspectives. (180-220 words)",
+          "wordCount": [180, 220],
+          "rubric": {
+            "content": 10,
+            "grammar": 10,
+            "vocabulary": 10
+          },
+          "points": 30
+        }
+      ],
+      "speaking": [
+        {
+          "id": "b2_s_1",
+          "type": "free_response",
+          "prompt": "Discuss how technology has changed the way people communicate in the last decade. Talk about both positive and negative aspects, and give your opinion on whether these changes are beneficial overall.",
+          "duration": 150,
+          "rubric": {
+            "pronunciation": 10,
+            "fluency": 10,
+            "content": 10
+          },
+          "points": 30
+        }
+      ]
+    },
+    "C1": {
+      "listening": [
+        {
+          "id": "c1_l_1",
+          "type": "multiple_choice",
+          "audio": "La globalizzazione ha indubbiamente apportato benefici economici significativi, facilitando il commercio internazionale e l'integrazione dei mercati. Tuttavia, questo fenomeno ha anche generato conseguenze problematiche, tra cui l'accentuazione delle disuguaglianze sociali e la perdita di identità culturali locali. È imperativo trovare un equilibrio che preservi i vantaggi della connessione globale senza sacrificare la diversità culturale e la giustizia sociale.",
+          "question": "What does the speaker emphasize is imperative?",
+          "options": ["Stopping globalization", "Finding a balance that preserves advantages without sacrificing cultural diversity and social justice", "Promoting only local trade", "Eliminating all international connections"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c1_l_2",
+          "type": "multiple_choice",
+          "audio": "L'approccio interdisciplinare nell'ambito della ricerca scientifica sta diventando sempre più prevalente. La collaborazione tra diverse discipline permette di affrontare problemi complessi da molteplici prospettive, generando soluzioni innovative che difficilmente emergerebbero da approcci tradizionali settoriali. Questa tendenza riflette il riconoscimento crescente che le sfide contemporanee richiedono competenze diversificate e complementari.",
+          "question": "What does the interdisciplinary approach allow according to the speaker?",
+          "options": ["Simplified research", "Addressing complex problems from multiple perspectives generating innovative solutions", "Faster results", "Reduced costs"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c1_l_3",
+          "type": "multiple_choice",
+          "audio": "Il dibattito sull'etica dell'intelligenza artificiale solleva questioni filosofiche profonde riguardo alla natura della coscienza e dell'autonomia. Man mano che i sistemi di IA diventano più sofisticati, emergono interrogativi sulla responsabilità morale: chi è responsabile quando un algoritmo prende una decisione che ha conseguenze negative? Questi dilemmi richiedono un dialogo continuo tra tecnologi, filosofi ed esperti di etica.",
+          "question": "What do these dilemmas require according to the speaker?",
+          "options": ["Stopping AI development", "Ongoing dialogue between technologists, philosophers, and ethics experts", "Government regulation only", "Public voting"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c1_l_4",
+          "type": "multiple_choice",
+          "audio": "L'influenza della letteratura italiana sulla cultura europea è stata profonda e duratura. Dal Rinascimento in poi, autori come Dante, Petrarca e Boccaccio hanno plasmato non solo la tradizione letteraria italiana, ma hanno anche fornito modelli stilistici e tematici che hanno influenzato scrittori in tutta Europa. Questo patrimonio culturale continua a essere studiato e apprezzato per la sua ricchezza espressiva e la sua capacità di esplorare le complessità dell'esperienza umana.",
+          "question": "What continues to be studied about this cultural heritage?",
+          "options": ["Only historical facts", "Its expressive richness and ability to explore complexities of human experience", "Translation techniques", "Publication methods"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c1_l_5",
+          "type": "multiple_choice",
+          "audio": "La crisi climatica rappresenta probabilmente la sfida più pressante del nostro tempo, richiedendo un'azione coordinata a livello globale. Gli scienziati concordano sul fatto che la finestra temporale per limitare il riscaldamento globale si sta rapidamente chiudendo. È necessaria una trasformazione radicale dei nostri sistemi energetici, produttivi e di consumo, accompagnata da politiche ambientali ambiziose e da un cambiamento nei comportamenti individuali.",
+          "question": "What is necessary according to the speaker?",
+          "options": ["Only individual behavior change", "Radical transformation of energy, production and consumption systems with ambitious policies and behavior change", "New technology only", "International meetings"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "reading": [
+        {
+          "id": "c1_r_1",
+          "type": "comprehension",
+          "passage": "La neuroplasticità, ovvero la capacità del cervello di riorganizzare se stesso formando nuove connessioni neurali, ha rivoluzionato la nostra comprensione dell'apprendimento e dello sviluppo cognitivo. Contrariamente alla credenza precedente che il cervello fosse statico dopo l'infanzia, le ricerche dimostrano che mantiene una notevole capacità di adattamento per tutta la vita. Questa scoperta ha implicazioni profonde non solo per l'educazione, ma anche per la riabilitazione neurologica e il trattamento di disturbi cognitivi. Tuttavia, è importante notare che, sebbene la plasticità persista, la sua efficacia tende a diminuire con l'età, sottolineando l'importanza dell'apprendimento continuo e della stimolazione cognitiva.",
+          "question": "What important caveat about neuroplasticity is mentioned?",
+          "options": ["It doesn't exist in adults", "Although it persists, its effectiveness tends to diminish with age", "It only works for language learning", "It requires medication"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c1_r_2",
+          "type": "comprehension",
+          "passage": "Il concetto di 'economia circolare' sta guadagnando sempre più trazione come alternativa sostenibile al modello economico lineare tradizionale basato sul paradigma 'prendi-usa-getta'. Questo approccio sistemico mira a minimizzare gli sprechi attraverso la progettazione di prodotti durevoli, riparabili e riciclabili, promuovendo al contempo la condivisione e il riutilizzo delle risorse. L'implementazione di un'economia circolare richiede non solo innovazione tecnologica, ma anche un cambiamento culturale profondo nel modo in cui concepiamo il consumo e il valore. Le aziende che adottano questo modello non solo contribuiscono alla sostenibilità ambientale, ma possono anche scoprire nuove opportunità di business e migliorare la loro resilienza economica.",
+          "question": "What does implementing a circular economy require?",
+          "options": ["Only new technology", "Not only technological innovation but also profound cultural change in how we conceive consumption and value", "Government funding only", "International agreements"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c1_r_3",
+          "type": "comprehension",
+          "passage": "L'epistemologia, lo studio filosofico della conoscenza, si confronta con domande fondamentali su cosa possiamo sapere e come possiamo giustificare le nostre credenze. Nell'era dell'informazione digitale, queste questioni assumono nuove dimensioni. La proliferazione di fonti informative e la facilità con cui le informazioni errate possono diffondersi sollevano interrogativi critici sulla natura della verità e dell'autorità epistemica. Il fenomeno delle 'camere d'eco' digitali, dove le persone sono esposte principalmente a informazioni che confermano le loro convinzioni preesistenti, complica ulteriormente il panorama epistemologico contemporaneo. Sviluppare un pensiero critico robusto e competenze di alfabetizzazione mediatica è diventato essenziale per navigare efficacemente questa complessità.",
+          "question": "What has become essential for navigating contemporary epistemological complexity?",
+          "options": ["More education", "Developing robust critical thinking and media literacy skills", "Avoiding social media", "Government censorship"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c1_r_4",
+          "type": "comprehension",
+          "passage": "La biodiversità costituisce il fondamento della stabilità degli ecosistemi e fornisce servizi ecosistemici essenziali per il benessere umano, dall'impollinazione delle colture alla regolazione del clima. Tuttavia, stiamo assistendo a un declino allarmante della biodiversità a livello globale, con tassi di estinzione che superano di gran lunga quelli naturali. Questo impoverimento biologico non è solo una perdita estetica o etica, ma rappresenta una minaccia concreta alla nostra sicurezza alimentare e alla resilienza ambientale. La conservazione della biodiversità richiede un approccio integrato che combini la protezione degli habitat, la gestione sostenibile delle risorse e l'affrontare le cause sottostanti della perdita di biodiversità, inclusi i cambiamenti climatici e i modelli di consumo insostenibili.",
+          "question": "What does biodiversity conservation require according to the text?",
+          "options": ["Only creating protected areas", "An integrated approach combining habitat protection, sustainable resource management, and addressing underlying causes", "Banning all human activity", "Zoo breeding programs only"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c1_r_5",
+          "type": "comprehension",
+          "passage": "Il relativismo culturale, sebbene abbia contribuito significativamente a promuovere la tolleranza e il rispetto per la diversità, solleva questioni etiche complesse quando si confronta con pratiche culturali che violano principi universali dei diritti umani. Trovare un equilibrio tra il rispetto per l'autonomia culturale e la difesa di valori etici fondamentali rappresenta una delle sfide più delicate della filosofia morale contemporanea. Alcuni filosofi sostengono l'esistenza di norme morali universali che trascendono i confini culturali, mentre altri mantengono una posizione più relativista. Questo dibattito non è puramente accademico; ha implicazioni pratiche significative per la politica internazionale, gli interventi umanitari e le relazioni interculturali.",
+          "question": "What represents one of the most delicate challenges in contemporary moral philosophy?",
+          "options": ["Promoting one culture", "Finding balance between respect for cultural autonomy and defense of fundamental ethical values", "Eliminating cultural differences", "Imposing Western values"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "writing": [
+        {
+          "id": "c1_w_1",
+          "type": "free_response",
+          "prompt": "Write a formal essay analyzing the role of artificial intelligence in modern society. Consider ethical implications, economic impacts, and potential future developments. Present multiple perspectives and conclude with your reasoned opinion. (250-300 words)",
+          "wordCount": [250, 300],
+          "rubric": {
+            "content": 10,
+            "grammar": 10,
+            "vocabulary": 10
+          },
+          "points": 30
+        }
+      ],
+      "speaking": [
+        {
+          "id": "c1_s_1",
+          "type": "free_response",
+          "prompt": "Discuss the relationship between globalization and cultural identity. How can societies preserve their cultural heritage while participating in global exchange? Consider economic, social, and philosophical dimensions in your response.",
+          "duration": 180,
+          "rubric": {
+            "pronunciation": 10,
+            "fluency": 10,
+            "content": 10
+          },
+          "points": 30
+        }
+      ]
+    },
+    "C2": {
+      "listening": [
+        {
+          "id": "c2_l_1",
+          "type": "multiple_choice",
+          "audio": "La dicotomia tra determinismo e libero arbitrio rappresenta uno dei nodi gordiani più persistenti della filosofia occidentale. Mentre le neuroscienze contemporanee suggeriscono che molti dei nostri processi decisionali siano determinati da meccanismi neurali inconsci, la nostra esperienza fenomenologica ci porta a percepirci come agenti liberi e responsabili delle nostre azioni. Questa tensione irrisolta ha profonde implicazioni non solo per la filosofia della mente, ma anche per il nostro sistema giuridico e per la nostra concezione della responsabilità morale.",
+          "question": "What does this unresolved tension have implications for?",
+          "options": ["Only philosophy", "Philosophy of mind, legal systems, and our conception of moral responsibility", "Scientific research only", "Religious beliefs"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c2_l_2",
+          "type": "multiple_choice",
+          "audio": "L'architettura barocca italiana del XVII secolo rappresenta un'espressione paradigmatica della fusione tra arte, religione e potere politico. Le chiese e i palazzi di questo periodo non erano semplicemente strutture funzionali, ma manifestazioni simboliche elaborate destinate a evocare meraviglia e soggezione, rafforzando simultaneamente l'autorità ecclesiastica e quella secolare. L'uso drammatico della luce, le proporzioni monumentali e la ricchezza ornamentale riflettevano un'estetica che trascendeva la mera decorazione, aspirando invece a creare un'esperienza trascendentale che mediasse tra il terreno e il divino.",
+          "question": "What did Baroque architecture aspire to create?",
+          "options": ["Simple structures", "A transcendental experience mediating between earthly and divine", "Affordable housing", "Modern buildings"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c2_l_3",
+          "type": "multiple_choice",
+          "audio": "La teoria quantistica ha sovvertito le nostre concezioni intuitive sulla natura della realtà fisica, introducendo principi paradossali come la sovrapposizione degli stati e l'entanglement quantistico. Questi fenomeni sfidano non solo il nostro senso comune, ma anche le fondamenta filosofiche del realismo scientifico. Il fatto che le particelle possano esistere simultaneamente in stati multipli fino all'osservazione solleva interrogativi profondi sulla relazione tra l'osservatore e l'osservato, sulla natura della causalità e sui limiti della conoscibilità del mondo fisico. Queste questioni rimangono al centro di dibattiti filosofici e scientifici intensi.",
+          "question": "What do quantum phenomena challenge?",
+          "options": ["Only mathematics", "Not only common sense but also philosophical foundations of scientific realism", "Classical music", "Ancient history"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c2_l_4",
+          "type": "multiple_choice",
+          "audio": "Il multilinguismo cognitivo presenta vantaggi che vanno ben oltre la mera capacità comunicativa. Ricerche neuroscientifiche dimostrano che i parlanti multilingue sviluppano una maggiore flessibilità cognitiva e capacità metacognitive superiori. L'atto costante di navigare tra sistemi linguistici diversi non solo rinforza le funzioni esecutive cerebrali, ma può anche offrire una certa protezione contro il declino cognitivo legato all'età. Paradossalmente, questa complessità cognitiva non impone un carico permanente sul sistema cognitivo; al contrario, i bilingui sviluppano meccanismi di controllo più efficienti che facilitano il passaggio tra contesti linguistici.",
+          "question": "What do multilingual speakers develop according to neuroscientific research?",
+          "options": ["Only language skills", "Greater cognitive flexibility and superior metacognitive abilities", "Better memory for numbers", "Perfect pronunciation"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c2_l_5",
+          "type": "multiple_choice",
+          "audio": "L'epistemologia sociale esplora come le pratiche e le strutture sociali influenzino la produzione e la distribuzione della conoscenza. Contrariamente all'epistemologia tradizionale, che si concentra sul soggetto conoscente individuale, questo approccio riconosce che la conoscenza è fondamentalmente un prodotto sociale, modellato da fattori come le relazioni di potere, le istituzioni sociali e le pratiche collaborative. Questa prospettiva ha implicazioni significative per comprendere fenomeni contemporanei come la diffusione della disinformazione e le ineguaglianze epistemiche, dove alcuni gruppi sociali hanno un accesso privilegiato alla produzione e alla legittimazione della conoscenza.",
+          "question": "What does social epistemology recognize about knowledge?",
+          "options": ["It's purely individual", "It's fundamentally a social product shaped by power relations, institutions, and collaborative practices", "It's innate", "It's unchangeable"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "reading": [
+        {
+          "id": "c2_r_1",
+          "type": "comprehension",
+          "passage": "La fenomenologia husserliana, con la sua enfasi sull'intenzionalità della coscienza e il ritorno 'alle cose stesse', ha rappresentato una svolta cruciale nella filosofia del XX secolo. Edmund Husserl sosteneva che ogni atto di coscienza è necessariamente coscienza 'di' qualcosa, rifiutando sia il dualismo cartesiano che separa nettamente soggetto e oggetto, sia il positivismo che riduce l'esperienza a dati sensoriali. Attraverso l'epochè, ovvero la sospensione del giudizio sulle assunzioni naturali circa l'esistenza del mondo esterno, Husserl cercava di accedere alle strutture essenziali dell'esperienza vissuta. Questo metodo fenomenologico ha influenzato profondamente discipline diverse, dall'esistenzialismo di Sartre e Heidegger alla psicologia gestaltica, dalla teoria critica alle scienze cognitive contemporanee. Tuttavia, il progetto husserliano di fondare una filosofia come 'scienza rigorosa' rimane controverso, con critici che ne contestano sia la fattibilità pratica che le premesse epistemologiche fondamentali.",
+          "question": "What does Husserl's phenomenology reject according to the text?",
+          "options": ["All philosophy", "Both Cartesian dualism that separates subject and object, and positivism that reduces experience to sensory data", "Modern science", "Traditional values"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c2_r_2",
+          "type": "comprehension",
+          "passage": "L'analisi narratologica del romanzo modernista rivela una preoccupazione costante per la frammentazione temporale e la molteplicità prospettica. Autori come Virginia Woolf, James Joyce e Italo Svevo hanno destabilizzato le convenzioni narrative tradizionali, impiegando tecniche come il flusso di coscienza, l'anacronia e la focalizzazione variabile per esplorare la complessità dell'esperienza soggettiva. Questa rivoluzione formale non era meramente stilistica; rifletteva piuttosto una crisi epistemologica più ampia riguardo alla possibilità di rappresentare una realtà oggettiva e coerente. Il romanzo modernista, con la sua struttura frammentaria e la sua enfasi sull'interiorità psicologica, può essere interpretato come una risposta artistica alle profonde trasformazioni sociali, culturali e filosofiche dell'inizio del XX secolo, inclusa la teoria della relatività di Einstein, la psicoanalisi freudiana e il trauma della Prima Guerra Mondiale. L'eredità di queste innovazioni narrative continua a influenzare la letteratura contemporanea, che spesso adotta e rielabora queste tecniche in contesti postmoderni e postcoloniali.",
+          "question": "What did the formal revolution of modernist novels reflect?",
+          "options": ["Simple stylistic preferences", "A broader epistemological crisis regarding the possibility of representing objective and coherent reality", "Commercial interests", "Traditional values"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c2_r_3",
+          "type": "comprehension",
+          "passage": "La teoria dei sistemi complessi offre un framework concettuale potente per comprendere fenomeni che esibiscono comportamenti emergenti, ovvero proprietà che non possono essere previste o spiegate semplicemente analizzando i componenti individuali del sistema. Dalle colonie di formiche ai mercati finanziari, dai sistemi climatici alle reti neurali, questi sistemi manifestano caratteristiche come l'auto-organizzazione, l'adattabilità e la sensibilità alle condizioni iniziali. Quest'ultima proprietà, spesso riferita come 'effetto farfalla', implica che piccole perturbazioni possono amplificarsi producendo effetti drammatici, rendendo le previsioni a lungo termine intrinsecamente problematiche. La complessità sistemica sfida l'approccio riduzionista tradizionale della scienza, che cerca di comprendere il tutto attraverso l'analisi delle parti. Invece, richiede metodologie olistiche che considerino le interazioni, i feedback loops e le dinamiche non lineari. Questo cambio di paradigma ha implicazioni profonde non solo per le scienze naturali e sociali, ma anche per la governance e il policy-making, suggerendo la necessità di approcci più flessibili e adattivi di fronte all'incertezza sistemica.",
+          "question": "What does systemic complexity challenge?",
+          "options": ["Modern technology", "The traditional reductionist approach of science that seeks to understand the whole through analysis of parts", "Political systems", "Economic theory"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c2_r_4",
+          "type": "comprehension",
+          "passage": "L'estetica del sublime, concetto centrale nel pensiero di Kant e successivamente elaborato dai romantici, esplora quella peculiare esperienza in cui confrontiamo qualcosa che eccede drammaticamente la nostra capacità di comprensione o rappresentazione. A differenza del bello, che produce piacere armonioso, il sublime evoca una mescolanza paradossale di terrore e esaltazione, un senso simultaneo di inadeguatezza e di transcendenza. Kant distingueva tra sublime matematico, suscitato dalla vastità incomprensibile (come guardare il cielo stellato), e sublime dinamico, provocato da forze naturali travolgenti (come una tempesta oceanica). Questa esperienza estetica, secondo Kant, rivela la superiorità della nostra ragione rispetto alla natura sensibile, poiché, sebbene l'immaginazione fallisca nel comprendere l'infinito, la ragione può comunque concepirlo come idea. Il sublime ha influenzato profondamente l'arte, la letteratura e la filosofia romantiche, ma mantiene rilevanza anche nel dibattito estetico contemporaneo, particolarmente nelle discussioni sull'arte postmoderna e sulla rappresentazione di eventi traumatici storici che sfidano la comprensione convenzionale.",
+          "question": "According to Kant, what does the experience of the sublime reveal?",
+          "options": ["Nature's beauty", "The superiority of our reason over sensible nature, as reason can conceive the infinite as an idea even when imagination fails", "Human weakness", "Artistic talent"],
+          "correct": 1,
+          "points": 5
+        },
+        {
+          "id": "c2_r_5",
+          "type": "comprehension",
+          "passage": "La critica postcoloniale ha profondamente trasformato gli studi letterari e culturali, smascherando le dinamiche di potere implicite nelle rappresentazioni culturali e nelle pratiche discorsive ereditate dal colonialismo. Intellettuali come Edward Said, Gayatri Spivak e Homi Bhabha hanno dimostrato come il discorso coloniale non fosse semplicemente un'imposizione unilaterale, ma un processo complesso di negoziazione, resistenza e ibridazione. Il concetto di 'orientalismo' di Said illustra come l'Occidente abbia costruito l'Oriente come suo 'Altro' essenzializzato e inferiore, una costruzione che ha legittimato il dominio imperiale pur rivelando le ansie e le contraddizioni interne alla cultura europea. La nozione di 'subalternità' di Spivak solleva questioni cruciali sulla possibilità di rappresentazione delle voci marginalizzate e sulla complicity involontaria degli intellettuali nel perpetuare gerarchie epistemiche. Bhabha, con i suoi concetti di 'ibridità' e 'terzo spazio', evidenzia come l'identità postcoloniale non sia né puramente coloniale né puramente indigena, ma emerga da uno spazio interstiziale di negoziazione culturale. Questi approcci teorici non solo decostruiscono le narrative coloniali, ma offrono anche strumenti per immaginare forme alternative di conoscenza, identità e relazioni culturali che sfidano le eredità persistenti del colonialismo nelle strutture globali contemporanee.",
+          "question": "What does Bhabha's concept of 'hybridity' and 'third space' highlight?",
+          "options": ["Pure indigenous identity", "That postcolonial identity is neither purely colonial nor indigenous but emerges from an interstitial space of cultural negotiation", "Western superiority", "Isolation of cultures"],
+          "correct": 1,
+          "points": 5
+        }
+      ],
+      "writing": [
+        {
+          "id": "c2_w_1",
+          "type": "free_response",
+          "prompt": "Write a sophisticated academic essay examining the philosophical implications of consciousness in artificial intelligence. Engage with key debates in philosophy of mind, consider counterarguments, and develop a nuanced thesis supported by rigorous argumentation. (350-400 words)",
+          "wordCount": [350, 400],
+          "rubric": {
+            "content": 10,
+            "grammar": 10,
+            "vocabulary": 10
+          },
+          "points": 30
+        }
+      ],
+      "speaking": [
+        {
+          "id": "c2_s_1",
+          "type": "free_response",
+          "prompt": "Deliver a comprehensive analysis of the epistemological challenges posed by digital media and information technology. Discuss how these technologies affect our concepts of truth, knowledge, and authority. Consider philosophical, social, and practical dimensions, and propose potential solutions or frameworks for addressing these challenges.",
+          "duration": 240,
+          "rubric": {
+            "pronunciation": 10,
+            "fluency": 10,
+            "content": 10
+          },
+          "points": 30
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,314 @@
+{
+  "algorithm": "SM-2",
+  "algorithm_description": "SuperMemo 2 spaced repetition algorithm with easiness factor",
+  "initial_settings": {
+    "easiness_factor": 2.5,
+    "initial_interval": 1,
+    "minimum_easiness": 1.3,
+    "review_grades": {
+      "0": "Complete blackout",
+      "1": "Incorrect, but remembered after seeing answer",
+      "2": "Incorrect, but seemed familiar",
+      "3": "Correct with serious difficulty",
+      "4": "Correct after hesitation",
+      "5": "Perfect recall"
+    }
+  },
+  "card_categories": [
+    {
+      "id": "essential_vocab",
+      "name": "Essential Vocabulary",
+      "icon": "📚",
+      "description": "Most common Italian words"
+    },
+    {
+      "id": "verbs",
+      "name": "Common Verbs",
+      "icon": "🏃",
+      "description": "Frequently used verbs"
+    },
+    {
+      "id": "phrases",
+      "name": "Useful Phrases",
+      "icon": "💬",
+      "description": "Everyday expressions"
+    },
+    {
+      "id": "grammar",
+      "name": "Grammar Points",
+      "icon": "📖",
+      "description": "Important grammar rules"
+    }
+  ],
+  "initial_deck": [
+    {
+      "id": "card_001",
+      "category": "essential_vocab",
+      "level": "level1",
+      "front": "casa",
+      "back": "house",
+      "pronunciation": "/ˈka.sa/",
+      "example_sentence": "La mia casa è grande.",
+      "example_translation": "My house is big.",
+      "hint": "Think of Spanish 'casa'",
+      "image_url": null
+    },
+    {
+      "id": "card_002",
+      "category": "essential_vocab",
+      "level": "level1",
+      "front": "acqua",
+      "back": "water",
+      "pronunciation": "/ˈak.kwa/",
+      "example_sentence": "Vorrei un bicchiere d'acqua.",
+      "example_translation": "I would like a glass of water.",
+      "hint": "Similar to 'aqua' in English",
+      "image_url": null
+    },
+    {
+      "id": "card_003",
+      "category": "verbs",
+      "level": "level1",
+      "front": "parlare",
+      "back": "to speak",
+      "pronunciation": "/parˈla.re/",
+      "example_sentence": "Io parlo italiano.",
+      "example_translation": "I speak Italian.",
+      "hint": "Related to French 'parler'",
+      "conjugation_hint": "Regular -are verb"
+    },
+    {
+      "id": "card_004",
+      "category": "verbs",
+      "level": "level1",
+      "front": "mangiare",
+      "back": "to eat",
+      "pronunciation": "/manˈdʒa.re/",
+      "example_sentence": "Mi piace mangiare la pizza.",
+      "example_translation": "I like to eat pizza.",
+      "hint": "Think 'manger' in French",
+      "conjugation_hint": "Regular -are verb"
+    },
+    {
+      "id": "card_005",
+      "category": "phrases",
+      "level": "level1",
+      "front": "Come stai?",
+      "back": "How are you?",
+      "pronunciation": "/ˈko.me ˈstai/",
+      "example_sentence": "Ciao Maria, come stai?",
+      "example_translation": "Hi Maria, how are you?",
+      "hint": "Informal greeting",
+      "formality": "informal"
+    },
+    {
+      "id": "card_006",
+      "category": "phrases",
+      "level": "level1",
+      "front": "Grazie mille",
+      "back": "Thank you very much",
+      "pronunciation": "/ˈɡrat.tsje ˈmil.le/",
+      "example_sentence": "Grazie mille per l'aiuto!",
+      "example_translation": "Thank you very much for the help!",
+      "hint": "'Mille' means thousand",
+      "formality": "neutral"
+    },
+    {
+      "id": "card_007",
+      "category": "essential_vocab",
+      "level": "level1",
+      "front": "pane",
+      "back": "bread",
+      "pronunciation": "/ˈpa.ne/",
+      "example_sentence": "Il pane è fresco.",
+      "example_translation": "The bread is fresh.",
+      "hint": "Related to Spanish 'pan'",
+      "image_url": null
+    },
+    {
+      "id": "card_008",
+      "category": "verbs",
+      "level": "level1",
+      "front": "essere",
+      "back": "to be",
+      "pronunciation": "/ˈɛs.se.re/",
+      "example_sentence": "Io sono felice.",
+      "example_translation": "I am happy.",
+      "hint": "Most important irregular verb",
+      "conjugation_hint": "Irregular - sono, sei, è, siamo, siete, sono"
+    },
+    {
+      "id": "card_009",
+      "category": "verbs",
+      "level": "level1",
+      "front": "avere",
+      "back": "to have",
+      "pronunciation": "/aˈve.re/",
+      "example_sentence": "Ho fame.",
+      "example_translation": "I am hungry (I have hunger).",
+      "hint": "Second most important verb",
+      "conjugation_hint": "Irregular - ho, hai, ha, abbiamo, avete, hanno"
+    },
+    {
+      "id": "card_010",
+      "category": "phrases",
+      "level": "level1",
+      "front": "Non capisco",
+      "back": "I don't understand",
+      "pronunciation": "/non kaˈpi.sko/",
+      "example_sentence": "Scusa, non capisco.",
+      "example_translation": "Sorry, I don't understand.",
+      "hint": "Essential phrase for learners",
+      "formality": "neutral"
+    },
+    {
+      "id": "card_011",
+      "category": "essential_vocab",
+      "level": "level1",
+      "front": "buono",
+      "back": "good",
+      "pronunciation": "/ˈbwɔ.no/",
+      "example_sentence": "Questo cibo è buono.",
+      "example_translation": "This food is good.",
+      "hint": "Changes to 'buon' before singular masculine nouns",
+      "image_url": null
+    },
+    {
+      "id": "card_012",
+      "category": "phrases",
+      "level": "level1",
+      "front": "Quanto costa?",
+      "back": "How much does it cost?",
+      "pronunciation": "/ˈkwan.to ˈkɔs.ta/",
+      "example_sentence": "Scusi, quanto costa questo?",
+      "example_translation": "Excuse me, how much does this cost?",
+      "hint": "Essential for shopping",
+      "formality": "neutral"
+    },
+    {
+      "id": "card_013",
+      "category": "grammar",
+      "level": "level1",
+      "front": "il vs la",
+      "back": "Masculine vs Feminine articles",
+      "pronunciation": "/il/ vs /la/",
+      "example_sentence": "il libro (the book) vs la casa (the house)",
+      "example_translation": "Nouns ending in -o are usually masculine, -a usually feminine",
+      "hint": "Gender agreement is crucial in Italian",
+      "rule": "Articles must match noun gender"
+    },
+    {
+      "id": "card_014",
+      "category": "verbs",
+      "level": "level1",
+      "front": "andare",
+      "back": "to go",
+      "pronunciation": "/anˈda.re/",
+      "example_sentence": "Vado al mercato.",
+      "example_translation": "I go to the market.",
+      "hint": "Irregular verb",
+      "conjugation_hint": "vado, vai, va, andiamo, andate, vanno"
+    },
+    {
+      "id": "card_015",
+      "category": "essential_vocab",
+      "level": "level1",
+      "front": "oggi",
+      "back": "today",
+      "pronunciation": "/ˈɔd.dʒi/",
+      "example_sentence": "Oggi fa bel tempo.",
+      "example_translation": "Today the weather is nice.",
+      "hint": "Time expression",
+      "image_url": null
+    },
+    {
+      "id": "card_016",
+      "category": "phrases",
+      "level": "level2",
+      "front": "Mi dispiace",
+      "back": "I'm sorry",
+      "pronunciation": "/mi disˈpja.tʃe/",
+      "example_sentence": "Mi dispiace, non posso venire.",
+      "example_translation": "I'm sorry, I can't come.",
+      "hint": "Polite apology",
+      "formality": "neutral"
+    },
+    {
+      "id": "card_017",
+      "category": "verbs",
+      "level": "level2",
+      "front": "volere",
+      "back": "to want",
+      "pronunciation": "/voˈle.re/",
+      "example_sentence": "Voglio imparare l'italiano.",
+      "example_translation": "I want to learn Italian.",
+      "hint": "Modal verb, irregular",
+      "conjugation_hint": "voglio, vuoi, vuole, vogliamo, volete, vogliono"
+    },
+    {
+      "id": "card_018",
+      "category": "verbs",
+      "level": "level2",
+      "front": "potere",
+      "back": "can, to be able to",
+      "pronunciation": "/poˈte.re/",
+      "example_sentence": "Posso aiutarti?",
+      "example_translation": "Can I help you?",
+      "hint": "Modal verb, irregular",
+      "conjugation_hint": "posso, puoi, può, possiamo, potete, possono"
+    },
+    {
+      "id": "card_019",
+      "category": "phrases",
+      "level": "level2",
+      "front": "Vorrei...",
+      "back": "I would like...",
+      "pronunciation": "/vorˈrei/",
+      "example_sentence": "Vorrei un caffè, per favore.",
+      "example_translation": "I would like a coffee, please.",
+      "hint": "Polite way to order/request",
+      "formality": "polite"
+    },
+    {
+      "id": "card_020",
+      "category": "grammar",
+      "level": "level2",
+      "front": "Passato prossimo formation",
+      "back": "avere/essere + past participle",
+      "pronunciation": null,
+      "example_sentence": "Ho mangiato (I ate) vs Sono andato (I went)",
+      "example_translation": "Use avere for most verbs, essere for motion/state",
+      "hint": "Past participle: -ato, -uto, -ito",
+      "rule": "Compound past tense"
+    }
+  ],
+  "review_schedule": {
+    "new_cards_per_day": 10,
+    "review_limit_per_day": 50,
+    "learning_steps": [1, 10],
+    "graduating_interval": 1,
+    "easy_interval": 4,
+    "starting_ease": 2.5,
+    "easy_bonus": 1.3,
+    "interval_modifier": 1.0,
+    "maximum_interval": 365,
+    "hard_interval": 1.2,
+    "lapse_steps": [10],
+    "leech_threshold": 8
+  },
+  "difficulty_adjustments": {
+    "grade_0": {"interval_mult": 0, "ease_change": -0.8},
+    "grade_1": {"interval_mult": 0, "ease_change": -0.15},
+    "grade_2": {"interval_mult": 0, "ease_change": -0.15},
+    "grade_3": {"interval_mult": 1.0, "ease_change": -0.15},
+    "grade_4": {"interval_mult": 1.2, "ease_change": 0},
+    "grade_5": {"interval_mult": 2.5, "ease_change": 0.15}
+  },
+  "card_states": {
+    "new": "Card not yet studied",
+    "learning": "Card being learned (short intervals)",
+    "review": "Card in review phase (spaced intervals)",
+    "relearning": "Card failed, relearning",
+    "suspended": "Card temporarily disabled"
+  }
+}

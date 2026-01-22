@@ -1,0 +1,204 @@
+{
+  "alternativeExpressions": {
+    "Ciao!": [
+      {
+        "text": "Salve!",
+        "type": "formal",
+        "region": "standard",
+        "note": "More formal greeting, safe in any situation"
+      },
+      {
+        "text": "Buongiorno!",
+        "type": "formal",
+        "region": "standard",
+        "note": "Good morning - used until afternoon"
+      },
+      {
+        "text": "Ciau!",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian casual hello/bye"
+      }
+    ],
+    "Come stai?": [
+      {
+        "text": "Come va?",
+        "type": "informal",
+        "region": "standard",
+        "note": "How's it going? - very casual"
+      },
+      {
+        "text": "Come sta?",
+        "type": "formal",
+        "region": "standard",
+        "note": "Formal version using 'Lei'"
+      },
+      {
+        "text": "Comu stai?",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian: How are you?"
+      }
+    ],
+    "Grazie": [
+      {
+        "text": "Grazie mille",
+        "type": "informal",
+        "region": "standard",
+        "note": "Thanks a lot! (literally: a thousand thanks)"
+      },
+      {
+        "text": "Ti ringrazio",
+        "type": "formal",
+        "region": "standard",
+        "note": "I thank you (more emphatic)"
+      },
+      {
+        "text": "Grazzi",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian thank you"
+      }
+    ],
+    "Prego": [
+      {
+        "text": "Di niente",
+        "type": "informal",
+        "region": "standard",
+        "note": "It's nothing / You're welcome"
+      },
+      {
+        "text": "Non c'è di che",
+        "type": "formal",
+        "region": "standard",
+        "note": "There's nothing to thank for"
+      },
+      {
+        "text": "Figghiata",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian: No problem"
+      }
+    ],
+    "Scusa": [
+      {
+        "text": "Mi scusi",
+        "type": "formal",
+        "region": "standard",
+        "note": "Formal excuse me"
+      },
+      {
+        "text": "Scusami",
+        "type": "informal",
+        "region": "standard",
+        "note": "Informal sorry (to a friend)"
+      },
+      {
+        "text": "Scusassi",
+        "type": "formal",
+        "region": "sicilian",
+        "note": "Sicilian formal apology"
+      }
+    ],
+    "Non capisco": [
+      {
+        "text": "Non ho capito",
+        "type": "informal",
+        "region": "standard",
+        "note": "I didn't understand (past tense)"
+      },
+      {
+        "text": "Non comprendo",
+        "type": "formal",
+        "region": "standard",
+        "note": "More formal: I don't comprehend"
+      },
+      {
+        "text": "Un capisciu",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian: I don't understand"
+      }
+    ],
+    "Buongiorno!": [
+      {
+        "text": "Buondì",
+        "type": "informal",
+        "region": "standard",
+        "note": "Shortened casual good morning"
+      },
+      {
+        "text": "Salve",
+        "type": "formal",
+        "region": "standard",
+        "note": "Universal formal greeting"
+      },
+      {
+        "text": "Bon jornu!",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian good morning"
+      }
+    ],
+    "Buonasera!": [
+      {
+        "text": "Buona sera a tutti",
+        "type": "formal",
+        "region": "standard",
+        "note": "Good evening everyone"
+      },
+      {
+        "text": "Sera!",
+        "type": "informal",
+        "region": "standard",
+        "note": "Casual evening greeting"
+      },
+      {
+        "text": "Bona sira!",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian good evening"
+      }
+    ],
+    "Quanto costa?": [
+      {
+        "text": "Quanto viene?",
+        "type": "informal",
+        "region": "standard",
+        "note": "How much does it come to?"
+      },
+      {
+        "text": "Che prezzo?",
+        "type": "informal",
+        "region": "standard",
+        "note": "What price?"
+      },
+      {
+        "text": "Quantu costa?",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian: How much?"
+      }
+    ],
+    "Per favore": [
+      {
+        "text": "Per piacere",
+        "type": "formal",
+        "region": "standard",
+        "note": "More emphatic please"
+      },
+      {
+        "text": "Per cortesia",
+        "type": "formal",
+        "region": "standard",
+        "note": "Very polite: by courtesy"
+      },
+      {
+        "text": "Pi favuri",
+        "type": "informal",
+        "region": "sicilian",
+        "note": "Sicilian please"
+      }
+    ]
+  }
+}
