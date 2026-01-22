@@ -5,6 +5,8 @@
   },
   "hosting": {
     "public": "dist",
+    "cleanUrls": false,
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -47,6 +49,28 @@
           {
             "key": "Permissions-Policy",
             "value": "camera=(), microphone=(self), geolocation=()"
+          }
+        ]
+      },
+      {
+        "source": "**/*.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
           }
         ]
       },
