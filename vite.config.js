@@ -2,28 +2,11 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { copyFileSync, mkdirSync, readdirSync, existsSync } from 'fs';
 
-// Plugin to copy source files to dist
-function copySourceFilesPlugin() {
+// Plugin to copy CSS files to dist (preserves paths for legacy references)
+function copyCssPlugin() {
   return {
-    name: 'copy-source-files',
+    name: 'copy-css',
     writeBundle() {
-      // Copy data files
-      const dataDir = resolve(__dirname, 'src/data');
-      const dataDestDir = resolve(__dirname, 'dist/src/data');
-
-      if (!existsSync(dataDestDir)) {
-        mkdirSync(dataDestDir, { recursive: true });
-      }
-
-      if (existsSync(dataDir)) {
-        readdirSync(dataDir).forEach((file) => {
-          if (file.endsWith('.json')) {
-            copyFileSync(resolve(dataDir, file), resolve(dataDestDir, file));
-          }
-        });
-      }
-
-      // Copy CSS files
       const cssDir = resolve(__dirname, 'src/css');
       const cssDestDir = resolve(__dirname, 'dist/src/css');
 
@@ -55,7 +38,7 @@ export default defineConfig({
       },
     },
   },
-  plugins: [copySourceFilesPlugin()],
+  plugins: [copyCssPlugin()],
   server: {
     port: 3000,
     open: true,

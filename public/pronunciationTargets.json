@@ -1,0 +1,393 @@
+{
+  "categories": [
+    {
+      "id": "vowels",
+      "name": "Italian Vowels",
+      "icon": "🔤",
+      "description": "Master the 5 pure Italian vowel sounds",
+      "difficulty": "beginner"
+    },
+    {
+      "id": "consonants",
+      "name": "Consonant Sounds",
+      "icon": "🗣️",
+      "description": "Practice distinctive Italian consonants",
+      "difficulty": "beginner"
+    },
+    {
+      "id": "double_consonants",
+      "name": "Double Consonants",
+      "icon": "📢",
+      "description": "Learn the crucial doubling distinction",
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "combinations",
+      "name": "Letter Combinations",
+      "icon": "🎯",
+      "description": "Master gn, gl, sc, and other combinations",
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "phrases",
+      "name": "Common Phrases",
+      "icon": "💬",
+      "description": "Practice natural connected speech",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "tongue_twisters",
+      "name": "Tongue Twisters",
+      "icon": "🌪️",
+      "description": "Challenge yourself with difficult sequences",
+      "difficulty": "advanced"
+    }
+  ],
+  "targets": [
+    {
+      "id": "v001",
+      "text": "casa",
+      "ipa": "ˈka.sa",
+      "english": "house",
+      "category": "vowels",
+      "difficulty": "beginner",
+      "focus_sound": "a",
+      "tip": "The 'a' sound is always like 'ah' in father, never like 'ay' in day",
+      "common_mistakes": ["Pronouncing 'a' as 'ay' like in English 'case'"]
+    },
+    {
+      "id": "v002",
+      "text": "vino",
+      "ipa": "ˈvi.no",
+      "english": "wine",
+      "category": "vowels",
+      "difficulty": "beginner",
+      "focus_sound": "i",
+      "tip": "The 'i' is always like 'ee' in feet, crisp and short",
+      "common_mistakes": ["Making it too long or diphthongized"]
+    },
+    {
+      "id": "v003",
+      "text": "dove",
+      "ipa": "ˈdo.ve",
+      "english": "where",
+      "category": "vowels",
+      "difficulty": "beginner",
+      "focus_sound": "o",
+      "tip": "The 'o' is pure, like 'oh' but without gliding to 'oo'",
+      "common_mistakes": ["Adding a 'w' sound at the end like English 'go'"]
+    },
+    {
+      "id": "v004",
+      "text": "tu",
+      "ipa": "tu",
+      "english": "you",
+      "category": "vowels",
+      "difficulty": "beginner",
+      "focus_sound": "u",
+      "tip": "The 'u' is always 'oo' like in 'food', never 'uh'",
+      "common_mistakes": ["Pronouncing like English 'you' with a 'y' sound"]
+    },
+    {
+      "id": "v005",
+      "text": "bene",
+      "ipa": "ˈbɛ.ne",
+      "english": "well",
+      "category": "vowels",
+      "difficulty": "beginner",
+      "focus_sound": "e",
+      "tip": "The 'e' is like 'eh' in bet, clear and open",
+      "common_mistakes": ["Making it sound like 'ay' in bay"]
+    },
+    {
+      "id": "c001",
+      "text": "ciao",
+      "ipa": "ˈtʃa.o",
+      "english": "hello/bye",
+      "category": "consonants",
+      "difficulty": "beginner",
+      "focus_sound": "ci",
+      "tip": "'Ci' before 'a' makes a 'ch' sound like in 'chair'",
+      "common_mistakes": ["Saying 'see-ah-oh' or 'kai-oh'"]
+    },
+    {
+      "id": "c002",
+      "text": "gatto",
+      "ipa": "ˈɡat.to",
+      "english": "cat",
+      "category": "consonants",
+      "difficulty": "beginner",
+      "focus_sound": "g",
+      "tip": "Hard 'g' like in 'go', never soft",
+      "common_mistakes": ["Making it soft like 'j' in 'giant'"]
+    },
+    {
+      "id": "c003",
+      "text": "Roma",
+      "ipa": "ˈro.ma",
+      "english": "Rome",
+      "category": "consonants",
+      "difficulty": "beginner",
+      "focus_sound": "r",
+      "tip": "Roll the 'r' with the tip of your tongue against the roof of your mouth",
+      "common_mistakes": ["Using English 'r' sound from the back of throat"]
+    },
+    {
+      "id": "c004",
+      "text": "zero",
+      "ipa": "ˈdzɛ.ro",
+      "english": "zero",
+      "category": "consonants",
+      "difficulty": "beginner",
+      "focus_sound": "z",
+      "tip": "'Z' can be voiced like 'dz' in this word",
+      "common_mistakes": ["Using English 'z' sound"]
+    },
+    {
+      "id": "d001",
+      "text": "penna",
+      "ipa": "ˈpen.na",
+      "english": "pen",
+      "category": "double_consonants",
+      "difficulty": "intermediate",
+      "focus_sound": "nn",
+      "tip": "Hold the 'n' sound longer - it changes the meaning! (pena = sorrow)",
+      "common_mistakes": ["Not holding the double consonant long enough"]
+    },
+    {
+      "id": "d002",
+      "text": "fatto",
+      "ipa": "ˈfat.to",
+      "english": "done/fact",
+      "category": "double_consonants",
+      "difficulty": "intermediate",
+      "focus_sound": "tt",
+      "tip": "Stop completely on the 't', then release. Compare with 'fato' (fate)",
+      "common_mistakes": ["Rushing through the double consonant"]
+    },
+    {
+      "id": "d003",
+      "text": "caffè",
+      "ipa": "kafˈfɛ",
+      "english": "coffee",
+      "category": "double_consonants",
+      "difficulty": "intermediate",
+      "focus_sound": "ff",
+      "tip": "Hold the 'f' sound noticeably longer than single 'f'",
+      "common_mistakes": ["Saying it like single 'f' - sounds like 'cafe'"]
+    },
+    {
+      "id": "d004",
+      "text": "anno",
+      "ipa": "ˈan.no",
+      "english": "year",
+      "category": "double_consonants",
+      "difficulty": "intermediate",
+      "focus_sound": "nn",
+      "tip": "Double 'n' is crucial - 'ano' means anus!",
+      "common_mistakes": ["Single 'n' changes meaning completely"]
+    },
+    {
+      "id": "d005",
+      "text": "bella",
+      "ipa": "ˈbɛl.la",
+      "english": "beautiful (fem)",
+      "category": "double_consonants",
+      "difficulty": "intermediate",
+      "focus_sound": "ll",
+      "tip": "The double 'l' should be noticeably longer",
+      "common_mistakes": ["Saying 'bela' like Spanish"]
+    },
+    {
+      "id": "cb001",
+      "text": "gnocchi",
+      "ipa": "ˈɲɔk.ki",
+      "english": "potato dumplings",
+      "category": "combinations",
+      "difficulty": "intermediate",
+      "focus_sound": "gn",
+      "tip": "'Gn' makes a sound like 'ny' in canyon or Spanish ñ",
+      "common_mistakes": ["Saying 'g' and 'n' separately"]
+    },
+    {
+      "id": "cb002",
+      "text": "figlio",
+      "ipa": "ˈfiʎ.ʎo",
+      "english": "son",
+      "category": "combinations",
+      "difficulty": "intermediate",
+      "focus_sound": "gl",
+      "tip": "'Gli' sounds like 'lli' in million, tongue on palate",
+      "common_mistakes": ["Saying 'glee-oh' or 'fig-lee-oh'"]
+    },
+    {
+      "id": "cb003",
+      "text": "pesce",
+      "ipa": "ˈpe.ʃe",
+      "english": "fish",
+      "category": "combinations",
+      "difficulty": "intermediate",
+      "focus_sound": "sc",
+      "tip": "'Sce' makes 'sh' sound before e/i",
+      "common_mistakes": ["Saying 'pess-keh' or 'pess-see'"]
+    },
+    {
+      "id": "cb004",
+      "text": "cena",
+      "ipa": "ˈtʃe.na",
+      "english": "dinner",
+      "category": "combinations",
+      "difficulty": "intermediate",
+      "focus_sound": "ce",
+      "tip": "'Ce' sounds like 'che' in chess",
+      "common_mistakes": ["Saying 'sena' or 'kay-na'"]
+    },
+    {
+      "id": "cb005",
+      "text": "chiesa",
+      "ipa": "ˈkjɛ.za",
+      "english": "church",
+      "category": "combinations",
+      "difficulty": "intermediate",
+      "focus_sound": "ch",
+      "tip": "'Chi' makes a hard 'k' sound before e/i",
+      "common_mistakes": ["Saying 'chee-eh-za' with English 'ch'"]
+    },
+    {
+      "id": "p001",
+      "text": "Come stai?",
+      "ipa": "ˈko.me ˈstai",
+      "english": "How are you?",
+      "category": "phrases",
+      "difficulty": "advanced",
+      "focus_sound": "full phrase",
+      "tip": "Connect naturally without pausing between words",
+      "common_mistakes": ["Over-separating each word"]
+    },
+    {
+      "id": "p002",
+      "text": "Buongiorno!",
+      "ipa": "bwonˈdʒor.no",
+      "english": "Good morning!",
+      "category": "phrases",
+      "difficulty": "advanced",
+      "focus_sound": "buon + giorno",
+      "tip": "Blend 'buon' and 'giorno' smoothly; 'gi' is like 'j' in joy",
+      "common_mistakes": ["Separating into 'buon ... giorno'"]
+    },
+    {
+      "id": "p003",
+      "text": "Mi dispiace",
+      "ipa": "mi disˈpja.tʃe",
+      "english": "I'm sorry",
+      "category": "phrases",
+      "difficulty": "advanced",
+      "focus_sound": "full phrase",
+      "tip": "Natural rhythm with stress on 'pia'",
+      "common_mistakes": ["Mispronouncing 'ce' as 'kay'"]
+    },
+    {
+      "id": "p004",
+      "text": "Dov'è il bagno?",
+      "ipa": "doˈvɛ il ˈbaɲ.ɲo",
+      "english": "Where is the bathroom?",
+      "category": "phrases",
+      "difficulty": "advanced",
+      "focus_sound": "full phrase",
+      "tip": "Watch the 'gn' in bagno - like 'ny' sound",
+      "common_mistakes": ["Saying 'bag-no' instead of 'ban-yo'"]
+    },
+    {
+      "id": "p005",
+      "text": "Grazie mille!",
+      "ipa": "ˈɡrat.tsje ˈmil.le",
+      "english": "Thank you very much!",
+      "category": "phrases",
+      "difficulty": "advanced",
+      "focus_sound": "full phrase",
+      "tip": "Roll the 'r' and stress first syllable of each word",
+      "common_mistakes": ["Not rolling 'r' or stressing wrong syllables"]
+    },
+    {
+      "id": "t001",
+      "text": "Trentatré trentini entrarono a Trento",
+      "ipa": "trentaˈtre trenˈti.ni enˈtra.ro.no a ˈtrɛn.to",
+      "english": "Thirty-three people from Trento entered Trento",
+      "category": "tongue_twisters",
+      "difficulty": "advanced",
+      "focus_sound": "tr + rolling r",
+      "tip": "Focus on rolling each 'r' clearly and the 'tr' combination",
+      "common_mistakes": ["Not rolling r's or rushing through"]
+    },
+    {
+      "id": "t002",
+      "text": "Sopra la panca la capra campa, sotto la panca la capra crepa",
+      "ipa": "ˈso.pra la ˈpaŋ.ka la ˈka.pra ˈkam.pa ˈsot.to la ˈpaŋ.ka la ˈka.pra ˈkrɛ.pa",
+      "english": "Above the bench the goat lives, below the bench the goat dies",
+      "category": "tongue_twisters",
+      "difficulty": "advanced",
+      "focus_sound": "p + c sounds",
+      "tip": "Keep consonants crisp and clear throughout",
+      "common_mistakes": ["Slurring consonants together"]
+    },
+    {
+      "id": "t003",
+      "text": "Tre tigri contro tre tigri",
+      "ipa": "tre ˈti.ɡri ˈkon.tro tre ˈti.ɡri",
+      "english": "Three tigers against three tigers",
+      "category": "tongue_twisters",
+      "difficulty": "advanced",
+      "focus_sound": "tr + rolling r",
+      "tip": "Maintain the rolled 'r' in each 'tre' and 'tigri'",
+      "common_mistakes": ["Dropping the rolled r's"]
+    }
+  ],
+  "scoring_criteria": {
+    "excellent": {
+      "threshold": 90,
+      "message": "🌟 Excellent! Native-like pronunciation!",
+      "color": "#10B981"
+    },
+    "good": {
+      "threshold": 75,
+      "message": "✅ Good job! Almost there!",
+      "color": "#3B82F6"
+    },
+    "fair": {
+      "threshold": 60,
+      "message": "📚 Keep practicing! You're improving!",
+      "color": "#F59E0B"
+    },
+    "needs_work": {
+      "threshold": 0,
+      "message": "💪 Keep trying! Practice makes perfect!",
+      "color": "#EF4444"
+    }
+  },
+  "pronunciation_tips": {
+    "general": [
+      "Italian has pure vowel sounds - avoid English diphthongs",
+      "Every letter is pronounced - no silent letters (except 'h')",
+      "Stress usually falls on the second-to-last syllable",
+      "Double consonants are held longer - this is crucial!",
+      "Roll your R's with the tip of your tongue"
+    ],
+    "vowels": [
+      "A = 'ah' as in 'father'",
+      "E = 'eh' as in 'bet' (open e) or 'ay' as in 'may' (closed e)",
+      "I = 'ee' as in 'feet'",
+      "O = 'oh' as in 'or' (open o) or 'oh' as in 'go' (closed o)",
+      "U = 'oo' as in 'food'"
+    ],
+    "consonants": [
+      "C before e/i = 'ch' sound (ciao, cena)",
+      "C before a/o/u = 'k' sound (casa, come)",
+      "G before e/i = 'j' sound (gelato, giro)",
+      "G before a/o/u = hard 'g' (gatto, gusto)",
+      "GN = 'ny' sound like Spanish ñ (gnocchi)",
+      "GLI = like 'lli' in million (figlio)",
+      "SC before e/i = 'sh' sound (pesce)",
+      "Z = 'ts' or 'dz' depending on word (grazie, zero)"
+    ]
+  }
+}

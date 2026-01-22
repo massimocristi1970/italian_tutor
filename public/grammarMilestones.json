@@ -1,0 +1,258 @@
+{
+  "milestones": {
+    "verb_conjugations": {
+      "present": {
+        "id": "present_tense",
+        "name": "Present Tense Master",
+        "description": "Master present tense conjugations",
+        "icon": "🎯",
+        "color": "#10B981",
+        "requirements": {
+          "regular_are": 5,
+          "regular_ere": 5,
+          "regular_ire": 5,
+          "irregular": 10
+        },
+        "verbs_to_master": [
+          "parlare", "mangiare", "lavorare", "studiare", "amare",
+          "leggere", "scrivere", "vedere", "prendere", "mettere",
+          "dormire", "aprire", "sentire", "partire", "servire",
+          "capire", "finire", "preferire", "pulire", "costruire",
+          "essere", "avere", "andare", "fare", "dire", 
+          "venire", "volere", "potere", "dovere", "sapere"
+        ]
+      },
+      "past": {
+        "id": "past_tense",
+        "name": "Past Tense Explorer",
+        "description": "Use passato prossimo and imperfetto",
+        "icon": "⏮️",
+        "color": "#3B82F6",
+        "requirements": {
+          "passato_prossimo": 10,
+          "imperfetto": 10
+        },
+        "unlocks_after": "present_tense"
+      },
+      "future": {
+        "id": "future_tense",
+        "name": "Future Visionary",
+        "description": "Master future tense",
+        "icon": "🔮",
+        "color": "#8B5CF6",
+        "requirements": {
+          "futuro_semplice": 10
+        },
+        "unlocks_after": "past_tense"
+      },
+      "conditional": {
+        "id": "conditional_mood",
+        "name": "Conditional Expert",
+        "description": "Express hypotheticals and politeness",
+        "icon": "🤔",
+        "color": "#F59E0B",
+        "requirements": {
+          "condizionale": 10
+        },
+        "unlocks_after": "future_tense"
+      },
+      "subjunctive": {
+        "id": "subjunctive_mood",
+        "name": "Subjunctive Scholar",
+        "description": "Master the subjunctive mood",
+        "icon": "🎓",
+        "color": "#EF4444",
+        "requirements": {
+          "congiuntivo": 15
+        },
+        "unlocks_after": "conditional_mood"
+      }
+    },
+    "grammar_structures": {
+      "articles": {
+        "id": "articles_master",
+        "name": "Article Authority",
+        "description": "Use definite and indefinite articles correctly",
+        "icon": "📰",
+        "color": "#06B6D4",
+        "requirements": {
+          "correct_usage": 20
+        }
+      },
+      "pronouns": {
+        "id": "pronoun_pro",
+        "name": "Pronoun Professional",
+        "description": "Master subject and object pronouns",
+        "icon": "👤",
+        "color": "#EC4899",
+        "requirements": {
+          "subject_pronouns": 10,
+          "object_pronouns": 10,
+          "reflexive_pronouns": 5
+        },
+        "unlocks_after": "articles_master"
+      },
+      "prepositions": {
+        "id": "preposition_master",
+        "name": "Preposition Master",
+        "description": "Use prepositions naturally",
+        "icon": "🔗",
+        "color": "#14B8A6",
+        "requirements": {
+          "correct_usage": 25
+        },
+        "unlocks_after": "pronoun_pro"
+      },
+      "agreement": {
+        "id": "agreement_expert",
+        "name": "Agreement Expert",
+        "description": "Master noun-adjective agreement",
+        "icon": "🤝",
+        "color": "#F97316",
+        "requirements": {
+          "gender_agreement": 15,
+          "number_agreement": 15
+        },
+        "unlocks_after": "articles_master"
+      }
+    },
+    "sentence_complexity": {
+      "simple": {
+        "id": "simple_sentences",
+        "name": "Sentence Starter",
+        "description": "Build simple sentences",
+        "icon": "🌱",
+        "color": "#84CC16",
+        "requirements": {
+          "sentences_built": 10
+        }
+      },
+      "compound": {
+        "id": "compound_sentences",
+        "name": "Compound Creator",
+        "description": "Connect ideas with conjunctions",
+        "icon": "🌿",
+        "color": "#22C55E",
+        "requirements": {
+          "sentences_built": 20
+        },
+        "unlocks_after": "simple_sentences"
+      },
+      "complex": {
+        "id": "complex_sentences",
+        "name": "Complex Constructor",
+        "description": "Use subordinate clauses",
+        "icon": "🌳",
+        "color": "#059669",
+        "requirements": {
+          "sentences_built": 30
+        },
+        "unlocks_after": "compound_sentences"
+      }
+    },
+    "vocabulary": {
+      "beginner": {
+        "id": "vocab_100",
+        "name": "Word Collector",
+        "description": "Learn 100 words",
+        "icon": "📚",
+        "color": "#6366F1",
+        "requirements": {
+          "unique_words_used": 100
+        }
+      },
+      "intermediate": {
+        "id": "vocab_300",
+        "name": "Vocabulary Builder",
+        "description": "Learn 300 words",
+        "icon": "📖",
+        "color": "#8B5CF6",
+        "requirements": {
+          "unique_words_used": 300
+        },
+        "unlocks_after": "vocab_100"
+      },
+      "advanced": {
+        "id": "vocab_500",
+        "name": "Wordsmith",
+        "description": "Learn 500 words",
+        "icon": "📕",
+        "color": "#A855F7",
+        "requirements": {
+          "unique_words_used": 500
+        },
+        "unlocks_after": "vocab_300"
+      }
+    },
+    "consistency": {
+      "daily_practice": {
+        "id": "daily_learner",
+        "name": "Daily Learner",
+        "description": "Practice 7 days in a row",
+        "icon": "🔥",
+        "color": "#F97316",
+        "requirements": {
+          "consecutive_days": 7
+        }
+      },
+      "weekly_warrior": {
+        "id": "weekly_warrior",
+        "name": "Weekly Warrior",
+        "description": "Practice 30 days in a row",
+        "icon": "⚡",
+        "color": "#EF4444",
+        "requirements": {
+          "consecutive_days": 30
+        },
+        "unlocks_after": "daily_learner"
+      },
+      "dedication": {
+        "id": "dedicated_student",
+        "name": "Dedicated Student",
+        "description": "Practice 100 days total",
+        "icon": "🏆",
+        "color": "#DC2626",
+        "requirements": {
+          "total_days": 100
+        }
+      }
+    }
+  },
+  "skill_areas": [
+    {
+      "id": "verbs",
+      "name": "Verb Conjugation",
+      "icon": "🔄",
+      "color": "#10B981",
+      "description": "Master verb forms across all tenses"
+    },
+    {
+      "id": "grammar",
+      "name": "Grammar Structures",
+      "icon": "📐",
+      "color": "#3B82F6",
+      "description": "Articles, pronouns, prepositions, and agreement"
+    },
+    {
+      "id": "sentences",
+      "name": "Sentence Building",
+      "icon": "🏗️",
+      "color": "#8B5CF6",
+      "description": "Create increasingly complex sentences"
+    },
+    {
+      "id": "vocabulary",
+      "name": "Vocabulary",
+      "icon": "💬",
+      "color": "#F59E0B",
+      "description": "Expand your word knowledge"
+    },
+    {
+      "id": "consistency",
+      "name": "Practice Streak",
+      "icon": "📅",
+      "color": "#EF4444",
+      "description": "Build a daily learning habit"
+    }
+  ]
+}

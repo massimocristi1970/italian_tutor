@@ -18,7 +18,8 @@ async function loadJsonFile(filename) {
   }
 
   try {
-    const response = await fetch(`/src/data/${filename}`);
+    // Data files are served from root (public directory)
+    const response = await fetch(`/${filename}`);
     if (!response.ok) {
       throw new Error(`Failed to load ${filename}: ${response.status}`);
     }
