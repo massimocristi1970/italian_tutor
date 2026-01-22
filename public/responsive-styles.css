@@ -1,0 +1,992 @@
+/* ========================================
+   PHASE 6 PART 1 - RESPONSIVE DESIGN
+   Mobile-First, Touch-Optimized Styles
+   ======================================== */
+
+/* ===== ROOT VARIABLES FOR RESPONSIVE ===== */
+:root {
+  --mobile-nav-height: 60px;
+  --mobile-header-height: 56px;
+  --touch-target-min: 44px;
+  --mobile-padding: 12px;
+  --tablet-padding: 16px;
+  --desktop-padding: 24px;
+}
+
+/* ===== MOBILE BOTTOM NAVIGATION ===== */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--mobile-nav-height);
+  background: var(--bg-primary);
+  border-top: 2px solid var(--border-color);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 8px 0;
+}
+
+/* ===== UNIVERSAL BUTTON FIXES (ALL SCREEN SIZES) ===== */
+/* These fixes apply to ALL breakpoints to prevent button overflow */
+
+/* Prevent horizontal scrolling from buttons */
+body {
+  overflow-x: hidden;
+}
+
+/* Target the container that holds those colorful buttons */
+.progress-dashboard > div:not(.progress-header):not(.stats-grid):not(.skills-grid),
+div[style*="display: flex"][style*="gap"],
+div[style*="display:flex"][style*="gap"] {
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ensure no button causes horizontal overflow */
+button,
+a[role="button"] {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.mobile-nav-items {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 4px;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  padding: 4px 2px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  min-height: var(--touch-target-min);
+  font-size: 0.65rem;
+  font-weight: 600;
+  max-width: 25%;
+}
+
+.mobile-nav-item i {
+  font-size: 1.2rem;
+}
+
+.mobile-nav-item.active {
+  color: #6366f1;
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.95);
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 8px;
+}
+
+/* ===== MOBILE HAMBURGER MENU ===== */
+.mobile-menu-btn {
+  display: flex;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.mobile-menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.mobile-menu-panel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 280px;
+  max-width: 85vw;
+  height: 100%;
+  background: var(--bg-primary);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 2001;
+  padding: 20px;
+  overflow-y: auto;
+  transition: right 0.3s ease-out;
+}
+
+.mobile-menu-panel.open {
+  right: 0;
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.mobile-menu-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+}
+
+.mobile-menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-menu-item {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+  min-height: var(--touch-target-min);
+}
+
+.mobile-menu-item i {
+  font-size: 1.2rem;
+  width: 24px;
+}
+
+.mobile-menu-item:active {
+  transform: scale(0.98);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* ===== MOBILE RESPONSIVE BREAKPOINTS ===== */
+
+/* MOBILE PHONES (< 768px) */
+@media (max-width: 767px) {
+  
+  /* Prevent horizontal overflow */
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  * {
+    max-width: 100%;
+  }
+
+  /* Show mobile navigation */
+  .mobile-bottom-nav {
+    display: block;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  /* Add bottom padding to prevent content being hidden by bottom nav */
+  body {
+    padding-bottom: var(--mobile-nav-height);
+  }
+
+  /* ===== HEADER ADJUSTMENTS ===== */
+  header {
+    padding: 10px !important;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  header h1 {
+    font-size: 1.1rem !important;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .header-controls {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* Make dropdowns VERY small with text overflow handling */
+  #language-select,
+  #level-select {
+    flex: 1 1 auto;
+    min-width: 70px;
+    max-width: 110px;
+    font-size: 0.65rem !important;
+    padding: 6px 4px !important;
+    padding-right: 18px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Force option text to be shorter on mobile */
+  #level-select option {
+    font-size: 0.65rem;
+  }
+
+  /* Ensure icons/buttons don't push dropdowns off screen */
+  #logout-btn,
+  .mobile-menu-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    padding: 8px !important;
+    flex-shrink: 0;
+  }
+
+  /* Make dropdown arrows smaller */
+  .relative i.fa-chevron-down {
+    font-size: 0.7rem !important;
+  }
+
+  /* ===== MAIN LAYOUT ===== */
+  main {
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: var(--mobile-padding) !important;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  main > div,
+  main > section {
+    width: 100% !important;
+    max-width: 100%;
+    margin: 0 !important;
+  }
+
+  /* ===== SENTENCE BUILDER ===== */
+  section {
+    padding: var(--mobile-padding) !important;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  /* Ensure all buttons are properly sized */
+  button {
+    max-width: 100%;
+    word-wrap: break-word;
+  }
+
+  .text-xl {
+    font-size: 1.1rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.4rem !important;
+  }
+
+  #exercise-area {
+    padding: 12px !important;
+  }
+
+  #current-goal {
+    font-size: 1.1rem !important;
+  }
+
+  /* Word Bank - 3 columns on mobile */
+  #word-bank {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* Make word buttons touch-friendly */
+  .word-btn {
+    min-height: var(--touch-target-min);
+    padding: 8px 4px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Sentence builder area */
+  #selected-sentence {
+    min-height: 70px !important;
+    padding: 10px !important;
+    gap: 6px !important;
+  }
+
+  .selected-word {
+    padding: 6px 10px !important;
+    font-size: 0.85rem !important;
+    min-height: 36px;
+  }
+
+  /* Action buttons - make them touch-friendly */
+  #submit-btn,
+  #clear-btn {
+    min-height: var(--touch-target-min);
+    font-size: 0.95rem !important;
+    padding: 12px 16px !important;
+  }
+
+  #feedback-message {
+    font-size: 0.9rem !important;
+    padding: 12px !important;
+  }
+
+  /* ===== TABBED SECTIONS ===== */
+  .tab-btn {
+    padding: 10px 12px !important;
+    font-size: 0.9rem !important;
+    min-height: var(--touch-target-min);
+  }
+
+  /* ===== COMMON PHRASES ===== */
+  #phrase-list > div {
+    padding: 12px !important;
+  }
+
+  .audio-btn {
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 1.2rem;
+  }
+
+  /* ===== VERB TRAINER ===== */
+  #verb-select {
+    font-size: 0.9rem !important;
+    padding: 12px !important;
+    min-height: var(--touch-target-min);
+  }
+
+  .conjugation-form {
+    gap: 12px !important;
+  }
+
+  .conjugation-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .conjugation-row label {
+    min-width: auto !important;
+    text-align: left !important;
+  }
+
+  .conjugation-row input {
+    width: 100% !important;
+    min-height: var(--touch-target-min);
+    font-size: 1rem !important;
+  }
+
+  /* ===== CHAT INTERFACE ===== */
+  #chat-messages {
+    max-height: 400px !important;
+    padding: 12px !important;
+  }
+
+  .user-message,
+  .tutor-message {
+    padding: 10px 12px !important;
+    font-size: 0.9rem !important;
+    max-width: 85% !important;
+  }
+
+  #chat-input {
+    font-size: 0.95rem !important;
+    padding: 12px !important;
+    min-height: var(--touch-target-min);
+  }
+
+  #send-chat-btn {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: 12px !important;
+  }
+
+  /* ===== PROGRESS DASHBOARD ===== */
+  .progress-dashboard {
+    padding: var(--mobile-padding) !important;
+    margin-bottom: 16px !important;
+    overflow: visible !important;
+  }
+
+  .progress-header h2 {
+    font-size: 1.2rem !important;
+  }
+
+  /* Fix for feature buttons (Practice Conversations, etc.) */
+  /* Target all possible button containers */
+  .progress-dashboard .feature-buttons,
+  .progress-dashboard > div:last-child,
+  .quick-actions,
+  .practice-buttons,
+  .action-buttons,
+  div[class*="button"],
+  div[class*="action"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 12px !important;
+  }
+
+  /* Force ALL buttons in progress dashboard to be full width */
+  .progress-dashboard button,
+  .progress-dashboard a[role="button"],
+  .quick-actions button,
+  .practice-buttons button,
+  .action-buttons button {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    text-align: center !important;
+    padding: 12px 16px !important;
+    font-size: 0.9rem !important;
+    display: block !important;
+    margin: 0 !important;
+  }
+
+  /* Specifically target those colorful gradient buttons */
+  button[class*="gradient"],
+  button[class*="bg-purple"],
+  button[class*="bg-orange"],
+  button[class*="bg-yellow"],
+  button[class*="bg-green"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .stat-item {
+    padding: 12px !important;
+  }
+
+  .stat-value {
+    font-size: 1.5rem !important;
+  }
+
+  .stat-label {
+    font-size: 0.75rem !important;
+  }
+
+  .skills-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .skill-card {
+    padding: 12px !important;
+  }
+
+  .milestone-item {
+    padding: 10px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* ===== CONVERSATION SCENARIOS ===== */
+  .scenarios-modal-content {
+    max-width: 95% !important;
+    width: 95% !important;
+    padding: 16px !important;
+    max-height: 95vh !important;
+  }
+
+  .scenarios-title {
+    font-size: 1.3rem !important;
+  }
+
+  .category-tabs {
+    gap: 6px !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 12px;
+  }
+
+  .category-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-tab {
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+    min-height: 40px;
+    white-space: nowrap;
+  }
+
+  .scenarios-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .scenario-card {
+    padding: 16px !important;
+  }
+
+  /* Active scenario view */
+  .scenario-active-view {
+    padding: 12px !important;
+  }
+
+  .dialogue-message {
+    padding: 10px 12px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .response-options {
+    gap: 8px !important;
+  }
+
+  .response-option {
+    padding: 12px !important;
+    font-size: 0.9rem !important;
+    min-height: var(--touch-target-min);
+  }
+
+  /* ===== ALTERNATIVE EXPRESSIONS PANEL ===== */
+  .alternatives-panel {
+    padding: var(--mobile-padding) !important;
+    margin-top: 12px !important;
+  }
+
+  .alternatives-title {
+    font-size: 1rem !important;
+  }
+
+  .alternative-item {
+    padding: 10px !important;
+  }
+
+  .alternative-text {
+    font-size: 0.9rem !important;
+  }
+
+  .context-badge {
+    font-size: 0.7rem !important;
+    padding: 3px 8px !important;
+  }
+
+  .context-filter {
+    padding: 10px !important;
+    gap: 6px !important;
+  }
+
+  .context-filter-btn {
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
+    min-height: 36px;
+  }
+
+  /* ===== PRONUNCIATION PRACTICE ===== */
+  .pronunciation-panel {
+    padding: 16px !important;
+    max-height: 90vh !important;
+  }
+
+  .pronunciation-target {
+    font-size: 1.8rem !important;
+    padding: 20px !important;
+  }
+
+  .pronunciation-controls {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .pronunciation-btn {
+    width: 100% !important;
+    min-height: var(--touch-target-min);
+    font-size: 0.95rem !important;
+  }
+
+  /* ===== FLUENCY CHALLENGES ===== */
+  .fluency-panel {
+    padding: 16px !important;
+    max-height: 95vh !important;
+  }
+
+  .challenge-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .challenge-card {
+    padding: 16px !important;
+  }
+
+  .timer-display {
+    font-size: 2rem !important;
+  }
+
+  /* ===== SRS FLASHCARDS ===== */
+  .flashcard {
+    min-height: 280px !important;
+    padding: 20px !important;
+    margin: 16px !important;
+  }
+
+  .flashcard-text {
+    font-size: 1.8rem !important;
+  }
+
+  .flashcard-translation {
+    font-size: 1.2rem !important;
+  }
+
+  .srs-buttons {
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 0 16px !important;
+  }
+
+  .srs-btn {
+    width: 100% !important;
+    min-height: var(--touch-target-min);
+    font-size: 0.95rem !important;
+  }
+
+  /* ===== PROGRESS REPORT ===== */
+  .progress-report-panel {
+    padding: 16px !important;
+    max-height: 95vh !important;
+  }
+
+  .report-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .report-card {
+    padding: 16px !important;
+  }
+
+  /* ===== AI CHAT TUTOR ===== */
+  .conversation-mode-toggle {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .mode-btn {
+    width: 100% !important;
+    min-height: var(--touch-target-min);
+  }
+
+  /* ===== MODALS ===== */
+  .modal-overlay {
+    padding: 16px !important;
+  }
+
+  .modal-content {
+    padding: 16px !important;
+    max-width: 95% !important;
+  }
+
+  .modal-title {
+    font-size: 1.2rem !important;
+  }
+
+  .modal-buttons {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .modal-buttons button {
+    width: 100% !important;
+    min-height: var(--touch-target-min);
+  }
+
+  /* ===== ACHIEVEMENT POPUPS ===== */
+  .achievement-popup {
+    max-width: 90% !important;
+    padding: 16px !important;
+  }
+
+  /* ===== DARK MODE ADJUSTMENTS ===== */
+  .dark .mobile-bottom-nav {
+    background: var(--bg-secondary);
+    border-top-color: #374151;
+  }
+
+  .dark .mobile-menu-panel {
+    background: var(--bg-secondary);
+  }
+}
+
+/* TABLET (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  
+  /* Optimize for tablet - two column but more compact */
+  main {
+    gap: 20px !important;
+    padding: var(--tablet-padding) !important;
+  }
+
+  section {
+    padding: 18px !important;
+  }
+
+  /* Word bank - 4 columns on tablet */
+  #word-bank {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+
+  /* Touch-friendly buttons */
+  .word-btn,
+  #submit-btn,
+  #clear-btn,
+  .tab-btn,
+  .audio-btn {
+    min-height: 42px;
+    min-width: 42px;
+  }
+
+  /* TABLET: Feature buttons should wrap properly */
+  .progress-dashboard > div:not(.progress-header):not(.stats-grid):not(.skills-grid) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .progress-dashboard button {
+    flex: 0 1 auto;
+    min-width: 140px;
+    max-width: calc(50% - 5px);
+  }
+
+  /* Progress dashboard */
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+
+  .skills-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Scenarios grid */
+  .scenarios-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Challenge grid */
+  .challenge-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Report grid */
+  .report-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* LARGE DESKTOP (> 1024px) */
+@media (min-width: 1025px) {
+  /* Keep current desktop design */
+  /* Could add optional wider layouts here if needed */
+  
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .scenarios-modal-content {
+    max-width: 1000px;
+  }
+
+  /* DESKTOP: Fix for feature buttons */
+  /* Make them wrap instead of overflow */
+  .progress-dashboard > div:not(.progress-header):not(.stats-grid):not(.skills-grid) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  /* Desktop buttons should be inline but not cause overflow */
+  .progress-dashboard button,
+  .quick-actions button {
+    flex: 0 1 auto;
+    min-width: 150px;
+    max-width: calc(50% - 6px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ===== LANDSCAPE MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 767px) and (orientation: landscape) {
+  /* Reduce vertical padding in landscape */
+  section {
+    padding: 10px !important;
+  }
+
+  #exercise-area {
+    padding: 10px !important;
+  }
+
+  #chat-messages {
+    max-height: 200px !important;
+  }
+
+  .flashcard {
+    min-height: 200px !important;
+  }
+
+  .scenarios-modal-content {
+    max-height: 85vh !important;
+  }
+}
+
+/* ===== EXTRA SMALL SCREENS (< 360px) ===== */
+@media (max-width: 359px) {
+  /* Stack header controls vertically on very small screens */
+  .header-controls {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  #language-select,
+  #level-select {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  #logout-btn,
+  .mobile-menu-btn {
+    align-self: flex-end;
+  }
+
+  .mobile-nav-item {
+    font-size: 0.6rem;
+  }
+
+  .mobile-nav-item i {
+    font-size: 1rem;
+  }
+}
+
+/* ===== TOUCH DEVICE OPTIMIZATIONS ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* Styles specific to touch devices */
+  
+  /* Remove hover effects, use active instead */
+  button:hover {
+    transform: none;
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  /* Larger touch targets globally */
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  select {
+    min-height: var(--touch-target-min);
+  }
+
+  /* Better input focus for virtual keyboards */
+  input:focus,
+  textarea:focus {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+
+  /* Smooth scrolling on touch */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== ANIMATION FOR MOBILE PANELS ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .mobile-bottom-nav,
+  .mobile-menu-btn,
+  header,
+  #chat-interface,
+  button {
+    display: none !important;
+  }
+
+  main {
+    display: block !important;
+  }
+
+  section {
+    page-break-inside: avoid;
+  }
+}
