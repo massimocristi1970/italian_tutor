@@ -82,3 +82,7 @@ coverage/
 # Python venv
 .venv/
 
+# ---- IDEs ----
+.idea/
+.vscode/
+
